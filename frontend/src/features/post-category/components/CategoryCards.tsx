@@ -8,8 +8,7 @@ const postCategories: PostCategory[] = [
       <Image src="/svg/light_bulb.svg" width={50} height={50} alt="solution" />
     ),
     title: "Solution",
-    description:
-      "競技プログラミングコンテストの問題への解説記事には、Solution を選びます。",
+    description: "コンテストの問題への解説記事には、Solution を選びます。",
     examples: [
       { message: "(例) ABC338 C 問題の解説" },
       { message: "(例) ABC331 D 問題 - O(n) 解法 " },
@@ -21,8 +20,7 @@ const postCategories: PostCategory[] = [
       <Image src="/svg/algorithm.svg" width={50} height={50} alt="algorithm" />
     ),
     title: "Algorithm",
-    description:
-      "アルゴリズムなどに関連したトピックなどには、Algorithm を選びます。",
+    description: "アルゴリズム等に関連したトピックには、Algorithm を選びます。",
     examples: [
       { message: "(例) DFS の動作解説" },
       { message: "(例) 重みつき UnionFind の実装" },

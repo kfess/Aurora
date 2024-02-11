@@ -1,4 +1,5 @@
 import { Card, Group, Text, Button, Title, Flex, Badge } from "@mantine/core";
+import { HiOutlinePencilAlt } from "react-icons/hi";
 import { List } from "@/features/common/components/List";
 
 export interface PostCategory {
@@ -30,7 +31,14 @@ export function CategoryCard({
       </Text>
       <List items={examples} />
       <Flex justify="flex-end">
-        <Button variant="filled" color="violet" mt="lg" radius="md" w={"auto"}>
+        <Button
+          leftSection={<HiOutlinePencilAlt size="18" />}
+          variant="filled"
+          color="violet"
+          mt="lg"
+          radius="md"
+          w={"auto"}
+        >
           記事を投稿
         </Button>
       </Flex>
