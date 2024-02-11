@@ -1,4 +1,4 @@
-import { Card, Group, Text, Button, Title, Flex } from "@mantine/core";
+import { Card, Group, Text, Button, Title, Flex, Badge } from "@mantine/core";
 import { List } from "@/features/common/components/List";
 
 export interface PostCategory {
@@ -19,8 +19,15 @@ export function CategoryCard({
       <Group mb="xs">
         {icon}
         <Title order={2}>{title}</Title>
+        {(title === "Solution" || title === "Typical Pattern") && (
+          <Badge variant="light" color="red">
+            Help needed
+          </Badge>
+        )}
       </Group>
-      <Text size="sm">{description}</Text>
+      <Text size="sm" my="xs">
+        {description}
+      </Text>
       <List items={examples} />
       <Flex justify="flex-end">
         <Button variant="filled" color="violet" mt="lg" radius="md" w={"auto"}>
