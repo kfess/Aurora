@@ -14,9 +14,7 @@ export function Followings({ followings }: Props) {
       onClick={noop}
       px={0}
     >
-      <Text fw="bold" c="dark">
-        {`${followings} Followings`}
-      </Text>
+      {`${followings} Followings`}
     </Button>
   );
 }

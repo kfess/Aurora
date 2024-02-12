@@ -1,4 +1,4 @@
-import { Button, Text } from "@mantine/core";
+import { Button } from "@mantine/core";
 import { noop } from "@/utils/etc";
 
 interface Props {
@@ -14,9 +14,7 @@ export function Likes({ likes }: Props) {
       onClick={noop}
       px={0}
     >
-      <Text fw="bold" c="dark">
-        {`${likes} Likes`}
-      </Text>
+      {`${likes} Likes`}
     </Button>
   );
 }
