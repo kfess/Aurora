@@ -9,6 +9,9 @@ import {
   Stack,
 } from "@mantine/core";
 import { SocialLinkIcons } from "@/components/SocialLink/SocialLinkIcons";
+import { Likes } from "./Likes";
+import { Followings } from "./Followings";
+import { CompetitiveUserNames } from "./CompetitiveUserNames";
 
 export function OverlapUserInfo() {
   return (
@@ -38,6 +41,16 @@ export function OverlapUserInfo() {
               homePageUrl="https://kfess.com"
             />
           </Group>
+          <Group gap="xs">
+            <Likes likes={1} />
+            <Followings followings={1} />
+          </Group>
+          <CompetitiveUserNames
+            atcoderUserName="mugilily"
+            codeforcesUserName="applemelon"
+            aizuOnlineJudgeUserName="#"
+            yukicoderUserName="#"
+          />
         </Stack>
       </Container>
     </>
