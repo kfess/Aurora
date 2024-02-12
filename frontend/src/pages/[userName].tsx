@@ -1,6 +1,7 @@
 import { Button, Container, Group, Tabs } from "@mantine/core";
 import { HiOutlinePencilAlt } from "react-icons/hi";
 import { OverlapUserInfo } from "@/features/profile/components/OverlapUserInfo";
+import { ArticleList } from "@/features/articles/components/ArticleList";
 
 export default function UserPage() {
   return (
@@ -39,7 +40,9 @@ export default function UserPage() {
           </Tabs.Tab>
         </Tabs.List>
         <Container size="xl" px={{ sm: "md", md: "xl" }}>
-          <Tabs.Panel value="Solution">Solution tab content</Tabs.Panel>
+          <Tabs.Panel value="Solution">
+            <ArticleList />
+          </Tabs.Panel>
           <Tabs.Panel value="Algorithm">Algorithm tab content</Tabs.Panel>
           <Tabs.Panel value="Typical">TypicalTechnique tab content</Tabs.Panel>
           <Tabs.Panel value="Idea">Idea tab content</Tabs.Panel>

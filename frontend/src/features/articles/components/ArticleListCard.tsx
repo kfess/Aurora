@@ -10,7 +10,9 @@ export function ArticleListCard({ isFirst = false }: Props) {
       <Flex justify="space-between" direction="row">
         <div>
           <Group gap={10}>
-            <Title mb={4}>データ構造をマージする一般的なテク</Title>
+            <Title mb={4} className="text-base sm:text-lg ">
+              データ構造をマージする一般的なテク
+            </Title>
           </Group>
           <Group gap={10} align="center">
             <Badge color="violet" radius="sm">
