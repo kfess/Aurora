@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Box } from "@mantine/core";
 import { FaGithub } from "react-icons/fa";
 import { RiTwitterXFill } from "react-icons/ri";
@@ -8,45 +9,39 @@ import { FaRss } from "react-icons/fa";
 import { SocialLinkProps } from "./types";
 import { generateSocialMediaLinkUrl } from "./utils";
 
+// Icon コンポーネントの Mapping
+const IconMapping = {
+  GitHub: FaGithub,
+  X: RiTwitterXFill,
+  Facebook: FaFacebook,
+  HomePage: FiLink,
+  Discord: FaDiscord,
+  RSS: FaRss,
+};
+
 export function SocialLinkIcon(props: SocialLinkProps) {
-  const { type, size = 24, color = "gray" } = props;
+  const { type, size = 20, color = "gray" } = props;
 
-  const IconComponent = ({ size, color }: { size: number; color: string }) => {
-    switch (type) {
-      case "GitHub":
-        return <FaGithub size={size} color={color} />;
-      case "X":
-        return <RiTwitterXFill size={size} color={color} />;
-      case "Facebook":
-        return <FaFacebook size={size} color={color} />;
-      case "HomePage":
-        return <FiLink size={size} color={color} />;
-      case "Discord":
-        return <FaDiscord size={size} color={color} />;
-      case "RSS":
-        return <FaRss size={size} color={color} />;
-      default:
-        return <FiLink size={size} color={color} />;
-    }
-  };
+  // hover 時の色を管理するための state
+  const [currentColor, setCurrentColor] = useState(color);
 
-  if (type === "HomePage") {
-    return (
-      <Box
-        component="a"
-        href={props.url}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <IconComponent size={size} color={color} />
-      </Box>
-    );
-  }
+  const href =
+    type === "HomePage"
+      ? props.url
+      : generateSocialMediaLinkUrl(type, props.userName);
 
-  const url = generateSocialMediaLinkUrl(type, props.userName);
+  const IconComponent = IconMapping[type] || FiLink;
+
   return (
-    <Box component="a" href={url} target="_blank" rel="noopener noreferrer">
-      <IconComponent size={size} color={color} />
+    <Box
+      component="a"
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      onMouseEnter={() => setCurrentColor("black")}
+      onMouseLeave={() => setCurrentColor(color)}
+    >
+      <IconComponent size={size} color={currentColor} />
     </Box>
   );
 }

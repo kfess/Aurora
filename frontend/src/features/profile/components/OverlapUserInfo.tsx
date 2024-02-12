@@ -1,6 +1,5 @@
 import {
   Container,
-  Card,
   Avatar,
   Text,
   Group,
@@ -9,6 +8,7 @@ import {
   Title,
   Stack,
 } from "@mantine/core";
+import { SocialLinkIcons } from "@/components/SocialLink/SocialLinkIcons";
 
 export function OverlapUserInfo() {
   return (
@@ -28,7 +28,16 @@ export function OverlapUserInfo() {
         </Group>
         <Stack gap="xs">
           <Title order={2}>kfess</Title>
-          <Text>Software Engineer in Japan</Text>
+          <Group justify="space-between">
+            <Text>Software Engineer in Japan</Text>
+            <SocialLinkIcons
+              githubUserName="kfess"
+              xUserName="kfess"
+              facebookUserName="kfess"
+              discordUserName="kfess"
+              homePageUrl="https://kfess.com"
+            />
+          </Group>
         </Stack>
       </Container>
     </>
