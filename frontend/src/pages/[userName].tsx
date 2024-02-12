@@ -20,21 +20,21 @@ export default function UserPage() {
           </Button>
         </Group>
       </Container>
-      <Tabs defaultValue="Solution" color="violet" mt="sm">
+      <Tabs defaultValue="Solution" color="violet" mt="xs">
         <Tabs.List>
-          <Tabs.Tab value="Solution" fw="bold">
+          <Tabs.Tab value="Solution" fw="bold" px="md">
             Solution
           </Tabs.Tab>
-          <Tabs.Tab value="Algorithm" fw="bold">
+          <Tabs.Tab value="Algorithm" fw="bold" px="xs">
             Algorithm
           </Tabs.Tab>
-          <Tabs.Tab value="Typical" fw="bold">
+          <Tabs.Tab value="Typical" fw="bold" px="xs">
             Typical
           </Tabs.Tab>
-          <Tabs.Tab value="Idea" fw="bold">
+          <Tabs.Tab value="Idea" fw="bold" px="xs">
             Idea
           </Tabs.Tab>
-          <Tabs.Tab value="Comment" fw="bold">
+          <Tabs.Tab value="Comment" fw="bold" px="xs">
             Comment
           </Tabs.Tab>
         </Tabs.List>
