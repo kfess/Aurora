@@ -7,6 +7,7 @@ import { FaDiscord } from "react-icons/fa";
 import { FaRss } from "react-icons/fa";
 import { SocialLinkProps } from "./types";
 import { generateSocialMediaLinkUrl } from "./utils";
+import { Box, Stack } from "@mantine/core";
 
 // Icon コンポーネントの Mapping
 const IconMapping = {
@@ -32,14 +33,17 @@ export function SocialLinkIcon(props: SocialLinkProps) {
   const IconComponent = IconMapping[type] || FiLink;
 
   return (
-    <a
+    <Box
+      component="a"
       href={href}
       target="_blank"
       rel="noopener noreferrer"
       onMouseEnter={() => setCurrentColor("black")}
       onMouseLeave={() => setCurrentColor(color)}
     >
-      <IconComponent size={size} color={currentColor} />
-    </a>
+      <Stack>
+        <IconComponent size={size} color={currentColor} />
+      </Stack>
+    </Box>
   );
 }

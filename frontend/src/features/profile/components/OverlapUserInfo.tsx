@@ -8,6 +8,8 @@ import {
   Title,
   Stack,
 } from "@mantine/core";
+import { MdOutlineDescription } from "react-icons/md";
+import { FaRegCalendarAlt } from "react-icons/fa";
 import { SocialLinkIcons } from "@/components/SocialLink/SocialLinkIcons";
 import { Likes } from "./Likes";
 import { Followings } from "./Followings";
@@ -30,9 +32,8 @@ export function OverlapUserInfo() {
           </Button>
         </Group>
         <Stack gap="xs">
-          <Title order={2}>kfess</Title>
           <Group justify="space-between">
-            <Text>Software Engineer in Japan</Text>
+            <Title order={2}>kfess</Title>
             <SocialLinkIcons
               githubUserName="kfess"
               xUserName="kfess"
@@ -41,9 +42,13 @@ export function OverlapUserInfo() {
               homePageUrl="https://kfess.com"
             />
           </Group>
-          <Group gap="xs">
-            <Likes likes={1} />
-            <Followings followings={1} />
+          <Group gap={5} c="dark.3">
+            <MdOutlineDescription />
+            <Text>Software Engineer in Japan</Text>
+          </Group>
+          <Group gap={5} c="dark.3">
+            <FaRegCalendarAlt />
+            <Text>2024 年 1 月から利用しています。</Text>
           </Group>
           <CompetitiveUserNames
             atcoderUserName="mugilily"
@@ -51,6 +56,10 @@ export function OverlapUserInfo() {
             aizuOnlineJudgeUserName="#"
             yukicoderUserName="#"
           />
+          <Group gap="xs">
+            <Likes likes={1} />
+            <Followings followings={1} />
+          </Group>
         </Stack>
       </Container>
     </>
