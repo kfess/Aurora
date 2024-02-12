@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Box } from "@mantine/core";
 import { FaGithub } from "react-icons/fa";
 import { RiTwitterXFill } from "react-icons/ri";
 import { FaFacebook } from "react-icons/fa";
@@ -33,8 +32,7 @@ export function SocialLinkIcon(props: SocialLinkProps) {
   const IconComponent = IconMapping[type] || FiLink;
 
   return (
-    <Box
-      component="a"
+    <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
@@ -42,6 +40,6 @@ export function SocialLinkIcon(props: SocialLinkProps) {
       onMouseLeave={() => setCurrentColor(color)}
     >
       <IconComponent size={size} color={currentColor} />
-    </Box>
+    </a>
   );
 }
