@@ -9,7 +9,11 @@ export function ArticleList({}: Props) {
 
   return (
     <Container size="xl" px={isMobile ? 0 : "md"}>
-      <Stack my={20} gap={0} className="border  border-gray-200 rounded">
+      <Stack
+        my={isMobile ? 5 : 20}
+        gap={0}
+        className={isMobile ? "" : "border  border-gray-200 rounded"}
+      >
         {Array.from({ length: 10 }).map((_, i) => (
           <ArticleListCard key={i} isFirst={i === 0} />
         ))}
