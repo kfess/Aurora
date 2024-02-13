@@ -1,5 +1,5 @@
 import "@/styles/globals.css";
-import { MantineProvider, createTheme } from "@mantine/core";
+import { Badge, MantineProvider, createTheme } from "@mantine/core";
 import type { AppProps } from "next/app";
 import { Layout } from "@/components/Layout";
 
@@ -11,6 +11,11 @@ const theme = createTheme({
     md: "64em",
     lg: "80em",
     xl: "96em",
+  },
+  components: {
+    Badge: Badge.extend({
+      styles: { root: { textTransform: "none" } },
+    }),
   },
 });
 

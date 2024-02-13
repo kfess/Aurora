@@ -33,7 +33,7 @@ export function ArticleListCard({ isMine = false, isFirst = false }: Props) {
             <Text size="xs">1 日前に追加</Text>
             <Group gap={10}>
               {Array.from({ length: 3 }).map((_, i) => (
-                <Badge key={i} color="violet" radius="sm" variant="light">
+                <Badge key={i} color="violet" variant="light">
                   # Union Find
                 </Badge>
               ))}
