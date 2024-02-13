@@ -34,7 +34,7 @@ export function ArticleListCard({ isFirst = false }: Props) {
             </Group>
           </Group>
         </div>
-        <Group gap={10}>
+        <Group gap={12}>
           <LikeCount count={10} />
           <CommentCount count={10} />
         </Group>

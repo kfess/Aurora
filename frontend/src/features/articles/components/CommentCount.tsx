@@ -7,7 +7,7 @@ interface Props {
 
 export function CommentCount({ count = 0 }: Props) {
   return (
-    <Group gap={5} c="gray">
+    <Group gap={4} c="gray">
       <FaRegComment size="16" />
       <Text fw="bold" size="sm">
         {count}
