@@ -10,7 +10,7 @@ export function ArticleList({}: Props) {
   return (
     <Container size="xl" px={isMobile ? 0 : "md"}>
       <Stack
-        my={isMobile ? 5 : 20}
+        my={isMobile ? 10 : 20}
         gap={0}
         className={isMobile ? "" : "border  border-gray-200 rounded"}
       >
