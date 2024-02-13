@@ -39,15 +39,14 @@ export default function UserPage() {
             Comment
           </Tabs.Tab>
         </Tabs.List>
-        <Container size="xl" px={{ sm: "md", md: "xl" }}>
-          <Tabs.Panel value="Solution">
-            <ArticleList />
-          </Tabs.Panel>
-          <Tabs.Panel value="Algorithm">Algorithm tab content</Tabs.Panel>
-          <Tabs.Panel value="Typical">TypicalTechnique tab content</Tabs.Panel>
-          <Tabs.Panel value="Idea">Idea tab content</Tabs.Panel>
-          <Tabs.Panel value="Comment">Comment tab content</Tabs.Panel>
-        </Container>
+
+        <Tabs.Panel value="Solution">
+          <ArticleList />
+        </Tabs.Panel>
+        <Tabs.Panel value="Algorithm">Algorithm tab content</Tabs.Panel>
+        <Tabs.Panel value="Typical">TypicalTechnique tab content</Tabs.Panel>
+        <Tabs.Panel value="Idea">Idea tab content</Tabs.Panel>
+        <Tabs.Panel value="Comment">Comment tab content</Tabs.Panel>
       </Tabs>
     </>
   );
