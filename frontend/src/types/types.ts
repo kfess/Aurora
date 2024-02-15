@@ -6,3 +6,4 @@ export type Platform =
   | "Library Checker";
 
 export type PlatformUserName = `${Uncapitalize<Platform>}UserName`;
+

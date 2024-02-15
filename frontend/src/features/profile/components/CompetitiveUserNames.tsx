@@ -1,6 +1,6 @@
 import { Group } from "@mantine/core";
 import { CompetitiveUserName } from "./CompetitiveUserName";
-import { PlatformUserName } from "@/types/platformTypes";
+import { PlatformUserName } from "@/types/types";
 
 type Props = {
   [K in PlatformUserName]?: string;

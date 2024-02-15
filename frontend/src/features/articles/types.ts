@@ -1,10 +1,10 @@
-type Category = "Solution" | "Algorithm" | "Typical" | "Idea";
+export type ArticleCategory = "Solution" | "Algorithm" | "Typical" | "Idea";
 
 type Article = {
   id: string;
   slug: string;
   title: string;
-  postCategory: Category;
+  postCategory: ArticleCategory;
   topics: string[];
   likedCount: number;
   createdAt: Date;

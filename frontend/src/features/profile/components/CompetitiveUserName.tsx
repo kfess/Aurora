@@ -1,5 +1,5 @@
-import { Box, Group, Text, Badge } from "@mantine/core";
-import { Platform } from "@/types/platformTypes";
+import { Badge } from "@mantine/core";
+import { Platform } from "@/types/types";
 
 interface Props {
   platform: Platform;
