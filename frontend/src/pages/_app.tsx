@@ -2,6 +2,11 @@ import "@/styles/globals.css";
 import { Badge, MantineProvider, createTheme } from "@mantine/core";
 import type { AppProps } from "next/app";
 import { Layout } from "@/components/Layout";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from "@tanstack/react-query";
 
 const theme = createTheme({
   fontFamily: "inherit",
@@ -19,12 +24,16 @@ const theme = createTheme({
   },
 });
 
+const queryClient = new QueryClient();
+
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <MantineProvider theme={theme}>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
+      <QueryClientProvider client={queryClient}>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </QueryClientProvider>
     </MantineProvider>
   );
 }

@@ -1,6 +1,6 @@
 import { Box, Group, Text } from "@mantine/core";
 import { PlatformSelector } from "@/features/article-writing/components/PlatformSelector";
-import { ProblemInput } from "@/features/article-writing/components/ProblemInput";
+import { ProblemAutocomplete } from "@/features/article-writing/components/ProblemAutocomplete";
 
 export function ProblemSelector() {
   return (
@@ -9,7 +9,7 @@ export function ProblemSelector() {
       <Group gap={5} py={3} wrap="nowrap">
         <PlatformSelector />
         <Box className="flex-grow">
-          <ProblemInput />
+          <ProblemAutocomplete />
         </Box>
       </Group>
     </Box>
