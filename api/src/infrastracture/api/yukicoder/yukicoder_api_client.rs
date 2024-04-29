@@ -7,7 +7,7 @@ use super::*;
 const YUKICODER_URL_PREFIX: &str = "https://yukicoder.me/api";
 const YUKICODER_API_VER: &str = "v1";
 
-pub struct YukicoderAPIClient {}
+pub struct YukicoderAPIClient;
 
 impl YukicoderAPIClient {
     pub fn new() -> Self {
