@@ -1,0 +1,49 @@
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct YukicoderProblem {
+    #[serde(rename = "No")]
+    pub no: u64,
+
+    #[serde(rename = "ProblemId")]
+    pub problem_id: u64,
+
+    #[serde(rename = "Title")]
+    pub title: String,
+
+    #[serde(rename = "AuthorId")]
+    pub author_id: u64,
+
+    #[serde(rename = "TesterIds")]
+    pub tester_ids: String,
+
+    #[serde(rename = "Level")]
+    pub level: f64,
+
+    #[serde(rename = "ProblemType")]
+    pub problem_type: u64,
+
+    #[serde(rename = "Tags")]
+    pub tags: String,
+
+    #[serde(rename = "Date")]
+    pub date: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct YukicoderContest {
+    #[serde(rename = "Id")]
+    pub id: u64,
+
+    #[serde(rename = "Name")]
+    pub name: String,
+
+    #[serde(rename = "Date")]
+    pub date: String,
+
+    #[serde(rename = "EndDate")]
+    pub end_date: String,
+
+    #[serde(rename = "ProblemIdList")]
+    pub problem_id_list: Vec<u64>,
+}
