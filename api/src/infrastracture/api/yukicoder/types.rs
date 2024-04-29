@@ -47,3 +47,12 @@ pub struct YukicoderContest {
     #[serde(rename = "ProblemIdList")]
     pub problem_id_list: Vec<u64>,
 }
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct YukicoderTag {
+    #[serde(rename = "Key")]
+    pub key: String,
+
+    #[serde(rename = "Count")]
+    pub count: u64,
+}

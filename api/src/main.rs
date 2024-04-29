@@ -9,7 +9,7 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 #[tokio::main]
 async fn main() -> Result<()> {
     let yukicoder_api_client = YukicoderAPIClient::new();
-    match yukicoder_api_client.get_all_problems().await {
+    match yukicoder_api_client.get_problems().await {
         Ok(problems) => {
             println!("Problem Id: {}", problems[0].title);
         }
