@@ -2,7 +2,7 @@ use serde::de::{self, SeqAccess, Visitor};
 use serde::{Deserialize, Deserializer, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-enum Status {
+pub enum Status {
     OK,
     FAILED,
 }
@@ -14,7 +14,7 @@ pub struct CodeforcesProblemAPIResponse {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-enum Tag {
+pub enum Tag {
     Implementation,
     Math,
     Greedy,
@@ -140,7 +140,7 @@ where
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-enum ProblemType {
+pub enum ProblemType {
     PROGRAMMING,
     QUESTION,
 }
@@ -171,7 +171,6 @@ pub struct CodeforcesProblem {
     #[serde(rename = "tags")]
     #[serde(deserialize_with = "deserialize_tags")]
     pub tags: Vec<Tag>,
-    // pub tags: Vec<String>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -191,4 +190,64 @@ pub struct CodeforcesProblemResponse {
 
     #[serde(rename = "problemStatistics")]
     pub problem_statistics: Vec<CodeforcesProblemStat>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct CodeforcesContest {
+    #[serde(rename = "id")]
+    pub id: u64,
+
+    #[serde(rename = "name")]
+    pub name: String,
+
+    #[serde(rename = "type")]
+    pub r#type: String,
+
+    #[serde(rename = "phase")]
+    pub phase: String,
+
+    #[serde(rename = "frozen")]
+    pub frozen: bool,
+
+    #[serde(rename = "durationSeconds")]
+    pub duration_seconds: u64,
+
+    #[serde(rename = "startTimeSeconds")]
+    pub start_time_seconds: Option<u64>,
+
+    #[serde(rename = "relativeTimeSeconds")]
+    pub relative_time_seconds: Option<i64>,
+
+    #[serde(rename = "preparedBy")]
+    pub prepared_by: Option<String>,
+
+    #[serde(rename = "websiteUrl")]
+    pub website_url: Option<String>,
+
+    #[serde(rename = "description")]
+    pub description: Option<String>,
+
+    #[serde(rename = "difficulty")]
+    pub difficulty: Option<u64>,
+
+    #[serde(rename = "kind")]
+    pub kind: Option<String>,
+
+    #[serde(rename = "icpcRegion")]
+    pub icpc_region: Option<String>,
+
+    #[serde(rename = "country")]
+    pub country: Option<String>,
+
+    #[serde(rename = "city")]
+    pub city: Option<String>,
+
+    #[serde(rename = "season")]
+    pub season: Option<String>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct CodeforcesContestAPIResponse {
+    pub status: Status,
+    pub result: Option<Vec<CodeforcesContest>>,
 }

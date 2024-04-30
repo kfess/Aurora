@@ -1,5 +1,6 @@
 use anyhow::{Ok, Result};
 use std::env;
+use std::sync::Arc;
 use url::Url;
 
 use super::types::{GitHubRepoContent, YosupoOnlineJudgeProblem};
@@ -8,11 +9,15 @@ use crate::utils::api::build_github_header;
 const YOSUPO_ONLINE_JUDGE_GITHUB_URL: &str =
     "https://api.github.com/repos/yosupo06/library-checker-problems/contents/";
 
-pub struct YosupoOnlineJudgeAPIClient;
+pub struct YosupoOnlineJudgeAPIClient {
+    client: Arc<reqwest::Client>,
+}
 
 impl YosupoOnlineJudgeAPIClient {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            client: Arc::new(reqwest::Client::new()),
+        }
     }
 }
 
@@ -22,7 +27,6 @@ pub trait IYosupoOnlineJudgeAPIClient {
 
 impl IYosupoOnlineJudgeAPIClient for YosupoOnlineJudgeAPIClient {
     async fn get_problems(&self) -> Result<Vec<YosupoOnlineJudgeProblem>> {
-        let client = reqwest::Client::new();
         let base_url = Url::parse(YOSUPO_ONLINE_JUDGE_GITHUB_URL)?;
 
         let mut problems: Vec<YosupoOnlineJudgeProblem> = vec![];
@@ -32,7 +36,8 @@ impl IYosupoOnlineJudgeAPIClient for YosupoOnlineJudgeAPIClient {
         for category in categories {
             let url = base_url.join(category)?;
             let headers = build_github_header()?;
-            let response = client
+            let response = self
+                .client
                 .get(url)
                 .headers(headers)
                 .bearer_auth(&github_access_token)

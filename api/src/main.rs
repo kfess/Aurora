@@ -1,11 +1,9 @@
 use dotenv::dotenv;
 use infrastracture::api::{
-    aoj::aoj_api_client::{AojAPIClient, IAojAPIClient},
-    codeforces::codeforces_api_client::{self, CodeforcesAPIClient, ICodeforcesAPICLient},
-    yosupo_online_judge::yosupo_online_judge_api_client::{
-        IYosupoOnlineJudgeAPIClient, YosupoOnlineJudgeAPIClient,
-    },
-    yukicoder::yukicoder_api_client::{IYukicoderAPIClient, YukicoderAPIClient},
+    aoj::api_client::{AojAPIClient, IAojAPIClient},
+    codeforces::api_client::{CodeforcesAPIClient, ICodeforcesAPICLient},
+    yosupo_online_judge::api_client::{IYosupoOnlineJudgeAPIClient, YosupoOnlineJudgeAPIClient},
+    yukicoder::api_client::{IYukicoderAPIClient, YukicoderAPIClient},
 };
 
 mod infrastracture;
@@ -66,6 +64,15 @@ async fn main() -> Result<()> {
         }
         Err(e) => {
             eprintln!("Error fetching problems: {}", e);
+        }
+    }
+
+    match codeforces_api_client.get_contests().await {
+        Ok(contests) => {
+            println!("Contest Name: {}", contests[0].name);
+        }
+        Err(e) => {
+            eprintln!("Error fetching contests: {}", e);
         }
     }
 
