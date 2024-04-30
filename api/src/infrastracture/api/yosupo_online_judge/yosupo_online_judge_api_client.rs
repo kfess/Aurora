@@ -12,7 +12,7 @@ pub struct YosupoOnlineJudgeAPIClient;
 
 impl YosupoOnlineJudgeAPIClient {
     pub fn new() -> Self {
-        return Self {};
+        Self {}
     }
 }
 
@@ -27,15 +27,15 @@ impl IYosupoOnlineJudgeAPIClient for YosupoOnlineJudgeAPIClient {
 
         let mut problems: Vec<YosupoOnlineJudgeProblem> = vec![];
 
-        let categories = vec!["graph"];
+        let categories = vec!["datastructure", "math", "geo", "sample", "graph", "string"];
+        let github_access_token = env::var("GITHUB_ACCESS_TOKEN")?;
         for category in categories {
             let url = base_url.join(category)?;
             let headers = build_github_header()?;
-
             let response = client
                 .get(url)
                 .headers(headers)
-                .bearer_auth(env::var("GITHUB_ACCESS_TOKEN")?)
+                .bearer_auth(&github_access_token)
                 .send()
                 .await?;
 
@@ -49,7 +49,7 @@ impl IYosupoOnlineJudgeAPIClient for YosupoOnlineJudgeAPIClient {
             directories.iter().for_each(|d| {
                 problems.push(YosupoOnlineJudgeProblem {
                     name: d.name.clone(),
-                    category: format!("{}", category),
+                    category: category.to_string(),
                 })
             });
         }
