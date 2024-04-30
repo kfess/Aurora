@@ -3,8 +3,7 @@ use std::sync::Arc;
 use url::Url;
 
 use super::types::{
-    CodeforcesContest, CodeforcesContestAPIResponse, CodeforcesProblem,
-    CodeforcesProblemAPIResponse,
+    CodeforcesContest, CodeforcesContestResponse, CodeforcesProblem, CodeforcesProblemResponse,
 };
 
 const CODEFORCES_URL_PREFIX: &str = "https://codeforces.com/api/";
@@ -40,7 +39,7 @@ impl ICodeforcesAPICLient for CodeforcesAPIClient {
         }
 
         let problems = response
-            .json::<CodeforcesProblemAPIResponse>()
+            .json::<CodeforcesProblemResponse>()
             .await
             .map_err(|e| {
                 eprintln!("Failed to parse the codeforces problems JSON: {}", e);
@@ -66,7 +65,7 @@ impl ICodeforcesAPICLient for CodeforcesAPIClient {
         }
 
         let contests = response
-            .json::<CodeforcesContestAPIResponse>()
+            .json::<CodeforcesContestResponse>()
             .await
             .map_err(|e| {
                 eprintln!("Failed to parse the codeforces contests JSON: {}", e);

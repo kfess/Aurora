@@ -1,6 +1,8 @@
 use serde::de::{self, SeqAccess, Visitor};
 use serde::{Deserialize, Deserializer, Serialize};
 
+// Codeforces API Response
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub enum Status {
     OK,
@@ -8,10 +10,12 @@ pub enum Status {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct CodeforcesProblemAPIResponse {
+pub struct CodeforcesAPIResponse<T> {
     pub status: Status,
-    pub result: Option<CodeforcesProblemResponse>,
+    pub result: Option<T>,
 }
+
+// Codeforces Problem Tags
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub enum Tag {
@@ -139,6 +143,8 @@ where
     deserializer.deserialize_seq(TagsVisitor)
 }
 
+// Codeforces Problem
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub enum ProblemType {
     PROGRAMMING,
@@ -185,17 +191,21 @@ pub struct CodeforcesProblemStat {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct CodeforcesProblemResponse {
+pub struct CodeforcesProblemResult {
     pub problems: Vec<CodeforcesProblem>,
 
     #[serde(rename = "problemStatistics")]
     pub problem_statistics: Vec<CodeforcesProblemStat>,
 }
 
+pub type CodeforcesProblemResponse = CodeforcesAPIResponse<CodeforcesProblemResult>;
+
+// Codeforces Contest
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct CodeforcesContest {
     #[serde(rename = "id")]
-    pub id: u64,
+    pub id: i64,
 
     #[serde(rename = "name")]
     pub name: String,
@@ -210,10 +220,10 @@ pub struct CodeforcesContest {
     pub frozen: bool,
 
     #[serde(rename = "durationSeconds")]
-    pub duration_seconds: u64,
+    pub duration_seconds: i64,
 
     #[serde(rename = "startTimeSeconds")]
-    pub start_time_seconds: Option<u64>,
+    pub start_time_seconds: Option<i64>,
 
     #[serde(rename = "relativeTimeSeconds")]
     pub relative_time_seconds: Option<i64>,
@@ -246,8 +256,4 @@ pub struct CodeforcesContest {
     pub season: Option<String>,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct CodeforcesContestAPIResponse {
-    pub status: Status,
-    pub result: Option<Vec<CodeforcesContest>>,
-}
+pub type CodeforcesContestResponse = CodeforcesAPIResponse<Vec<CodeforcesContest>>;
