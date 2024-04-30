@@ -1,6 +1,7 @@
 use dotenv::dotenv;
 use infrastracture::api::{
     aoj::aoj_api_client::{AojAPIClient, IAojAPIClient},
+    codeforces::codeforces_api_client::{self, CodeforcesAPIClient, ICodeforcesAPICLient},
     yosupo_online_judge::yosupo_online_judge_api_client::{
         IYosupoOnlineJudgeAPIClient, YosupoOnlineJudgeAPIClient,
     },
@@ -50,6 +51,16 @@ async fn main() -> Result<()> {
 
     let yosupo_online_judge_api_client = YosupoOnlineJudgeAPIClient::new();
     match yosupo_online_judge_api_client.get_problems().await {
+        Ok(problems) => {
+            println!("Problem Name: {}", problems[0].name);
+        }
+        Err(e) => {
+            eprintln!("Error fetching problems: {}", e);
+        }
+    }
+
+    let codeforces_api_client = CodeforcesAPIClient::new();
+    match codeforces_api_client.get_problems().await {
         Ok(problems) => {
             println!("Problem Name: {}", problems[0].name);
         }
