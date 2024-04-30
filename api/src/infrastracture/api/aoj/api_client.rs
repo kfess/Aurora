@@ -1,8 +1,8 @@
+use self::types::AojProblem;
+use crate::domain::problem::Problem;
 use anyhow::{Ok, Result};
 use std::sync::Arc;
 use url::Url;
-
-use self::types::AojProblem;
 
 use super::*;
 
@@ -22,11 +22,11 @@ impl AojAPIClient {
 }
 
 pub trait IAojAPIClient {
-    async fn get_problems(&self) -> Result<Vec<AojProblem>>;
+    async fn get_problems(&self) -> Result<Vec<Problem>>;
 }
 
 impl IAojAPIClient for AojAPIClient {
-    async fn get_problems(&self) -> Result<Vec<AojProblem>> {
+    async fn get_problems(&self) -> Result<Vec<Problem>> {
         let url = Url::parse(&format!(
             "{base}/problems?size={size}",
             base = AOJ_URL,
@@ -40,7 +40,12 @@ impl IAojAPIClient for AojAPIClient {
             return Err(anyhow::anyhow!("Failed to fetch aoj problems"));
         }
 
-        let problems = response.json::<Vec<AojProblem>>().await?;
+        let problems = response
+            .json::<Vec<AojProblem>>()
+            .await?
+            .into_iter()
+            .map(|p| Problem::try_from(p).unwrap())
+            .collect();
 
         Ok(problems)
     }

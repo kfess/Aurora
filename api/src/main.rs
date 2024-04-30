@@ -6,6 +6,7 @@ use infrastracture::api::{
     yukicoder::api_client::{IYukicoderAPIClient, YukicoderAPIClient},
 };
 
+mod domain;
 mod infrastracture;
 mod utils;
 
