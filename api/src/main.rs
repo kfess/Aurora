@@ -27,11 +27,11 @@ async fn main() -> Result<()> {
         }
     }
 
-    match yukicoder_api_client.get_past_contests().await {
-        Ok(contests) => {
+    match yukicoder_api_client.get_problem(1).await {
+        Ok(problem) => {
             println!(
-                "Contest Name: {}, Contest Id {}",
-                contests[0].name, contests[0].id
+                "problem Name: {}, problem Id {}",
+                problem.title, problem.problem_id
             );
         }
         Err(e) => {
@@ -39,44 +39,44 @@ async fn main() -> Result<()> {
         }
     }
 
-    let aoj_api_client = AojAPIClient::new();
-    match aoj_api_client.get_problems().await {
-        Ok(problems) => {
-            println!("Problem Name: {}", problems[0].name);
-        }
-        Err(e) => {
-            eprintln!("Error fetching problems: {}", e);
-        }
-    }
+    // let aoj_api_client = AojAPIClient::new();
+    // match aoj_api_client.get_problems().await {
+    //     Ok(problems) => {
+    //         println!("Problem Name: {}", problems[0].name);
+    //     }
+    //     Err(e) => {
+    //         eprintln!("Error fetching problems: {}", e);
+    //     }
+    // }
 
-    let yosupo_online_judge_api_client = YosupoOnlineJudgeAPIClient::new();
-    match yosupo_online_judge_api_client.get_problems().await {
-        Ok(problems) => {
-            println!("Problem Name: {}", problems[0].name);
-        }
-        Err(e) => {
-            eprintln!("Error fetching problems: {}", e);
-        }
-    }
+    // let yosupo_online_judge_api_client = YosupoOnlineJudgeAPIClient::new();
+    // match yosupo_online_judge_api_client.get_problems().await {
+    //     Ok(problems) => {
+    //         println!("Problem Name: {}", problems[0].name);
+    //     }
+    //     Err(e) => {
+    //         eprintln!("Error fetching problems: {}", e);
+    //     }
+    // }
 
-    let codeforces_api_client = CodeforcesAPIClient::new();
-    match codeforces_api_client.get_problems().await {
-        Ok(problems) => {
-            println!("Problem Name: {}", problems[0].name);
-        }
-        Err(e) => {
-            eprintln!("Error fetching problems: {}", e);
-        }
-    }
+    // let codeforces_api_client = CodeforcesAPIClient::new();
+    // match codeforces_api_client.get_problems().await {
+    //     Ok(problems) => {
+    //         println!("Problem Name: {}", problems[0].name);
+    //     }
+    //     Err(e) => {
+    //         eprintln!("Error fetching problems: {}", e);
+    //     }
+    // }
 
-    match codeforces_api_client.get_contests().await {
-        Ok(contests) => {
-            println!("Contest Name: {}", contests[0].name);
-        }
-        Err(e) => {
-            eprintln!("Error fetching contests: {}", e);
-        }
-    }
+    // match codeforces_api_client.get_contests().await {
+    //     Ok(contests) => {
+    //         println!("Contest Name: {}", contests[0].name);
+    //     }
+    //     Err(e) => {
+    //         eprintln!("Error fetching contests: {}", e);
+    //     }
+    // }
 
     Ok(())
 }

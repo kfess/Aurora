@@ -15,6 +15,7 @@ impl std::convert::From<&str> for Platform {
             "yukicoder" => Platform::Yukicoder,
             "aoj" => Platform::Aoj,
             "yosupo_online_judge" => Platform::YosupoOnlineJudge,
+            _ => panic!("Invalid platform: {}", value),
         }
     }
 }

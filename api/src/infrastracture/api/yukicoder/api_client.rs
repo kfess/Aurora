@@ -1,7 +1,10 @@
 use anyhow::{Ok, Result};
 use std::sync::Arc;
 
-use self::types::{YukicoderContest, YukicoderProblem, YukicoderTag};
+use self::types::{
+    YukicoderContest, YukicoderProblem, YukicoderProblemWithStatistics, YukicoderStatistics,
+    YukicoderTag,
+};
 
 use super::*;
 
@@ -20,6 +23,7 @@ impl YukicoderAPIClient {
 }
 
 pub trait IYukicoderAPIClient {
+    async fn get_problem(&self, problem_id: u64) -> Result<YukicoderProblemWithStatistics>;
     async fn get_problems(&self) -> Result<Vec<YukicoderProblem>>;
     async fn get_past_contests(&self) -> Result<Vec<YukicoderContest>>;
     async fn get_future_contests(&self) -> Result<Vec<YukicoderContest>>;
@@ -27,6 +31,19 @@ pub trait IYukicoderAPIClient {
 }
 
 impl IYukicoderAPIClient for YukicoderAPIClient {
+    async fn get_problem(&self, problem_id: u64) -> Result<YukicoderProblemWithStatistics> {
+        let url = format!("{}/problems/{}", YUKICODER_URL, problem_id);
+        let response = self.client.get(url).send().await?;
+
+        if !response.status().is_success() {
+            return Err(anyhow::anyhow!("Failed to fetch yukicoder problem"));
+        }
+
+        let problem = response.json::<YukicoderProblemWithStatistics>().await?;
+
+        Ok(problem)
+    }
+
     async fn get_problems(&self) -> Result<Vec<YukicoderProblem>> {
         let url = format!("{}/problems", YUKICODER_URL);
         let response = self.client.get(url).send().await?;
