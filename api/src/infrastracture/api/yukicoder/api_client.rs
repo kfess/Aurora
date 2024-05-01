@@ -2,8 +2,7 @@ use anyhow::{Ok, Result};
 use std::sync::Arc;
 
 use self::types::{
-    YukicoderContest, YukicoderProblem, YukicoderProblemWithStatistics, YukicoderStatistics,
-    YukicoderTag,
+    YukicoderContest, YukicoderProblem, YukicoderProblemWithStatistics, YukicoderTag,
 };
 
 use super::*;
