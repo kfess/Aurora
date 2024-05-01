@@ -8,6 +8,7 @@ use infrastracture::api::{
 
 mod domain;
 mod infrastracture;
+mod service;
 mod utils;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
