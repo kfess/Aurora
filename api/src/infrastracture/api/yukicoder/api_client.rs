@@ -102,7 +102,7 @@ impl YukicoderAPIClient {
             problem_ids.sort();
             for (index, problem_id) in problem_ids.iter().enumerate() {
                 let letter = ((65u8 + index as u8) as char).to_string();
-                problem_id_map.insert(*problem_id, (contest.name.to_string(), letter));
+                problem_id_map.insert(*problem_id, (contest.name.trim().to_string(), letter));
             }
         }
 
@@ -118,10 +118,10 @@ impl YukicoderAPIClient {
 
         for problem_id in problem_ids[..100].iter() {
             let problem = self.fetch_problem(*problem_id).await.unwrap();
-
+            println!("{:?}", problem);
             thread::sleep(time::Duration::from_millis(1000));
 
-            let default_value = ("Unknown".to_string(), "A".to_string());
+            let default_value = ("Unknown".to_string(), "Unknown".to_string());
             let (contest_name, index) = problem_id_map.get(problem_id).unwrap_or(&default_value);
             let success_rate = match problem.statistics.total {
                 0 => None,
