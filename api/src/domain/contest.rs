@@ -50,7 +50,6 @@ impl Contest {
     }
 
     pub fn reconstruct(
-        id: String,
         name: String,
         platform: Platform,
         phase: String,
@@ -59,6 +58,8 @@ impl Contest {
         url: String,
         problems: Vec<Problem>,
     ) -> Self {
+        let id = format!("{}_{}", String::from(platform), name);
+
         Self {
             id,
             name,

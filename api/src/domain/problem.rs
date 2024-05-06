@@ -82,11 +82,9 @@ impl Problem {
     }
 
     pub fn reconstruct(
-        id: String,
-        contest_id: String,
+        contest_name: String,
         index: String,
         name: String,
-        title: String,
         platform: Platform,
         raw_point: Option<f64>,
         difficulty: Option<f64>,
@@ -94,8 +92,19 @@ impl Problem {
         url: String,
         solver_count: Option<u64>,
         submissions: Option<u64>,
-        success_rate: Option<f64>,
     ) -> Self {
+        let contest_id = format!("{}_{}", String::from(platform), contest_name);
+        let id = format!("{}_{}_{}", String::from(platform), contest_id, index);
+        let title = format!("{}. {}", index, name);
+
+        let success_rate = match solver_count {
+            Some(solver_count) => match submissions {
+                Some(submissions) => Some(solver_count as f64 / submissions as f64 * 100.0),
+                None => None,
+            },
+            None => None,
+        };
+
         Self {
             id,
             contest_id,
