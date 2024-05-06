@@ -19,6 +19,7 @@ impl std::convert::TryFrom<AojProblem> for Problem {
             Some(0.0),
             Some(0.0),
             vec![],
+            "".to_string(),
             Some(0),
             Some(0),
             Some(0.0),

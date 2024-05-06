@@ -39,6 +39,8 @@ pub struct Problem {
 
     tags: Vec<String>,
 
+    url: String,
+
     solver_count: Option<u64>,
 
     submissions: Option<u64>,
@@ -57,6 +59,7 @@ impl Problem {
         raw_point: Option<f64>,
         difficulty: Option<f64>,
         tags: Vec<String>,
+        url: String,
         solver_count: Option<u64>,
         submissions: Option<u64>,
         success_rate: Option<f64>,
@@ -71,6 +74,7 @@ impl Problem {
             raw_point,
             difficulty,
             tags,
+            url,
             solver_count,
             submissions,
             success_rate,
@@ -87,6 +91,7 @@ impl Problem {
         raw_point: Option<f64>,
         difficulty: Option<f64>,
         tags: Vec<String>,
+        url: String,
         solver_count: Option<u64>,
         submissions: Option<u64>,
         success_rate: Option<f64>,
@@ -101,6 +106,7 @@ impl Problem {
             raw_point,
             difficulty,
             tags,
+            url,
             solver_count,
             submissions,
             success_rate,

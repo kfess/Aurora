@@ -1,10 +1,11 @@
 use anyhow::{Ok, Result};
+use chrono::{DateTime, FixedOffset, TimeZone};
 use core::time;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::thread;
 
-use crate::domain::{problem::Problem, value_object::platform::Platform};
+use crate::domain::{contest::Contest, problem::Problem, value_object::platform::Platform};
 
 use self::types::{
     YukicoderContest, YukicoderProblem, YukicoderProblemWithStatistics, YukicoderTag,
@@ -96,14 +97,40 @@ impl YukicoderAPIClient {
     async fn merge(&self) -> Vec<Problem> {
         let mut problem_id_map: HashMap<u64, (String, String)> = HashMap::new();
 
-        let contests = self.fetch_past_contests().await.unwrap();
-        for contest in contests {
+        let mut contests: Vec<Contest> = vec![];
+        let fetched_contests = self.fetch_past_contests().await.unwrap();
+        for contest in fetched_contests {
             let mut problem_ids = contest.problem_id_list;
             problem_ids.sort();
             for (index, problem_id) in problem_ids.iter().enumerate() {
                 let letter = ((65u8 + index as u8) as char).to_string();
                 problem_id_map.insert(*problem_id, (contest.name.trim().to_string(), letter));
             }
+
+            let start_timestamp = DateTime::parse_from_rfc3339(&contest.date)
+                .unwrap()
+                .timestamp() as u64;
+
+            let end_timestamp = DateTime::parse_from_rfc3339(&contest.end_date)
+                .unwrap()
+                .timestamp() as u64;
+
+            let duration_seconds = end_timestamp - start_timestamp;
+
+            contests.push(Contest::reconstruct(
+                format!(
+                    "{platform}_{name}",
+                    platform = String::from(Platform::Yukicoder),
+                    name = contest.name
+                ),
+                contest.name,
+                Platform::Yukicoder,
+                "finished".to_string(),
+                start_timestamp,
+                duration_seconds,
+                format!("https://yukicoder.me/contests/{id}", id = contest.id),
+                vec![],
+            ))
         }
 
         let problem_ids = self
@@ -121,7 +148,7 @@ impl YukicoderAPIClient {
             println!("{:?}", problem);
             thread::sleep(time::Duration::from_millis(1000));
 
-            let default_value = ("Unknown".to_string(), "Unknown".to_string());
+            let default_value = ("Unknown".to_string(), "A".to_string());
             let (contest_name, index) = problem_id_map.get(problem_id).unwrap_or(&default_value);
             let success_rate = match problem.statistics.total {
                 0 => None,
@@ -152,6 +179,7 @@ impl YukicoderAPIClient {
                 Some(problem.level),
                 Option::None,
                 problem.tags.split(",").map(|s| s.to_string()).collect(),
+                format!("https://yukicoder.me/problems/no/{no}", no = problem.no),
                 Some(problem.statistics.solved),
                 Some(problem.statistics.total),
                 success_rate,
