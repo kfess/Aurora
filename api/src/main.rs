@@ -17,16 +17,6 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 async fn main() -> Result<()> {
     dotenv().ok();
 
-    let yukicoder_api_client = YukicoderAPIClient::new();
-    match yukicoder_api_client.get_problems().await {
-        Ok(problems) => {
-            println!("Problem Id: {}", problems[0].title);
-        }
-        Err(e) => {
-            eprintln!("Error fetching problems: {}", e);
-        }
-    }
-
     let api_client = YukicoderAPIClient::new();
     let usecase =
         service::update_problems::update_yukicoder_problems::UpdateYukicoderProblemUsecase::new(

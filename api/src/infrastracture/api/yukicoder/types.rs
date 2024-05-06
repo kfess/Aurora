@@ -99,7 +99,7 @@ pub struct YukicoderStatistics {
     pub solved: u64,
 
     #[serde(rename = "FirstAcceptedTimeSecond")]
-    pub first_accepted_time_second: u64,
+    pub first_accepted_time_second: i64,
 
     #[serde(rename = "FirstACSubmissionId")]
     pub first_ac_submission_id: u64,

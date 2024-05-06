@@ -1,4 +1,4 @@
-use crate::infrastracture::api::yukicoder::api_client::IYukicoderAPIClient;
+use crate::{domain::problem, infrastracture::api::yukicoder::api_client::IYukicoderAPIClient};
 use core::time;
 use std::thread;
 
@@ -16,20 +16,9 @@ impl<T: IYukicoderAPIClient> UpdateYukicoderProblemUsecase<T> {
 
     pub async fn execute(&self) {
         println!("Update Problems Usecase...");
-        let problem_ids = self
-            .api_client
-            .get_problems()
-            .await
-            .unwrap()
-            .iter()
-            .map(|problem| problem.problem_id)
-            .collect::<Vec<u64>>();
-
-        for problem_id in problem_ids[..3].iter() {
-            thread::sleep(time::Duration::from_millis(1000));
-            let problem = self.api_client.get_problem(*problem_id).await.unwrap();
+        let problems = self.api_client.get_problems().await.unwrap();
+        for problem in problems {
+            println!("{:?}", problem);
         }
-
-        println!("{:?}", problem_ids);
     }
 }

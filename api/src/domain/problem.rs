@@ -1,5 +1,6 @@
 use super::value_object::platform::Platform;
 
+#[derive(Clone, Debug)]
 pub struct Problem {
     // The naming convention for this field is:
     // <platform>_<contest_name>_<problem_index>
