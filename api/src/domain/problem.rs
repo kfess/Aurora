@@ -94,7 +94,7 @@ impl Problem {
         submissions: Option<u64>,
     ) -> Self {
         let contest_id = format!("{}_{}", String::from(platform), contest_name);
-        let id = format!("{}_{}_{}", String::from(platform), contest_id, index);
+        let id = format!("{}_{}_{}", String::from(platform), contest_name, index);
         let title = format!("{}. {}", index, name);
 
         let success_rate = match solver_count {

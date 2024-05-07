@@ -1,9 +1,9 @@
 use anyhow::{Ok, Result};
 use chrono::DateTime;
 use core::time;
-use std::collections::HashMap;
 use std::sync::Arc;
 use std::thread;
+use std::{collections::HashMap, sync::RwLock};
 
 use crate::domain::{contest::Contest, problem::Problem, value_object::platform::Platform};
 
@@ -17,17 +17,18 @@ const YUKICODER_URL: &'static str = "https://yukicoder.me/api/v1";
 
 pub struct YukicoderAPIClient {
     client: Arc<reqwest::Client>,
+    cache: RwLock<Option<(Vec<Problem>, Vec<Contest>)>>,
 }
 
 impl YukicoderAPIClient {
     pub fn new() -> Self {
-        return Self {
+        Self {
             client: Arc::new(reqwest::Client::new()),
-        };
+            cache: RwLock::new(None),
+        }
     }
 
     async fn fetch_problem(&self, problem_id: u64) -> Result<YukicoderProblemWithStatistics> {
-        println!("Fetching yukicoder problem: {}", problem_id);
         let url = format!("{}/problems/{}", YUKICODER_URL, problem_id);
         let response = self.client.get(url).send().await?;
 
@@ -66,7 +67,18 @@ impl YukicoderAPIClient {
             return Err(anyhow::anyhow!("Failed to fetch yukicoder contests"));
         }
 
-        let contests = response.json::<Vec<YukicoderContest>>().await?;
+        let contests = response
+            .json::<Vec<YukicoderContest>>()
+            .await?
+            .iter()
+            .map(|contest| YukicoderContest {
+                id: contest.id,
+                name: contest.name.trim().to_string(),
+                date: contest.date.clone(),
+                end_date: contest.end_date.clone(),
+                problem_id_list: contest.problem_id_list.clone(),
+            })
+            .collect();
 
         Ok(contests)
     }
@@ -99,26 +111,28 @@ impl YukicoderAPIClient {
         Ok(tags)
     }
 
-    async fn merge(&self) -> (Vec<Problem>, Vec<Contest>) {
-        let (fetched_problem_ids, fetched_contests) = (
-            self.fetch_problem_ids().await.unwrap(),
-            self.fetch_past_contests().await.unwrap(),
-        );
+    async fn merge(&self) -> Result<()> {
+        if self.cache.read().unwrap().is_some() {
+            return Ok(());
+        }
+
+        let (fetched_problem_ids, fetched_contests) =
+            tokio::try_join!(self.fetch_problem_ids(), self.fetch_past_contests()).unwrap();
 
         let (mut problems, mut contests): (Vec<Problem>, Vec<Contest>) = (vec![], vec![]);
         let mut problem_id_map: HashMap<u64, (String, String)> = HashMap::new();
         let mut contest_problems_map: HashMap<String, Vec<Problem>> = HashMap::new();
 
-        for contest in &fetched_contests {
+        for contest in fetched_contests.iter() {
             let mut problem_ids = contest.problem_id_list.clone();
             problem_ids.sort_unstable();
             for (index, problem_id) in problem_ids.iter().enumerate() {
                 let letter = ((65u8 + index as u8) as char).to_string();
-                problem_id_map.insert(*problem_id, (contest.name.trim().to_string(), letter));
+                problem_id_map.insert(*problem_id, (contest.name.to_string(), letter));
             }
         }
 
-        for problem_id in &fetched_problem_ids {
+        for problem_id in fetched_problem_ids[..100].iter() {
             let fetched_problem = self.fetch_problem(*problem_id).await.unwrap();
 
             let default_value = ("Unknown".to_string(), "A".to_string());
@@ -146,13 +160,13 @@ impl YukicoderAPIClient {
             let contest_id = format!("{}_{}", String::from(Platform::Yukicoder), contest_name);
             contest_problems_map
                 .entry(contest_id.clone())
-                .or_insert(vec![])
+                .or_insert_with(Vec::new)
                 .push(problem.clone());
 
             thread::sleep(time::Duration::from_millis(1000));
         }
 
-        for contest in fetched_contests {
+        for contest in fetched_contests.iter() {
             let start_timestamp = DateTime::parse_from_rfc3339(&contest.date)
                 .unwrap()
                 .timestamp() as u64;
@@ -165,28 +179,41 @@ impl YukicoderAPIClient {
             let id = format!("{}_{}", String::from(Platform::Yukicoder), contest.name);
 
             contests.push(Contest::reconstruct(
-                contest.name,
+                contest.name.to_string(),
                 Platform::Yukicoder,
                 "finished".to_string(),
                 start_timestamp,
                 duration_seconds,
-                format!("https://yukicoder.me/contests/{id}", id = contest.id),
-                contest_problems_map.get(&id).unwrap().clone(),
+                format!("https://yukicoder.me/contests/{}", contest.id),
+                contest_problems_map.get(&id).cloned().unwrap_or_default(),
             ))
         }
 
-        (problems, contests)
+        *self.cache.write().unwrap() = Some((problems.clone(), contests.clone()));
+
+        Ok(())
     }
 }
 
 pub trait IYukicoderAPIClient {
     async fn get_problems(&self) -> Result<Vec<Problem>>;
+    async fn get_contests(&self) -> Result<Vec<Contest>>;
 }
 
 impl IYukicoderAPIClient for YukicoderAPIClient {
     async fn get_problems(&self) -> Result<Vec<Problem>> {
-        let (problems, _) = self.merge().await;
+        self.merge().await?;
+        let cache = self.cache.read().unwrap();
+        let (problems, _) = cache.as_ref().unwrap();
 
-        Ok(problems)
+        Ok(problems.clone())
+    }
+
+    async fn get_contests(&self) -> Result<Vec<Contest>> {
+        self.merge().await?;
+        let cache = self.cache.read().unwrap();
+        let (_, contests) = cache.as_ref().unwrap();
+
+        Ok(contests.clone())
     }
 }
