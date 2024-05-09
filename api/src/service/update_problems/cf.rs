@@ -1,4 +1,4 @@
-use crate::infra::api::codeforces::api_client::ICodeforcesAPICLient;
+use crate::infra::api::cf::api_client::ICodeforcesAPICLient;
 
 pub struct UpdateCodeforcesUsecase<T>
 where

@@ -1,4 +1,4 @@
 pub mod aoj;
-pub mod codeforces;
+pub mod cf;
 pub mod yoj;
 pub mod yukicoder;
