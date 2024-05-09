@@ -12,9 +12,3 @@ pub struct Category {
 pub struct ProblemCategories {
     pub categories: Vec<Category>,
 }
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct YosupoOnlineJudgeProblem {
-    pub name: String,
-    pub category: String,
-}

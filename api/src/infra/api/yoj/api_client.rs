@@ -1,9 +1,6 @@
 use anyhow::Result;
 use convert_case::{Case, Casing};
-use std::{
-    sync::{Arc, RwLock},
-    vec,
-};
+use std::sync::{Arc, RwLock};
 
 use crate::{
     domain::{contest::Contest, problem::Problem, value_object::platform::Platform},

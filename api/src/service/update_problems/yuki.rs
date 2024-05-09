@@ -1,4 +1,4 @@
-use crate::infra::api::yukicoder::api_client::IYukicoderAPIClient;
+use crate::infra::api::yuki::api_client::IYukicoderAPIClient;
 
 pub struct UpdateYukicoderUsecase<T>
 where
