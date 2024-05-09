@@ -1,16 +1,13 @@
-use crate::infrastracture::api::aoj::api_client::IAojAPIClient;
+use crate::infra::api::codeforces::api_client::ICodeforcesAPICLient;
 
-pub struct UpdateAojProblemUsecase<T>
+pub struct UpdateCodeforcesUsecase<T>
 where
-    T: IAojAPIClient,
+    T: ICodeforcesAPICLient,
 {
     api_client: T,
 }
 
-impl<T> UpdateAojProblemUsecase<T>
-where
-    T: IAojAPIClient,
-{
+impl<T: ICodeforcesAPICLient> UpdateCodeforcesUsecase<T> {
     pub fn new(api_client: T) -> Self {
         return Self { api_client };
     }

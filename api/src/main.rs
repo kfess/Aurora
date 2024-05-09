@@ -1,11 +1,11 @@
 use dotenv::dotenv;
-use infrastracture::api::{
-    yosupo_online_judge::api_client::{IYosupoOnlineJudgeAPIClient, YosupoOnlineJudgeAPIClient},
+use infra::api::{
+    yoj::api_client::YOJAPIClient,
     yukicoder::api_client::{IYukicoderAPIClient, YukicoderAPIClient},
 };
 
 mod domain;
-mod infrastracture;
+mod infra;
 mod service;
 mod utils;
 
@@ -22,11 +22,9 @@ async fn main() -> Result<()> {
     //     );
     // usecase.execute().await;
 
-    let api_client = YosupoOnlineJudgeAPIClient::new();
-    let usecase =
-            service::update_problems::update_yosupo_online_judge_problems::UpdateYosupoOnlineJudgeProblemUsecase::new(
-                api_client,
-            );
+    let api_client = YOJAPIClient::new();
+    let usecase: service::update_problems::yoj::UpdateYOJUsecase<_> =
+        service::update_problems::yoj::UpdateYOJUsecase::new(api_client);
     usecase.execute().await;
 
     Ok(())

@@ -1,13 +1,13 @@
-use crate::infrastracture::api::yukicoder::api_client::IYukicoderAPIClient;
+use crate::infra::api::yukicoder::api_client::IYukicoderAPIClient;
 
-pub struct UpdateYukicoderProblemUsecase<T>
+pub struct UpdateYukicoderUsecase<T>
 where
     T: IYukicoderAPIClient,
 {
     api_client: T,
 }
 
-impl<T: IYukicoderAPIClient> UpdateYukicoderProblemUsecase<T> {
+impl<T: IYukicoderAPIClient> UpdateYukicoderUsecase<T> {
     pub fn new(api_client: T) -> Self {
         return Self { api_client };
     }

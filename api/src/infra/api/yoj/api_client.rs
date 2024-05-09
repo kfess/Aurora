@@ -1,4 +1,5 @@
 use anyhow::Result;
+use convert_case::{Case, Casing};
 use std::{
     sync::{Arc, RwLock},
     vec,
@@ -6,19 +7,19 @@ use std::{
 
 use crate::{
     domain::{contest::Contest, problem::Problem, value_object::platform::Platform},
-    infrastracture::api::yosupo_online_judge::types::ProblemCategories,
+    infra::api::yoj::types::ProblemCategories,
     utils::format::num_to_alphabet,
 };
 
 const CATEGORY_TOML_URL: &'static str =
     "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/categories.toml";
 
-pub struct YosupoOnlineJudgeAPIClient {
+pub struct YOJAPIClient {
     client: Arc<reqwest::Client>,
     cache: RwLock<Option<(Vec<Problem>, Vec<Contest>)>>,
 }
 
-impl YosupoOnlineJudgeAPIClient {
+impl YOJAPIClient {
     pub fn new() -> Self {
         Self {
             client: Arc::new(reqwest::Client::new()),
@@ -62,7 +63,7 @@ impl YosupoOnlineJudgeAPIClient {
         Problem::reconstruct(
             category_name.to_string(),
             num_to_alphabet(index),
-            raw_problem.to_string(),
+            raw_problem.to_string().to_case(Case::Title),
             Platform::YosupoOnlineJudge,
             Option::None,
             Option::None,
@@ -110,12 +111,12 @@ impl YosupoOnlineJudgeAPIClient {
     }
 }
 
-pub trait IYosupoOnlineJudgeAPIClient {
+pub trait IYOJAPIClient {
     async fn get_problems(&self) -> Result<Vec<Problem>>;
     async fn get_contests(&self) -> Result<Vec<Contest>>;
 }
 
-impl IYosupoOnlineJudgeAPIClient for YosupoOnlineJudgeAPIClient {
+impl IYOJAPIClient for YOJAPIClient {
     async fn get_problems(&self) -> Result<Vec<Problem>> {
         self.merge().await?;
         let cache = self.cache.read().unwrap();
