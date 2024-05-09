@@ -1,27 +1,16 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct GitHubRepoContent {
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct Category {
     pub name: String,
-    path: String,
-    sha: String,
-    size: u64,
-    url: String,
-    html_url: String,
-    git_url: String,
-    download_url: Option<String>,
 
-    #[serde(rename = "type")]
-    _type: String,
-    _links: GitHubRepoContentLinks,
+    #[serde(rename = "problems")]
+    pub raw_problems: Vec<String>,
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct GitHubRepoContentLinks {
-    #[serde(rename = "self")]
-    self_link: String,
-    git: String,
-    html: String,
+#[derive(Clone, Debug, Deserialize)]
+pub struct ProblemCategories {
+    pub categories: Vec<Category>,
 }
 
 #[derive(Clone, Debug, PartialEq)]

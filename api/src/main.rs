@@ -1,7 +1,5 @@
 use dotenv::dotenv;
 use infrastracture::api::{
-    aoj::api_client::{AojAPIClient, IAojAPIClient},
-    codeforces::api_client::{CodeforcesAPIClient, ICodeforcesAPICLient},
     yosupo_online_judge::api_client::{IYosupoOnlineJudgeAPIClient, YosupoOnlineJudgeAPIClient},
     yukicoder::api_client::{IYukicoderAPIClient, YukicoderAPIClient},
 };
@@ -17,11 +15,18 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 async fn main() -> Result<()> {
     dotenv().ok();
 
-    let api_client = YukicoderAPIClient::new();
+    // let api_client = YukicoderAPIClient::new();
+    // let usecase =
+    //     service::update_problems::update_yukicoder_problems::UpdateYukicoderProblemUsecase::new(
+    //         api_client,
+    //     );
+    // usecase.execute().await;
+
+    let api_client = YosupoOnlineJudgeAPIClient::new();
     let usecase =
-        service::update_problems::update_yukicoder_problems::UpdateYukicoderProblemUsecase::new(
-            api_client,
-        );
+            service::update_problems::update_yosupo_online_judge_problems::UpdateYosupoOnlineJudgeProblemUsecase::new(
+                api_client,
+            );
     usecase.execute().await;
 
     Ok(())

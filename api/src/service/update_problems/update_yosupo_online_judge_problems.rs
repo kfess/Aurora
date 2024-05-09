@@ -9,10 +9,21 @@ where
 
 impl<T: IYosupoOnlineJudgeAPIClient> UpdateYosupoOnlineJudgeProblemUsecase<T> {
     pub fn new(api_client: T) -> Self {
-        return Self { api_client };
+        Self { api_client }
     }
 
-    pub fn execute(&self) {
-        println!("Update Problems Usecase");
+    pub async fn execute(&self) {
+        println!("Update YOJ Problems Usecase");
+        // let problems = self.api_client.get_problems().await;
+        // for problem in problems.iter() {
+        //     println!("{:?}", problem);
+        // }
+
+        let contests = self.api_client.get_contests().await;
+        for contest in contests.iter() {
+            println!("{:?}", contest);
+        }
+
+        println!("Finish Update YOJ Problems Usecase");
     }
 }

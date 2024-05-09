@@ -16,10 +16,10 @@ pub struct Contest {
     pub phase: String,
 
     // contest start time in unix time
-    pub start_time_seconds: u64,
+    pub start_time_seconds: Option<u64>,
 
     // contest duration in seconds
-    pub duration_seconds: u64,
+    pub duration_seconds: Option<u64>,
 
     pub url: String,
 
@@ -32,8 +32,8 @@ impl Contest {
         name: String,
         platform: Platform,
         phase: String,
-        start_time_seconds: u64,
-        duration_seconds: u64,
+        start_time_seconds: Option<u64>,
+        duration_seconds: Option<u64>,
         url: String,
         problems: Vec<Problem>,
     ) -> Self {
@@ -53,8 +53,8 @@ impl Contest {
         name: String,
         platform: Platform,
         phase: String,
-        start_time_seconds: u64,
-        duration_seconds: u64,
+        start_time_seconds: Option<u64>,
+        duration_seconds: Option<u64>,
         url: String,
         problems: Vec<Problem>,
     ) -> Self {

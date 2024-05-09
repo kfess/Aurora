@@ -6,6 +6,7 @@ use std::thread;
 use std::{collections::HashMap, sync::RwLock};
 
 use crate::domain::{contest::Contest, problem::Problem, value_object::platform::Platform};
+use crate::utils::format::num_to_alphabet;
 
 use self::types::{
     YukicoderContest, YukicoderProblem, YukicoderProblemWithStatistics, YukicoderTag,
@@ -127,7 +128,7 @@ impl YukicoderAPIClient {
             let mut problem_ids = contest.problem_id_list.clone();
             problem_ids.sort_unstable();
             for (index, problem_id) in problem_ids.iter().enumerate() {
-                let letter = ((65u8 + index as u8) as char).to_string();
+                let letter = num_to_alphabet(index);
                 problem_id_map.insert(*problem_id, (contest.name.to_string(), letter));
             }
         }
@@ -182,8 +183,8 @@ impl YukicoderAPIClient {
                 contest.name.to_string(),
                 Platform::Yukicoder,
                 "finished".to_string(),
-                start_timestamp,
-                duration_seconds,
+                Some(start_timestamp),
+                Some(duration_seconds),
                 format!("https://yukicoder.me/contests/{}", contest.id),
                 contest_problems_map.get(&id).cloned().unwrap_or_default(),
             ))
