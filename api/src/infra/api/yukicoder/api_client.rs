@@ -112,6 +112,47 @@ impl YukicoderAPIClient {
         Ok(tags)
     }
 
+    fn build_problem(
+        &self,
+        contest_name: &str,
+        index: &str,
+        problem: &YukicoderProblemWithStatistics,
+    ) -> Problem {
+        Problem::reconstruct(
+            contest_name.to_string(),
+            index.to_string(),
+            problem.title.to_string(),
+            Platform::Yukicoder,
+            Some(problem.level),
+            Option::None,
+            problem.tags.split(",").map(|s| s.to_string()).collect(),
+            format!("https://yukicoder.me/problems/no/{}", problem.no),
+            Some(problem.statistics.solved),
+            Some(problem.statistics.total),
+        )
+    }
+
+    fn build_contest(&self, contest: &YukicoderContest, problems: Vec<Problem>) -> Contest {
+        let start_timestamp = DateTime::parse_from_rfc3339(&contest.date)
+            .unwrap()
+            .timestamp() as u64;
+
+        let duration_seconds = DateTime::parse_from_rfc3339(&contest.end_date)
+            .unwrap()
+            .timestamp() as u64
+            - start_timestamp;
+
+        Contest::reconstruct(
+            contest.name.to_string(),
+            Platform::Yukicoder,
+            "finished".to_string(),
+            Some(start_timestamp),
+            Some(duration_seconds),
+            format!("https://yukicoder.me/contests/{}", contest.id),
+            problems,
+        )
+    }
+
     async fn merge(&self) -> Result<()> {
         if self.cache.read().unwrap().is_some() {
             return Ok(());
@@ -139,22 +180,7 @@ impl YukicoderAPIClient {
             let default_value = ("Unknown".to_string(), "A".to_string());
             let (contest_name, index) = problem_id_map.get(problem_id).unwrap_or(&default_value);
 
-            let problem = Problem::reconstruct(
-                contest_name.to_string(),
-                index.to_string(),
-                fetched_problem.title.to_string(),
-                Platform::Yukicoder,
-                Some(fetched_problem.level),
-                Option::None,
-                fetched_problem
-                    .tags
-                    .split(",")
-                    .map(|s| s.to_string())
-                    .collect(),
-                format!("https://yukicoder.me/problems/no/{}", fetched_problem.no),
-                Some(fetched_problem.statistics.solved),
-                Some(fetched_problem.statistics.total),
-            );
+            let problem = self.build_problem(contest_name, index, &fetched_problem);
 
             problems.push(problem.clone());
 
@@ -168,26 +194,11 @@ impl YukicoderAPIClient {
         }
 
         for contest in fetched_contests.iter() {
-            let start_timestamp = DateTime::parse_from_rfc3339(&contest.date)
-                .unwrap()
-                .timestamp() as u64;
-
-            let duration_seconds = DateTime::parse_from_rfc3339(&contest.end_date)
-                .unwrap()
-                .timestamp() as u64
-                - start_timestamp;
-
-            let id = format!("{}_{}", String::from(Platform::Yukicoder), contest.name);
-
-            contests.push(Contest::reconstruct(
-                contest.name.to_string(),
-                Platform::Yukicoder,
-                "finished".to_string(),
-                Some(start_timestamp),
-                Some(duration_seconds),
-                format!("https://yukicoder.me/contests/{}", contest.id),
-                contest_problems_map.get(&id).cloned().unwrap_or_default(),
-            ))
+            let contest_id = format!("{}_{}", String::from(Platform::Yukicoder), contest.name);
+            contests.push(self.build_contest(
+                contest,
+                contest_problems_map.get(&contest_id).cloned().unwrap(),
+            ));
         }
 
         *self.cache.write().unwrap() = Some((problems.clone(), contests.clone()));
