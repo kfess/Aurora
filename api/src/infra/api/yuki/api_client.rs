@@ -107,11 +107,10 @@ impl YukicoderAPIClient {
             sleep(Duration::from_secs(1)).await;
         }
 
-        let mut contests: Vec<Contest> = vec![];
-        for (contest_id, problems) in c_to_p_id_map.iter() {
-            let contest = p_to_c_map.get(contest_id).unwrap().0.clone();
-            contests.push(build_contest(&contest, problems.clone()));
-        }
+        let contests: Vec<Contest> = c_to_p_id_map
+            .iter()
+            .map(|(&id, problems)| build_contest(&p_to_c_map[&id].0, problems.clone()))
+            .collect();
 
         *self.cache.write().unwrap() = Some((problems.clone(), contests.clone()));
 
