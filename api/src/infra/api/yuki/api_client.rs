@@ -82,33 +82,25 @@ impl YukicoderAPIClient {
         let (raw_problem_ids, raw_contests) =
             tokio::try_join!(self.fetch_problem_ids(), self.fetch_past_contests())?;
 
-        let mut problems: Vec<Problem> = vec![];
-        let mut problem_id_map: HashMap<u64, (String, String)> = HashMap::new();
-        let mut contest_problems_map: HashMap<String, Vec<Problem>> = HashMap::new();
+        let mut p_to_c_map: HashMap<u64, (YukicoderContest, String)> = HashMap::new();
+        let mut c_to_p_id_map: HashMap<u64, Vec<Problem>> = HashMap::new();
 
         for c in raw_contests.iter() {
             for (idx, problem_id) in c.problem_id_list.iter().enumerate() {
-                problem_id_map.insert(*problem_id, (c.name.to_string(), num_to_alphabet(idx)));
+                p_to_c_map.insert(*problem_id, (c.clone(), num_to_alphabet(idx)));
             }
         }
 
-        for problem_id in &raw_problem_ids[..100] {
+        let mut problems: Vec<Problem> = vec![];
+        for problem_id in &raw_problem_ids[..3] {
             let raw_problem = self.fetch_problem(*problem_id).await?;
+            let (contest, idx) = p_to_c_map.get(problem_id).cloned().unwrap();
 
-            let (contest_name, idx) = problem_id_map
-                .get(problem_id)
-                .cloned()
-                .unwrap_or_else(|| ("Unknown".to_string(), "A".to_string()));
-
-            let problem = build_problem(&contest_name, &idx, &raw_problem);
+            let problem = build_problem(&contest.name, &idx, &raw_problem);
             problems.push(problem.clone());
 
-            contest_problems_map
-                .entry(format!(
-                    "{}_{}",
-                    String::from(Platform::Yukicoder),
-                    contest_name
-                ))
+            c_to_p_id_map
+                .entry(contest.id)
                 .or_insert_with(Vec::new)
                 .push(problem.clone());
 
@@ -116,14 +108,9 @@ impl YukicoderAPIClient {
         }
 
         let mut contests: Vec<Contest> = vec![];
-        for c in raw_contests.iter() {
-            contests.push(build_contest(
-                c,
-                contest_problems_map
-                    .get(&format!("{}_{}", String::from(Platform::Yukicoder), c.name))
-                    .cloned()
-                    .unwrap(),
-            ));
+        for (contest_id, problems) in c_to_p_id_map.iter() {
+            let contest = p_to_c_map.get(contest_id).unwrap().0.clone();
+            contests.push(build_contest(&contest, problems.clone()));
         }
 
         *self.cache.write().unwrap() = Some((problems.clone(), contests.clone()));

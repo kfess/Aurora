@@ -1,5 +1,5 @@
 use super::problem::Problem;
-use super::value_object::platform::Platform;
+use super::vo::platform::Platform;
 
 #[derive(Clone, Debug)]
 pub struct Contest {

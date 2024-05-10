@@ -16,10 +16,10 @@ async fn main() -> Result<()> {
     let usecase = service::update_problems::yuki::UpdateYukicoderUsecase::new(api_client);
     usecase.execute().await;
 
-    let api_client = YOJAPIClient::new();
-    let usecase: service::update_problems::yoj::UpdateYOJUsecase<_> =
-        service::update_problems::yoj::UpdateYOJUsecase::new(api_client);
-    usecase.execute().await;
+    // let api_client = YOJAPIClient::new();
+    // let usecase: service::update_problems::yoj::UpdateYOJUsecase<_> =
+    //     service::update_problems::yoj::UpdateYOJUsecase::new(api_client);
+    // usecase.execute().await;
 
     Ok(())
 }

@@ -3,7 +3,7 @@ use convert_case::{Case, Casing};
 use std::sync::{Arc, RwLock};
 
 use crate::{
-    domain::{contest::Contest, problem::Problem, value_object::platform::Platform},
+    domain::{contest::Contest, problem::Problem, vo::platform::Platform},
     infra::api::yoj::types::ProblemCategories,
     utils::format::num_to_alphabet,
 };

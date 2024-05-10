@@ -14,14 +14,14 @@ impl<T: IYukicoderAPIClient> UpdateYukicoderUsecase<T> {
 
     pub async fn execute(&self) {
         println!("Update Problems Usecase...");
-        let problems = self.api_client.get_problems().await.unwrap();
-        for problem in problems {
-            println!("{:?}", problem);
-        }
+        // let problems = self.api_client.get_problems().await.unwrap();
+        // for problem in problems {
+        //     println!("{:?}", problem);
+        // }
 
         let contests = self.api_client.get_contests().await.unwrap();
         for contest in contests.iter() {
-            println!("{:?}", contest.problems);
+            println!("{:?}", contest);
         }
     }
 }

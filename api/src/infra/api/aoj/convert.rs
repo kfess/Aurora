@@ -1,6 +1,6 @@
 // convert external API data to domain data
 
-use crate::domain::{problem::Problem, value_object::platform::Platform};
+use crate::domain::{problem::Problem, vo::platform::Platform};
 
 use super::types::AojProblem;
 
