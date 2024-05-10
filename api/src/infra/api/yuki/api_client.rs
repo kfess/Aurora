@@ -85,16 +85,16 @@ impl YukicoderAPIClient {
         let mut p_to_c_map: HashMap<u64, (YukicoderContest, String)> = HashMap::new();
         let mut c_to_p_id_map: HashMap<u64, Vec<Problem>> = HashMap::new();
 
-        for c in raw_contests.iter() {
-            for (idx, problem_id) in c.problem_id_list.iter().enumerate() {
-                p_to_c_map.insert(*problem_id, (c.clone(), num_to_alphabet(idx)));
+        for c in &raw_contests {
+            for (idx, &problem_id) in c.problem_id_list.iter().enumerate() {
+                p_to_c_map.insert(problem_id, (c.clone(), num_to_alphabet(idx)));
             }
         }
 
         let mut problems: Vec<Problem> = vec![];
-        for problem_id in &raw_problem_ids[..3] {
-            let raw_problem = self.fetch_problem(*problem_id).await?;
-            let (contest, idx) = p_to_c_map.get(problem_id).cloned().unwrap();
+        for &problem_id in &raw_problem_ids[..3] {
+            let raw_problem = self.fetch_problem(problem_id).await?;
+            let (contest, idx) = p_to_c_map.get(&problem_id).cloned().unwrap();
 
             let problem = build_problem(&contest.name, &idx, &raw_problem);
             problems.push(problem.clone());
