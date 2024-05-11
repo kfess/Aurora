@@ -1,6 +1,5 @@
 use anyhow::{Context, Result};
 use reqwest::Client;
-use tokio::time;
 
 pub(crate) async fn get_json<T: serde::de::DeserializeOwned>(
     url: &str,
@@ -18,6 +17,20 @@ pub(crate) async fn get_json<T: serde::de::DeserializeOwned>(
         .with_context(|| format!("Failed to parse json from {}", url))
 }
 
-pub(crate) async fn sleep(duration: std::time::Duration) {
-    time::sleep(duration).await;
+pub(crate) async fn get_toml<T>(url: &str, client: &Client) -> Result<T>
+where
+    T: serde::de::DeserializeOwned,
+{
+    let text = client
+        .get(url)
+        .send()
+        .await
+        .with_context(|| format!("Failed to fetch {}", url))?
+        .text()
+        .await
+        .with_context(|| format!("Failed to get text from {}", url))?;
+
+    let toml_data = toml::from_str::<T>(&text).with_context(|| "Failed to deserialize TOML")?;
+
+    Ok(toml_data)
 }

@@ -5,7 +5,7 @@ use std::sync::{Arc, RwLock};
 use crate::{
     domain::{contest::Contest, problem::Problem, vo::platform::Platform},
     infra::api::yoj::types::ProblemCategories,
-    utils::format::num_to_alphabet,
+    utils::{api::get_toml, format::num_to_alphabet},
 };
 
 const CATEGORY_TOML_URL: &'static str =
@@ -25,34 +25,7 @@ impl YOJAPIClient {
     }
 
     async fn fetch_categories(&self) -> Result<ProblemCategories> {
-        let response = self.client.get(CATEGORY_TOML_URL).send().await?;
-
-        if !response.status().is_success() {
-            return Err(anyhow::anyhow!(
-                "Failed to fetch yosupo online judge categories"
-            ));
-        }
-
-        let raw_toml = match response.text().await {
-            Ok(raw_toml) => raw_toml,
-            Err(e) => {
-                return Err(anyhow::anyhow!(
-                    "Failed to fetch yosupo online judge categories toml: {}",
-                    e
-                ))
-            }
-        };
-
-        let categories = match toml::from_str::<ProblemCategories>(&raw_toml) {
-            Ok(categories) => categories,
-            Err(e) => {
-                return Err(anyhow::anyhow!(
-                    "Failed to parse yosupo online judge categories toml: {}",
-                    e
-                ))
-            }
-        };
-
+        let categories = get_toml(CATEGORY_TOML_URL, &self.client).await?;
         Ok(categories)
     }
 
