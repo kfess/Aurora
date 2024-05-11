@@ -56,34 +56,7 @@ impl YOJAPIClient {
         Ok(categories)
     }
 
-    fn build_problem(&self, category_name: &str, index: usize, raw_problem: &str) -> Problem {
-        Problem::reconstruct(
-            category_name.to_string(),
-            num_to_alphabet(index),
-            raw_problem.to_string().to_case(Case::Title),
-            Platform::YosupoOnlineJudge,
-            Option::None,
-            Option::None,
-            vec![],
-            format!("https://judge.yosupo.jp/problem/{}", raw_problem),
-            Option::None,
-            Option::None,
-        )
-    }
-
-    fn build_contest(&self, category_name: &str, problems: Vec<Problem>) -> Contest {
-        Contest::reconstruct(
-            category_name.to_string(),
-            Platform::YosupoOnlineJudge,
-            "finished".to_string(),
-            Option::None,
-            Option::None,
-            "https://judge.yosupo.jp/".to_string(),
-            problems,
-        )
-    }
-
-    async fn merge(&self) -> Result<()> {
+    async fn build_problems_contests(&self) -> Result<()> {
         if self.cache.read().unwrap().is_some() {
             return Ok(());
         }
@@ -95,11 +68,12 @@ impl YOJAPIClient {
         for category in raw_categories.categories.iter() {
             let mut tmp_problems: Vec<Problem> = vec![];
             for (index, raw_problem) in category.raw_problems.iter().enumerate() {
-                problems.push(self.build_problem(&category.name, index, raw_problem));
-                tmp_problems.push(self.build_problem(&category.name, index, raw_problem));
+                let problem = build_problem(&category.name, index, raw_problem);
+                problems.push(problem.clone());
+                tmp_problems.push(problem);
             }
 
-            contests.push(self.build_contest(&category.name, tmp_problems));
+            contests.push(build_contest(&category.name, tmp_problems));
         }
 
         *self.cache.write().unwrap() = Some((problems.clone(), contests.clone()));
@@ -115,7 +89,7 @@ pub trait IYOJAPIClient {
 
 impl IYOJAPIClient for YOJAPIClient {
     async fn get_problems(&self) -> Result<Vec<Problem>> {
-        self.merge().await?;
+        self.build_problems_contests().await?;
         let cache = self.cache.read().unwrap();
         let (problems, _) = cache.as_ref().unwrap();
 
@@ -123,10 +97,37 @@ impl IYOJAPIClient for YOJAPIClient {
     }
 
     async fn get_contests(&self) -> Result<Vec<Contest>> {
-        self.merge().await?;
+        self.build_problems_contests().await?;
         let cache = self.cache.read().unwrap();
         let (_, contests) = cache.as_ref().unwrap();
 
         Ok(contests.clone())
     }
+}
+
+fn build_problem(category_name: &str, index: usize, raw_problem: &str) -> Problem {
+    Problem::reconstruct(
+        category_name.to_string(),
+        num_to_alphabet(index),
+        raw_problem.to_string().to_case(Case::Title),
+        Platform::YosupoOnlineJudge,
+        Option::None,
+        Option::None,
+        vec![],
+        format!("https://judge.yosupo.jp/problem/{}", raw_problem),
+        Option::None,
+        Option::None,
+    )
+}
+
+fn build_contest(category_name: &str, problems: Vec<Problem>) -> Contest {
+    Contest::reconstruct(
+        category_name.to_string(),
+        Platform::YosupoOnlineJudge,
+        "finished".to_string(),
+        Option::None,
+        Option::None,
+        "https://judge.yosupo.jp/".to_string(),
+        problems,
+    )
 }
