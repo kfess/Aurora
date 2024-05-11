@@ -13,6 +13,8 @@ impl<T: IYukicoderAPIClient> UpdateYukicoderUsecase<T> {
     }
 
     pub async fn update_recent(&self) {
+        log::info!("Yukicoder: update recent problems and contests");
+
         let problems = self.api_client.get_problems(true).await.unwrap();
         for problem in problems {
             println!("{:?}", problem);
@@ -25,6 +27,8 @@ impl<T: IYukicoderAPIClient> UpdateYukicoderUsecase<T> {
     }
 
     pub async fn update_all(&self) {
+        log::info!("Yukicoder: update all problems and contests");
+
         let problems = self.api_client.get_problems(false).await.unwrap();
         for problem in problems {
             println!("{:?}", problem);
