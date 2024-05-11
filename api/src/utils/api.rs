@@ -1,10 +1,10 @@
 use anyhow::{Context, Result};
 use reqwest::Client;
 
-pub(crate) async fn get_json<T: serde::de::DeserializeOwned>(
-    url: &str,
-    client: &Client,
-) -> Result<T> {
+pub(crate) async fn get_json<T>(url: &str, client: &Client) -> Result<T>
+where
+    T: serde::de::DeserializeOwned,
+{
     client
         .get(url)
         .header("accept", "application/json")
