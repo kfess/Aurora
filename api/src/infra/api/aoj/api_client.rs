@@ -1,4 +1,7 @@
-use self::types::{AojChallenges, AojProblem, AojSubmission, AojVolume, AojVolumesChallengesList};
+use self::types::{
+    AojChallenges, AojChallengesAndRelatedContests, AojProblem, AojSubmission, AojVolume,
+    AojVolumesChallengesList,
+};
 use crate::domain::vo::platform::Platform;
 use crate::domain::vo::verdict::Verdict;
 use crate::domain::{problem::Problem, submission::Submission};
@@ -87,8 +90,15 @@ impl AojAPIClient {
         Ok(problems)
     }
 
-    async fn get_challenges_by_large_cl_middle_cl(&self, large_cl: &str, middle_cl: &str) {
-        let url = format!("{}/challenges/{}/{}", AOJ_URL, large_cl, middle_cl);
+    async fn get_challenges_by_large_cl_middle_cl(
+        &self,
+        large_cl: &str,
+        middle_cl: &str,
+    ) -> Result<Vec<AojProblem>> {
+        let url = format!("{}/challenges/cl/{}/{}", AOJ_URL, large_cl, middle_cl);
+        let chanllenges: AojChallengesAndRelatedContests = get_json(&url, &self.client).await?;
+
+        Ok(vec![])
     }
 }
 
