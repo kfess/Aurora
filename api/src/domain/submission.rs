@@ -1,10 +1,13 @@
 use super::vo::{language::Language, platform::Platform, verdict::Verdict};
 
+// We do not include contest_id in the submission struct
 #[derive(Clone, Debug, PartialEq)]
 pub struct Submission {
     // The naming convention for this field is:
     // <platform>_<submission_id>
     id: String,
+
+    user_id: String, // user_id specific to the platform
 
     language: String,
 
@@ -23,13 +26,12 @@ pub struct Submission {
     submission_date: u64, // unix time in seconds
 
     problem_id: String,
-
-    contest_id: Option<String>,
 }
 
 impl Submission {
     pub fn new(
         id: String,
+        user_id: String,
         language: String,
         raw_language: String,
         platform: Platform,
@@ -39,10 +41,10 @@ impl Submission {
         execution_time: u64,
         submission_date: u64,
         problem_id: String,
-        contest_id: Option<String>,
     ) -> Self {
         Self {
             id,
+            user_id,
             language,
             raw_language,
             platform,
@@ -52,24 +54,23 @@ impl Submission {
             execution_time,
             submission_date,
             problem_id,
-            contest_id,
         }
     }
 
     pub fn reconstruct(
         raw_id: u64,
-        raw_language: String,
+        user_id: &str,
+        raw_language: &str,
         platform: Platform,
         verdict: Verdict,
         raw_memory: Option<u64>,
         raw_code_size: Option<u64>,
         raw_execution_time: u64,
         raw_submission_date: u64,
-        problem_id: String,
-        contest_id: Option<String>,
+        problem_id: &str,
     ) -> Self {
         let id = String::from(platform) + "_" + &raw_id.to_string();
-        let language = String::from(Language::from(raw_language.as_str()));
+        let language = String::from(Language::from(raw_language));
 
         let (memory, execution_time, code_size, submission_date) = match platform {
             Platform::Atcoder => (None, raw_execution_time, None, raw_submission_date),
@@ -92,8 +93,9 @@ impl Submission {
 
         Self {
             id,
+            user_id: user_id.to_string(),
             language,
-            raw_language,
+            raw_language: raw_language.to_string(),
             platform,
             verdict,
             memory,
@@ -101,7 +103,6 @@ impl Submission {
             execution_time,
             submission_date,
             problem_id,
-            contest_id,
         }
     }
 }

@@ -166,7 +166,7 @@ mod tests {
             assert_eq!(Language::from(v), Language::CPP);
         }
 
-        for v in ["Python", "PyPy", "Python (CPython 3.11.4)"] {
+        for v in ["Python", "PyPy", "Python (CPython 3.11.4)", "Python3"] {
             assert_eq!(Language::from(v), Language::Python);
         }
 

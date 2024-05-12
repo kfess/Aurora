@@ -29,7 +29,7 @@ impl AojAPIClient {
         Ok(problems)
     }
 
-    async fn fetch_user_submission(
+    async fn fetch_user_submissions(
         &self,
         user_id: &str,
         page: u32,
@@ -43,16 +43,24 @@ impl AojAPIClient {
 
         Ok(submissions)
     }
+
+    async fn fetch_recent_submissions(&self) -> Result<Vec<AojSubmission>> {
+        let url = format!("{}/submission_records/recent", AOJ_URL);
+        let submissions: Vec<AojSubmission> = get_json(&url, &self.client).await?;
+
+        Ok(submissions)
+    }
 }
 
 pub trait IAojAPIClient {
     async fn get_problems(&self) -> Result<Vec<Problem>>;
-    async fn get_user_submission(
+    async fn get_user_submissions(
         &self,
         user_id: &str,
         page: u32,
         size: u32,
     ) -> Result<Vec<Submission>>;
+    async fn get_recent_submissions(&self) -> Result<Vec<Submission>>;
 }
 
 impl IAojAPIClient for AojAPIClient {
@@ -60,27 +68,50 @@ impl IAojAPIClient for AojAPIClient {
         Ok(vec![])
     }
 
-    async fn get_user_submission(
+    async fn get_user_submissions(
         &self,
         user_id: &str,
         page: u32,
         size: u32,
     ) -> Result<Vec<Submission>> {
-        let raw_submissions = self.fetch_user_submission(user_id, page, size).await?;
+        let raw_submissions = self.fetch_user_submissions(user_id, page, size).await?;
         let submissions = raw_submissions
             .iter()
             .map(|s| {
                 Submission::reconstruct(
                     s.judge_id,
-                    s.language.clone(),
+                    s.user_id.as_str(),
+                    s.language.as_str(),
                     Platform::Aoj,
                     map_status_to_verdict(s.status),
                     Some(s.memory),
                     Some(s.cpu_time),
                     s.code_size,
                     s.submission_date,
-                    s.problem_id.clone(),
-                    None,
+                    s.problem_id.as_str(),
+                )
+            })
+            .collect();
+
+        Ok(submissions)
+    }
+
+    async fn get_recent_submissions(&self) -> Result<Vec<Submission>> {
+        let raw_submissions = self.fetch_recent_submissions().await?;
+        let submissions = raw_submissions
+            .iter()
+            .map(|s| {
+                Submission::reconstruct(
+                    s.judge_id,
+                    s.user_id.as_str(),
+                    s.language.as_str(),
+                    Platform::Aoj,
+                    map_status_to_verdict(s.status),
+                    Some(s.memory),
+                    Some(s.cpu_time),
+                    s.code_size,
+                    s.submission_date,
+                    s.problem_id.as_str(),
                 )
             })
             .collect();
