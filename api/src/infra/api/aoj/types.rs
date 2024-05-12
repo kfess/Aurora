@@ -98,3 +98,117 @@ pub struct AojSubmission {
     #[serde(rename = "token")]
     pub token: Option<String>,
 }
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AojVolume {
+    #[serde(rename = "progress")]
+    pub progress: u16,
+
+    #[serde(rename = "numberOfProblems")]
+    pub number_of_problems: u16,
+
+    #[serde(rename = "numberOfSolved")]
+    pub number_of_solved: u16,
+
+    #[serde(rename = "problems")]
+    pub problems: Vec<AojProblem>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AojVolumesChallengesList {
+    #[serde(rename = "volumes")]
+    pub volumes: Vec<u16>,
+
+    #[serde(rename = "largeCls")]
+    pub large_cls: Vec<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AojChallenges {
+    #[serde(rename = "largeCls")]
+    pub large_cls: Vec<AojLargeCl>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AojLargeCl {
+    pub id: String,
+
+    pub title: String,
+
+    pub filter: Option<Vec<AojFilter>>,
+
+    #[serde(rename = "middleCls")]
+    pub middle_cls: Option<Vec<AojMiddleCls>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AojMiddleCls {
+    pub id: String,
+
+    #[serde(rename = "numberOfProblems")]
+    pub number_of_problems: u16,
+
+    #[serde(rename = "numberOfSolved")]
+    pub number_of_solved: u16,
+
+    pub progress: u16,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AojFilter {
+    pub label: String,
+    pub value: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AojChallengesAndRelatedContests {
+    #[serde(rename = "largeCl")]
+    pub large_cl: AojLargeCl,
+
+    #[serde(rename = "middleCls")]
+    pub middle_cls: Option<Vec<AojMiddleCls>>,
+
+    pub contests: Vec<AojContest>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AojContest {
+    pub abbr: String,
+
+    #[serde(rename = "largeCl")]
+    pub large_cl: String,
+
+    #[serde(rename = "middleCl")]
+    pub middle_cl: String,
+
+    pub year: String,
+
+    pub progress: u16,
+
+    #[serde(rename = "numberOfProblems")]
+    pub number_of_problems: u16,
+
+    #[serde(rename = "numberOfSolved")]
+    pub number_of_solved: u16,
+
+    pub days: Vec<AojDay>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AojDay {
+    pub id: u64,
+
+    pub day: u16,
+
+    pub title: String,
+
+    pub progress: u16,
+
+    #[serde(rename = "numberOfProblems")]
+    pub number_of_problems: u16,
+
+    #[serde(rename = "numberOfSolved")]
+    pub number_of_solved: u16,
+
+    pub problems: Vec<AojProblem>,
+}

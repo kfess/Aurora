@@ -11,6 +11,14 @@ pub struct Contest {
     // <contest_name>
     pub name: String,
 
+    // for example: this field is
+    // Atcoder: "abc", "arc", "agc", "other"
+    // Codeforces: "div.1", "div.2", "div.3", "div.4", "educational"
+    // Yukicoder: "normal", "other", "not-classified"
+    // Aoj: "volume 1", "volume 2", ..., "<largeCl>-<middleCl>-<year>"
+    // Yosupo: "Graph", "Math", "String", "DataStructure", ...
+    pub category: String,
+
     pub platform: Platform,
 
     pub phase: String,

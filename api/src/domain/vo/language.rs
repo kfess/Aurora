@@ -201,5 +201,9 @@ mod tests {
         for v in ["C", "C (Clang 13.0.0)", "C (gcc 12.2.0)"] {
             assert_eq!(Language::from(v), Language::C);
         }
+
+        // for v in ["Ruby", "Ruby (3.1.0)"] {
+        //     assert_eq!(Language::from(v), Language::Ruby);
+        // }
     }
 }

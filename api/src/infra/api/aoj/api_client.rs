@@ -1,4 +1,4 @@
-use self::types::{AojProblem, AojSubmission};
+use self::types::{AojChallenges, AojProblem, AojSubmission, AojVolume, AojVolumesChallengesList};
 use crate::domain::vo::platform::Platform;
 use crate::domain::vo::verdict::Verdict;
 use crate::domain::{problem::Problem, submission::Submission};
@@ -49,6 +49,46 @@ impl AojAPIClient {
         let submissions: Vec<AojSubmission> = get_json(&url, &self.client).await?;
 
         Ok(submissions)
+    }
+
+    async fn get_volumes_challenges_list(&self) -> Result<(Vec<u16>, Vec<String>)> {
+        let url = format!("{}/problems/filters", AOJ_URL);
+        let list: AojVolumesChallengesList = get_json(&url, &self.client).await?;
+
+        let (volume_ids, large_cls) = (list.volumes, list.large_cls);
+
+        Ok((volume_ids, large_cls))
+    }
+
+    async fn get_large_cls_middle_cls(&self) -> Result<Vec<(String, String)>> {
+        let url = format!("{}/challenges", AOJ_URL);
+        let challenges: AojChallenges = get_json(&url, &self.client).await?;
+
+        let pairs: Vec<(String, String)> = challenges
+            .large_cls
+            .iter()
+            .flat_map(|l| {
+                l.middle_cls
+                    .as_ref()
+                    .unwrap()
+                    .iter()
+                    .map(move |m| (l.id.clone(), m.id.clone()))
+            })
+            .collect();
+
+        Ok(pairs)
+    }
+
+    async fn get_problems_by_volume_id(&self, volume_id: u16) -> Result<Vec<AojProblem>> {
+        let url = format!("{}/problems/volumes/{}", AOJ_URL, volume_id);
+        let volume: AojVolume = get_json(&url, &self.client).await?;
+        let problems = volume.problems;
+
+        Ok(problems)
+    }
+
+    async fn get_challenges_by_large_cl_middle_cl(&self, large_cl: &str, middle_cl: &str) {
+        let url = format!("{}/challenges/{}/{}", AOJ_URL, large_cl, middle_cl);
     }
 }
 
