@@ -69,18 +69,18 @@ impl IAojAPIClient for AojAPIClient {
         let raw_submissions = self.fetch_user_submission(user_id, page, size).await?;
         let submissions = raw_submissions
             .iter()
-            .map(|&s| {
+            .map(|s| {
                 Submission::reconstruct(
                     s.judge_id,
-                    s.language,
+                    s.language.clone(),
                     Platform::Aoj,
                     map_status_to_verdict(s.status),
                     Some(s.memory),
                     Some(s.cpu_time),
                     s.code_size,
                     s.submission_date,
-                    s.problem_id,
-                    contest_id,
+                    s.problem_id.clone(),
+                    None,
                 )
             })
             .collect();
@@ -89,8 +89,8 @@ impl IAojAPIClient for AojAPIClient {
     }
 }
 
-// http://developers.u-aizu.ac.jp/index
 fn map_status_to_verdict(status: u16) -> Verdict {
+    // http://developers.u-aizu.ac.jp/index
     match status {
         0 => Verdict::CompileError,
         1 => Verdict::WrongAnswer,
