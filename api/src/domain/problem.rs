@@ -1,6 +1,6 @@
 use super::vo::platform::Platform;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Problem {
     // The naming convention for this field is:
     // <platform>_<contest_name>_<problem_index>

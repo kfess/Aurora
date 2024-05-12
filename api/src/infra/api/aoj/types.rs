@@ -50,3 +50,51 @@ pub struct AojProblem {
     #[serde(rename = "userScore")]
     pub user_score: f64,
 }
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AojSubmission {
+    #[serde(rename = "judgeId")]
+    pub judge_id: u64,
+
+    #[serde(rename = "judgeType")]
+    pub judge_type: u16,
+
+    #[serde(rename = "userId")]
+    pub user_id: String,
+
+    #[serde(rename = "problemId")]
+    pub problem_id: String,
+
+    #[serde(rename = "submissionDate")]
+    pub submission_date: u64, // unix time in seconds
+
+    #[serde(rename = "language")]
+    pub language: String,
+
+    #[serde(rename = "status")]
+    pub status: u16,
+
+    #[serde(rename = "cpuTime")]
+    pub cpu_time: u64,
+
+    #[serde(rename = "memory")]
+    pub memory: u64,
+
+    #[serde(rename = "codeSize")]
+    pub code_size: u64,
+
+    #[serde(rename = "accuracy")]
+    pub accuracy: String,
+
+    #[serde(rename = "judgeDate")]
+    pub judge_date: u64, // unix time in seconds
+
+    #[serde(rename = "score")]
+    pub score: u64,
+
+    #[serde(rename = "problemTitle")]
+    pub problem_title: Option<String>,
+
+    #[serde(rename = "token")]
+    pub token: Option<String>,
+}
