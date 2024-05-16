@@ -85,7 +85,7 @@ impl Contest {
     ) -> Self {
         let (category, id, url, start_time_seconds, duration_seconds) = match platform {
             Platform::Atcoder => {
-                let category = match raw_id {
+                let category = match &raw_id {
                     id if id.starts_with("abc") => "ABC".to_string(),
                     id if id.starts_with("arc") => "ARC".to_string(),
                     id if id.starts_with("agc") => "AGC".to_string(),
@@ -103,7 +103,7 @@ impl Contest {
                 (category, id, url, start_time_seconds, duration_seconds)
             }
             Platform::Codeforces => {
-                let category = match raw_name {
+                let category = match &raw_name {
                     raw_name if raw_name.contains("Div. 1 + Div. 2") => {
                         "Div. 1 + Div. 2".to_string()
                     }
@@ -144,11 +144,16 @@ impl Contest {
                 let url = if raw_id.starts_with("volume") {
                     "https://onlinejudge.u-aizu.ac.jp/challenges/search/volumes".to_string()
                 } else {
-                    let [large_cl, middle_cl, year, ..] =
-                        raw_id.split("_").collect::<Vec<&str>>().as_slice();
-                    format!(
-                        "https://onlinejudge.u-aizu.ac.jp/challenges/sources/{large_cl}/{middle_cl}?year={year}",
-                    )
+                    match raw_id.split("_").collect::<Vec<&str>>().as_slice() {
+                        [large_cl, middle_cl, year] => {
+                            format!(
+                                "https://onlinejudge.u-aizu.ac.jp/challenges/sources/{large_cl}/{middle_cl}?year={year}",
+                            )
+                        }
+                        _ => {
+                            unreachable!()
+                        }
+                    }
                 };
                 let start_time_seconds = None;
                 let duration_seconds = None;
@@ -156,7 +161,7 @@ impl Contest {
                 (category, id, url, start_time_seconds, duration_seconds)
             }
             Platform::YOJ => {
-                let category = raw_name;
+                let category = raw_name.to_string();
                 let id = format!("{}_{}", String::from(Platform::YOJ), raw_name);
                 let url = "https://judge.yosupo.jp/".to_string();
                 let start_time_seconds = None;

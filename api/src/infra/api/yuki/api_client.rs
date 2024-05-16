@@ -204,7 +204,7 @@ pub fn build_contest(contest: &YukicoderContest, problems: Vec<Problem>) -> Cont
 
     Contest::reconstruct(
         contest.id.to_string(),
-        contest.name,
+        contest.name.to_string(),
         Platform::Yukicoder,
         "finished".to_string(),
         Some(start_timestamp),
