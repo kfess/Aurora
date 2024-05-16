@@ -203,12 +203,12 @@ pub fn build_contest(contest: &YukicoderContest, problems: Vec<Problem>) -> Cont
         - start_timestamp;
 
     Contest::reconstruct(
-        contest.name.to_string(),
+        contest.id.to_string(),
+        contest.name,
         Platform::Yukicoder,
         "finished".to_string(),
         Some(start_timestamp),
         Some(duration_seconds),
-        format!("https://yukicoder.me/contests/{}", contest.id),
         problems,
     )
 }

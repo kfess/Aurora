@@ -4,7 +4,7 @@ pub enum Platform {
     Codeforces,
     Yukicoder,
     Aoj,
-    YosupoOnlineJudge,
+    YOJ,
 }
 
 impl std::convert::From<&str> for Platform {
@@ -14,7 +14,7 @@ impl std::convert::From<&str> for Platform {
             "codeforces" => Platform::Codeforces,
             "yukicoder" => Platform::Yukicoder,
             "aoj" => Platform::Aoj,
-            "yosupo_online_judge" => Platform::YosupoOnlineJudge,
+            "yosupo_online_judge" => Platform::YOJ,
             _ => panic!("Invalid platform: {}", value),
         }
     }
@@ -27,7 +27,7 @@ impl std::convert::From<Platform> for String {
             Platform::Codeforces => "codeforces".to_string(),
             Platform::Yukicoder => "yukicoder".to_string(),
             Platform::Aoj => "aoj".to_string(),
-            Platform::YosupoOnlineJudge => "yosupo_online_judge".to_string(),
+            Platform::YOJ => "yosupo_online_judge".to_string(),
         }
     }
 }

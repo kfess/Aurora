@@ -83,7 +83,7 @@ fn build_problem(category_name: &str, index: usize, raw_problem: &str) -> Proble
         category_name.to_string(),
         num_to_alphabet(index),
         raw_problem.to_string().to_case(Case::Title),
-        Platform::YosupoOnlineJudge,
+        Platform::YOJ,
         Option::None,
         Option::None,
         vec![],
@@ -93,14 +93,14 @@ fn build_problem(category_name: &str, index: usize, raw_problem: &str) -> Proble
     )
 }
 
-fn build_contest(category_name: &str, problems: Vec<Problem>) -> Contest {
-    Contest::reconstruct(
-        category_name.to_string(),
-        Platform::YosupoOnlineJudge,
-        "finished".to_string(),
-        Option::None,
-        Option::None,
-        "https://judge.yosupo.jp/".to_string(),
-        problems,
-    )
-}
+// fn build_contest(category_name: &str, problems: Vec<Problem>) -> Contest {
+//     Contest::reconstruct(
+//         category_name.to_string(),
+//         Platform::YosupoOnlineJudge,
+//         "finished".to_string(),
+//         Option::None,
+//         Option::None,
+//         "https://judge.yosupo.jp/".to_string(),
+//         problems,
+//     )
+// }
