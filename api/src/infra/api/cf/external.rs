@@ -1,71 +1,27 @@
-use serde::de::{self, SeqAccess, Visitor};
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Serialize};
 
 // Codeforces API Response
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub enum Status {
+pub(super) enum Status {
     OK,
     FAILED,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct CodeforcesAPIResponse<T> {
+pub(super) struct CodeforcesAPIResponse<T> {
     pub status: Status,
     pub result: Option<T>,
 }
 
-// Codeforces Problem Tags
-
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub enum Tag {
-    Implementation,
-    Math,
-    Greedy,
-    Dp,
-    DataStructures,
-    BruteForce,
-    ConstructiveAlgorithms,
-    Graph,
-    Sortings,
-    BinarySearch,
-    DfsAndSimilar,
-    Trees,
-    Strings,
-    NumberTheory,
-    Combinatorics,
-    Special,
-    Geometry,
-    Bitmasks,
-    TwoPointers,
-    Dsu,
-    ShortestPaths,
-    Probabilities,
-    DivideAndConquer,
-    Hashing,
-    Games,
-    Flows,
-    Interactive,
-    Martices,
-    StringSuffixStructures,
-    Fft,
-    GraphMatchings,
-    TernarySearch,
-    ExpressionParsing,
-    MeetInTheMiddle,
-    TwoSat,
-    ChineseRemainderTheorem,
-    Schedules,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub enum ProblemType {
+pub(super) enum ProblemType {
     PROGRAMMING,
     QUESTION,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct CodeforcesProblem {
+pub(super) struct CodeforcesProblem {
     #[serde(rename = "contestId")]
     pub contest_id: u64,
 
@@ -87,7 +43,7 @@ pub struct CodeforcesProblem {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct CodeforcesProblemStat {
+pub(super) struct CodeforcesProblemStat {
     #[serde(rename = "contestId")]
     pub contest_id: u64,
 
@@ -98,19 +54,19 @@ pub struct CodeforcesProblemStat {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct CodeforcesProblemResult {
+pub(super) struct CodeforcesProblemResult {
     pub problems: Vec<CodeforcesProblem>,
 
     #[serde(rename = "problemStatistics")]
     pub problem_statistics: Vec<CodeforcesProblemStat>,
 }
 
-pub type CodeforcesProblemResponse = CodeforcesAPIResponse<CodeforcesProblemResult>;
+pub(super) type CodeforcesProblemResponse = CodeforcesAPIResponse<CodeforcesProblemResult>;
 
 // Codeforces Contest
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct CodeforcesContest {
+pub(super) struct CodeforcesContest {
     pub id: u64,
 
     pub name: String,
@@ -153,4 +109,78 @@ pub struct CodeforcesContest {
     pub season: Option<String>,
 }
 
-pub type CodeforcesContestResponse = CodeforcesAPIResponse<Vec<CodeforcesContest>>;
+pub(super) type CodeforcesContestResponse = CodeforcesAPIResponse<Vec<CodeforcesContest>>;
+
+// Codeforces Submission
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub(super) struct CodeforcesSubmission {
+    pub id: u64,
+
+    #[serde(rename = "contestId")]
+    pub contest_id: Option<u64>,
+
+    #[serde(rename = "creationTimeSeconds")]
+    pub creation_time_seconds: u64,
+
+    #[serde(rename = "relativeTimeSeconds")]
+    pub relative_time_seconds: u64,
+
+    #[serde(rename = "problem")]
+    pub problem: CodeforcesProblem,
+
+    #[serde(rename = "author")]
+    pub author: CodeforcesParty,
+
+    #[serde(rename = "programmingLanguage")]
+    pub programming_language: String,
+
+    #[serde(rename = "verdict")]
+    pub verdict: String,
+
+    pub testset: String,
+
+    #[serde(rename = "passedTestCount")]
+    pub passed_test_count: u64,
+
+    #[serde(rename = "timeConsumedMillis")]
+    pub time_consumed_millis: u64,
+
+    #[serde(rename = "memoryConsumedBytes")]
+    pub memory_consumed_bytes: u64,
+
+    #[serde(rename = "points")]
+    pub points: Option<f64>,
+}
+
+pub(super) type CodeforcesSubmissionResponse = CodeforcesAPIResponse<Vec<CodeforcesSubmission>>;
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub(super) struct CodeforcesParty {
+    #[serde(rename = "contestId")]
+    pub contest_id: Option<u64>,
+
+    pub members: Vec<CodeforcesMember>,
+
+    #[serde(rename = "participantType")]
+    pub participant_type: String,
+
+    #[serde(rename = "teamId")]
+    pub team_id: Option<u64>,
+
+    #[serde(rename = "teamName")]
+    pub team_name: Option<String>,
+
+    pub ghost: bool,
+
+    pub room: Option<u64>,
+
+    #[serde(rename = "startTimeSeconds")]
+    pub start_time_seconds: Option<u64>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub(super) struct CodeforcesMember {
+    pub handle: String,
+
+    pub name: Option<String>,
+}

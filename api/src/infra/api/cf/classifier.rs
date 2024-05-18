@@ -37,7 +37,7 @@ use super::external::CodeforcesContest;
 /// let category = classify_contest(&contest);
 /// assert_eq!(category, ContestCategory::Codeforces(CodeforcesCategory::Educational));
 /// ```
-pub fn classify_contest(contest: &CodeforcesContest) -> ContestCategory {
+pub(super) fn classify_contest(contest: &CodeforcesContest) -> ContestCategory {
     match &contest.name {
         name if name.contains("Educational") => {
             ContestCategory::Codeforces(CodeforcesCategory::Educational)

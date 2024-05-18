@@ -87,3 +87,30 @@ pub struct Estimation {
     pub irt_users: u64,
     pub is_experimental: bool,
 }
+
+/// `AtcoderSubmission` is a struct that contains more detailed information about a submission.
+///
+/// For the raw data, see:
+/// [AtCoder Problems JSON](https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions?user=chokudai&from_second=1560046356)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AtcoderSubmission {
+    pub id: String,
+
+    pub epoch_second: u64,
+
+    pub problem_id: String,
+
+    pub contest_id: String,
+
+    pub user_id: String,
+
+    pub language: String,
+
+    pub point: f64,
+
+    pub length: u64,
+
+    pub result: String,
+
+    pub execution_time: u64,
+}

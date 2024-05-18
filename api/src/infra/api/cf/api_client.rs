@@ -5,7 +5,7 @@ use std::{
 };
 
 use crate::{
-    domain::{contest::Contest, problem::Problem, vo::platform::Platform},
+    domain::{contest::Contest, problem::Problem, submission::Submission, vo::platform::Platform},
     utils::api::get_json,
 };
 
@@ -13,7 +13,7 @@ use super::{
     classifier::classify_contest,
     external::{
         CodeforcesContest, CodeforcesContestResponse, CodeforcesProblem, CodeforcesProblemResponse,
-        CodeforcesProblemStat,
+        CodeforcesProblemStat, CodeforcesSubmission, CodeforcesSubmissionResponse,
     },
 };
 
@@ -70,6 +70,31 @@ impl CodeforcesAPIClient {
         Ok(contests)
     }
 
+    #[allow(dead_code)]
+    async fn fetch_recent_submissions(&self) -> Result<Vec<CodeforcesSubmission>> {
+        let url = format!("{CODEFORCES_URL_PREFIX}/problemset.recentStatus?count=100");
+        let result = get_json::<CodeforcesSubmissionResponse>(&url, &self.client).await?;
+        let submissions = result.result.unwrap();
+
+        Ok(submissions)
+    }
+
+    #[allow(dead_code)]
+    async fn fetch_user_submissions(
+        &self,
+        user_id: &str,
+        page: u32,
+        count: u32,
+    ) -> Result<Vec<CodeforcesSubmission>> {
+        let url = format!(
+            "{CODEFORCES_URL_PREFIX}/user.status?handle={user_id}&from={page}&count={count}"
+        );
+        let result = get_json::<CodeforcesSubmissionResponse>(&url, &self.client).await?;
+        let submissions = result.result.unwrap();
+
+        Ok(submissions)
+    }
+
     async fn build_problems_contests(&self) -> Result<()> {
         if self.cache.read().unwrap().is_some() {
             return Ok(());
@@ -110,6 +135,13 @@ impl CodeforcesAPIClient {
 pub trait ICodeforcesAPICLient {
     async fn get_problems(&self) -> Result<Vec<Problem>>;
     async fn get_contests(&self) -> Result<Vec<Contest>>;
+    async fn get_user_submissions(
+        &self,
+        user_id: &str,
+        page: u32,
+        count: u32,
+    ) -> Result<Vec<Submission>>;
+    async fn get_recent_submissions(&self) -> Result<Vec<Submission>>;
 }
 
 impl ICodeforcesAPICLient for CodeforcesAPIClient {
@@ -127,6 +159,21 @@ impl ICodeforcesAPICLient for CodeforcesAPIClient {
         let (_, contests) = cache.as_ref().unwrap();
 
         Ok(contests.clone())
+    }
+
+    async fn get_user_submissions(
+        &self,
+        user_id: &str,
+        page: u32,
+        count: u32,
+    ) -> Result<Vec<Submission>> {
+        let raw_submissions = self.fetch_user_submissions(user_id, page, count).await?;
+        Ok(vec![])
+    }
+
+    async fn get_recent_submissions(&self) -> Result<Vec<Submission>> {
+        let raw_submissions = self.fetch_recent_submissions().await?;
+        Ok(vec![])
     }
 }
 

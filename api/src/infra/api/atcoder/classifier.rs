@@ -48,7 +48,7 @@ const MAYBE_OTHER_SPONSORED_NAMES: &'static str = r"ドワンゴ|^Mujin|SoundHou
 /// - `contest`: The AtCoder contest to classify.
 /// # Returns
 /// The category of the contest as a `ContestCategory` enum.
-pub fn classify_contest(contest: &AtcoderContest) -> ContestCategory {
+pub(super) fn classify_contest(contest: &AtcoderContest) -> ContestCategory {
     if Regex::new(r"^abc\d{3,}").unwrap().is_match(&contest.id) {
         return ContestCategory::Atcoder(AtcoderCategory::ABC);
     }

@@ -1,6 +1,6 @@
 use crate::domain::vo::category::{ContestCategory, YOJCategory};
 
-pub fn classify_contest(category_name: &str) -> ContestCategory {
+pub(super) fn classify_contest(category_name: &str) -> ContestCategory {
     match category_name {
         "Sample" => ContestCategory::YOJ(YOJCategory::Sample),
         "Data Structure" => ContestCategory::YOJ(YOJCategory::DataStructure),
