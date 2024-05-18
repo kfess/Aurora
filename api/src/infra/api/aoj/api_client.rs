@@ -17,6 +17,17 @@ pub struct AojAPIClient {
     client: Arc<reqwest::Client>,
 }
 
+pub trait AojAPIClientTrait {
+    async fn get_problems(&self) -> Result<Vec<Problem>>;
+    async fn get_user_submissions(
+        &self,
+        user_id: &str,
+        page: u32,
+        size: u32,
+    ) -> Result<Vec<Submission>>;
+    async fn get_recent_submissions(&self) -> Result<Vec<Submission>>;
+}
+
 impl AojAPIClient {
     pub fn new() -> Self {
         return Self {
@@ -102,18 +113,7 @@ impl AojAPIClient {
     }
 }
 
-pub trait IAojAPIClient {
-    async fn get_problems(&self) -> Result<Vec<Problem>>;
-    async fn get_user_submissions(
-        &self,
-        user_id: &str,
-        page: u32,
-        size: u32,
-    ) -> Result<Vec<Submission>>;
-    async fn get_recent_submissions(&self) -> Result<Vec<Submission>>;
-}
-
-impl IAojAPIClient for AojAPIClient {
+impl AojAPIClientTrait for AojAPIClient {
     async fn get_problems(&self) -> Result<Vec<Problem>> {
         Ok(vec![])
     }
@@ -127,20 +127,7 @@ impl IAojAPIClient for AojAPIClient {
         let raw_submissions = self.fetch_user_submissions(user_id, page, size).await?;
         let submissions = raw_submissions
             .iter()
-            .map(|s| {
-                Submission::reconstruct(
-                    s.judge_id,
-                    s.user_id.as_str(),
-                    s.language.as_str(),
-                    Platform::Aoj,
-                    map_status_to_verdict(s.status),
-                    Some(s.memory),
-                    Some(s.cpu_time),
-                    s.code_size,
-                    s.submission_date,
-                    s.problem_id.as_str(),
-                )
-            })
+            .map(|s| build_submission(s))
             .collect();
 
         Ok(submissions)
@@ -150,20 +137,7 @@ impl IAojAPIClient for AojAPIClient {
         let raw_submissions = self.fetch_recent_submissions().await?;
         let submissions = raw_submissions
             .iter()
-            .map(|s| {
-                Submission::reconstruct(
-                    s.judge_id,
-                    s.user_id.as_str(),
-                    s.language.as_str(),
-                    Platform::Aoj,
-                    map_status_to_verdict(s.status),
-                    Some(s.memory),
-                    Some(s.cpu_time),
-                    s.code_size,
-                    s.submission_date,
-                    s.problem_id.as_str(),
-                )
-            })
+            .map(|s| build_submission(s))
             .collect();
 
         Ok(submissions)
@@ -185,4 +159,19 @@ fn map_status_to_verdict(status: u16) -> Verdict {
         9 => Verdict::RuntimeError,
         _ => Verdict::Unknown,
     }
+}
+
+fn build_submission(s: AojSubmission) -> Submission {
+    Submission::reconstruct(
+        s.judge_id,
+        s.user_id.as_str(),
+        s.language.as_str(),
+        Platform::Aoj,
+        map_status_to_verdict(s.status),
+        Some(s.memory),
+        Some(s.cpu_time),
+        s.code_size,
+        s.submission_date,
+        s.problem_id.as_str(),
+    )
 }

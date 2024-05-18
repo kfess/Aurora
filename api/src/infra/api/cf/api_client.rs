@@ -19,12 +19,24 @@ use super::{
 
 const CODEFORCES_URL_PREFIX: &'static str = "https://codeforces.com/api";
 
-pub struct CodeforcesAPIClient {
+pub struct CFAPIClient {
     client: Arc<reqwest::Client>,
     cache: RwLock<Option<(Vec<Problem>, Vec<Contest>)>>,
 }
 
-impl CodeforcesAPIClient {
+pub trait CFAPIClientTrait {
+    async fn get_problems(&self) -> Result<Vec<Problem>>;
+    async fn get_contests(&self) -> Result<Vec<Contest>>;
+    async fn get_user_submissions(
+        &self,
+        user_id: &str,
+        page: u32,
+        count: u32,
+    ) -> Result<Vec<Submission>>;
+    async fn get_recent_submissions(&self) -> Result<Vec<Submission>>;
+}
+
+impl CFAPIClient {
     pub fn new() -> Self {
         Self {
             client: Arc::new(reqwest::Client::new()),
@@ -132,19 +144,7 @@ impl CodeforcesAPIClient {
     }
 }
 
-pub trait ICodeforcesAPICLient {
-    async fn get_problems(&self) -> Result<Vec<Problem>>;
-    async fn get_contests(&self) -> Result<Vec<Contest>>;
-    async fn get_user_submissions(
-        &self,
-        user_id: &str,
-        page: u32,
-        count: u32,
-    ) -> Result<Vec<Submission>>;
-    async fn get_recent_submissions(&self) -> Result<Vec<Submission>>;
-}
-
-impl ICodeforcesAPICLient for CodeforcesAPIClient {
+impl CFAPIClientTrait for CFAPIClient {
     async fn get_problems(&self) -> Result<Vec<Problem>> {
         self.fetch_problems().await?;
         let cache = self.cache.read().unwrap();

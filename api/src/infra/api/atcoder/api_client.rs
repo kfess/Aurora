@@ -8,6 +8,7 @@ use crate::{
     domain::{
         contest::Contest,
         problem::Problem,
+        submission::Submission,
         vo::{phase::Phase, platform},
     },
     utils::api::get_json,
@@ -26,6 +27,17 @@ const ATCODER_STATISTICS_URL: &'static str = "https://kenkoooo.com/atcoder/atcod
 pub struct AtcoderAPIClient {
     client: Arc<reqwest::Client>,
     cache: RwLock<Option<(Vec<Problem>, Vec<Contest>)>>,
+}
+
+pub trait AtcoderAPIClientTrait {
+    async fn get_problems(&self) -> Result<Vec<Problem>>;
+    async fn get_contests(&self) -> Result<Vec<Contest>>;
+    async fn get_recent_submissions(&self) -> Result<Vec<Submission>>;
+    async fn get_user_submissions(
+        &self,
+        user: &str,
+        from_second: Option<u64>,
+    ) -> Result<Vec<Submission>>;
 }
 
 impl AtcoderAPIClient {
@@ -127,12 +139,7 @@ impl AtcoderAPIClient {
     }
 }
 
-pub trait IAtcodedrAPIClient {
-    async fn get_problems(&self) -> Result<Vec<Problem>>;
-    async fn get_contests(&self) -> Result<Vec<Contest>>;
-}
-
-impl IAtcodedrAPIClient for AtcoderAPIClient {
+impl AtcoderAPIClientTrait for AtcoderAPIClient {
     async fn get_problems(&self) -> Result<Vec<Problem>> {
         self.build_problems_contests().await?;
         let cache = self.cache.read().unwrap();
@@ -147,6 +154,18 @@ impl IAtcodedrAPIClient for AtcoderAPIClient {
         let (_, contests) = cache.as_ref().unwrap();
 
         Ok(contests.clone())
+    }
+
+    async fn get_recent_submissions(&self) -> Result<Vec<Submission>> {
+        Ok(vec![])
+    }
+
+    async fn get_user_submissions(
+        &self,
+        user: &str,
+        from_second: Option<u64>,
+    ) -> Result<Vec<Submission>> {
+        Ok(vec![])
     }
 }
 

@@ -22,6 +22,11 @@ pub struct YOJAPIClient {
     cache: RwLock<Option<(Vec<Problem>, Vec<Contest>)>>,
 }
 
+pub trait YOJAPIClientTrait {
+    async fn get_problems(&self) -> Result<Vec<Problem>>;
+    async fn get_contests(&self) -> Result<Vec<Contest>>;
+}
+
 impl YOJAPIClient {
     pub fn new() -> Self {
         Self {
@@ -61,12 +66,7 @@ impl YOJAPIClient {
     }
 }
 
-pub trait IYOJAPIClient {
-    async fn get_problems(&self) -> Result<Vec<Problem>>;
-    async fn get_contests(&self) -> Result<Vec<Contest>>;
-}
-
-impl IYOJAPIClient for YOJAPIClient {
+impl YOJAPIClientTrait for YOJAPIClient {
     async fn get_problems(&self) -> Result<Vec<Problem>> {
         self.build_problems_contests().await?;
         let cache = self.cache.read().unwrap();

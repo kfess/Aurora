@@ -23,6 +23,11 @@ pub struct YukicoderAPIClient {
     cache: RwLock<Option<(Vec<Problem>, Vec<Contest>)>>,
 }
 
+pub trait YukicoderAPIClientTrait {
+    async fn get_problems(&self, is_recent: bool) -> Result<Vec<Problem>>;
+    async fn get_contests(&self, is_recent: bool) -> Result<Vec<Contest>>;
+}
+
 impl YukicoderAPIClient {
     pub fn new() -> Self {
         Self {
@@ -153,12 +158,7 @@ impl YukicoderAPIClient {
     }
 }
 
-pub trait IYukicoderAPIClient {
-    async fn get_problems(&self, is_recent: bool) -> Result<Vec<Problem>>;
-    async fn get_contests(&self, is_recent: bool) -> Result<Vec<Contest>>;
-}
-
-impl IYukicoderAPIClient for YukicoderAPIClient {
+impl YukicoderAPIClientTrait for YukicoderAPIClient {
     async fn get_problems(&self, is_recent: bool) -> Result<Vec<Problem>> {
         self.build_problems_contests(is_recent).await?;
         let cache = self.cache.read().unwrap();
