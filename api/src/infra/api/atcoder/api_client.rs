@@ -9,7 +9,7 @@ use crate::{
     utils::api::get_json,
 };
 
-use super::types::{AtcoderContest, AtcoderProblem};
+use super::types::{AtcoderContest, AtcoderProblem, EstimatedDifficulty};
 
 const ATCODER_UNOFFICIAL_API_URL: &'static str = "https://kenkoooo.com/atcoder/resources";
 
@@ -42,10 +42,22 @@ impl AtcoderAPIClient {
         Ok(problems)
     }
 
+    pub async fn fetch_estimated_difficulties(
+        &self,
+    ) -> Result<HashMap<String, EstimatedDifficulty>> {
+        let url = format!("{ATCODER_UNOFFICIAL_API_URL}/problem-models.json");
+        let estimated_diffs =
+            get_json::<HashMap<String, EstimatedDifficulty>>(&url, &self.client).await?;
+
+        Ok(estimated_diffs)
+    }
+
     pub async fn build_problems_contests(&self) -> Result<()> {
         if self.cache.read().unwrap().is_some() {
             return Ok(());
         }
+
+        // let estimated_diffs = self.fetch_estimated_difficulties().await?;
 
         let mut c_to_p_map: HashMap<String, Vec<Problem>> = HashMap::new();
         let raw_problems = self.fetch_problems().await?;

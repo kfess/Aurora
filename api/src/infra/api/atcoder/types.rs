@@ -59,3 +59,15 @@ pub struct AtcoderContest {
 
     pub rate_change: String,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EstimatedDifficulty {
+    slope: f64,
+    intercept: f64,
+    variance: f64,
+    difficulty: i64,
+    discrimination: f64,
+    irt_log_likelihood: f64,
+    irt_users: u64,
+    is_experimental: bool,
+}

@@ -29,13 +29,21 @@ pub struct Problem {
     // - Aoj: None
     raw_point: Option<f64>,
 
-    // The value of this field is estimated as follows.
-    // Implementing logistic regression with pairs of (x, y),
-    // where 'x' represents the AtCoder internal rating and
-    // 'y' indicates if the problem was solved within the time limit.
-    // The 'Difficulty' is defined as the AtCoder internal rating value at which the probability of solving the problem within the time limit is 0.5.
-    // This approach is similar to that used by AtCoder Problems.
+    /// The value of this field is estimated using the following method:
+    ///
+    /// Logistic regression is performed on pairs of (x, y), where:
+    /// - `x` represents the AtCoder internal rating
+    /// - `y` indicates whether the problem was solved within the time limit
+    ///
+    /// The `Difficulty` is defined as the AtCoder internal rating at which the probability of solving the problem within the time limit is 0.5.
+    /// This method is similar to the approach used by AtCoder Problems.
     difficulty: Option<f64>,
+
+    /// Whether the estimated difficulty is experimental or not.
+    ///
+    /// If the difficulty is experimental, the value of this field is `true`.
+    /// Otherwise, the value of this field is `false`.
+    is_experimental: Option<bool>,
 
     tags: Vec<String>,
 
