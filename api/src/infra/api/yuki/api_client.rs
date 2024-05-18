@@ -9,7 +9,7 @@ use crate::domain::{contest::Contest, problem::Problem, vo::platform::Platform};
 use crate::utils::api::get_json;
 use crate::utils::format::num_to_alphabet;
 
-use crate::infra::api::yuki::types::{
+use super::external::{
     YukicoderContest, YukicoderProblem, YukicoderProblemWithStatistics, YukicoderTag,
 };
 

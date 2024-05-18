@@ -4,7 +4,7 @@ use std::sync::{Arc, RwLock};
 
 use crate::{
     domain::{contest::Contest, problem::Problem, vo::platform::Platform},
-    infra::api::yoj::types::ProblemCategories,
+    infra::api::yoj::external::ProblemCategories,
     utils::{api::get_toml, format::num_to_alphabet},
 };
 

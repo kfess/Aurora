@@ -1,4 +1,4 @@
-use self::types::{
+use self::external::{
     AojChallenges, AojChallengesAndRelatedContests, AojProblem, AojSubmission, AojVolume,
     AojVolumesChallengesList,
 };

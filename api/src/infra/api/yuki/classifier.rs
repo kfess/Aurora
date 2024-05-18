@@ -4,7 +4,7 @@
 
 use crate::domain::vo::category::{ContestCategory, YukicoderCategory};
 
-use super::types::YukicoderContest;
+use super::external::YukicoderContest;
 
 pub fn classify_contest(contest: &YukicoderContest) -> ContestCategory {
     if contest.name.starts_with("yukicoder contest") {
