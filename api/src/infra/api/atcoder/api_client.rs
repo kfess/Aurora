@@ -115,6 +115,7 @@ fn build_problem(problem: AtcoderProblem) -> Problem {
         platform::Platform::Atcoder,
         Some(problem.point),
         None,
+        None,
         vec![],
         format!(
             "https://atcoder.jp/contests/{}/tasks/{}",

@@ -1,10 +1,12 @@
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ContestCategory {
     Atcoder(AtcoderCategory),
     Codeforces(CodeforcesCategory),
     Yukicoder(YukicoderCategory),
 }
 
-enum AtcoderCategory {
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum AtcoderCategory {
     ABC,
     ARC,
     AGC,
@@ -20,6 +22,7 @@ enum AtcoderCategory {
     Other,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 enum CodeforcesCategory {
     Div1,
     Div2,
@@ -33,6 +36,7 @@ enum CodeforcesCategory {
     Other,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 enum YukicoderCategory {
     Normal,
     Other,

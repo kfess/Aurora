@@ -86,6 +86,7 @@ fn build_problem(category_name: &str, index: usize, raw_problem: &str) -> Proble
         Platform::YOJ,
         Option::None,
         Option::None,
+        Option::None,
         vec![],
         format!("https://judge.yosupo.jp/problem/{}", raw_problem),
         Option::None,

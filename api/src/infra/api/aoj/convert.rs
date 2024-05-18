@@ -15,6 +15,7 @@ impl std::convert::TryFrom<AojProblem> for Problem {
             Platform::Aoj,
             Some(0.0),
             Some(0.0),
+            Some(false),
             vec![],
             "".to_string(),
             Some(0),

@@ -185,6 +185,7 @@ fn build_problem(
         Platform::Yukicoder,
         Some(problem.level),
         Option::None,
+        Option::None,
         problem.tags.split(",").map(|s| s.to_string()).collect(),
         format!("https://yukicoder.me/problems/no/{}", problem.no),
         Some(problem.statistics.solved),

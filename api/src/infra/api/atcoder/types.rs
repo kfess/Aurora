@@ -60,6 +60,18 @@ pub struct AtcoderContest {
     pub rate_change: String,
 }
 
+impl Default for AtcoderContest {
+    fn default() -> Self {
+        AtcoderContest {
+            id: "default_id".to_string(),
+            title: "default_title".to_string(),
+            start_epoch_second: 0,
+            duration_second: 0,
+            rate_change: "default_rate_change".to_string(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EstimatedDifficulty {
     slope: f64,
