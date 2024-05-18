@@ -72,14 +72,18 @@ impl Default for AtcoderContest {
     }
 }
 
+/// `Estimation` is a struct that contains the estimated values of the IRT model.
+///
+/// For the raw data, see:
+/// [AtCoder Problems JSON](https://kenkoooo.com/atcoder/resources/merged-problems.json)
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct EstimatedDifficulty {
-    slope: f64,
-    intercept: f64,
-    variance: f64,
-    difficulty: i64,
-    discrimination: f64,
-    irt_log_likelihood: f64,
-    irt_users: u64,
-    is_experimental: bool,
+pub struct Estimation {
+    pub slope: f64,
+    pub intercept: f64,
+    pub variance: f64,
+    pub difficulty: f64,
+    pub discrimination: f64,
+    pub irt_log_likelihood: f64,
+    pub irt_users: u64,
+    pub is_experimental: bool,
 }

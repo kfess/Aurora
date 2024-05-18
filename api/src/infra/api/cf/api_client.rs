@@ -2,7 +2,7 @@ use anyhow::{Ok, Result};
 use std::sync::Arc;
 use url::Url;
 
-use super::types::{
+use super::external::{
     CodeforcesContest, CodeforcesContestResponse, CodeforcesProblem, CodeforcesProblemResponse,
 };
 

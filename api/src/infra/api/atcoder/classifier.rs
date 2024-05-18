@@ -8,7 +8,7 @@
 //! - **AGC**: Advanced level contests with more challenging problems.
 //!
 
-use super::types::AtcoderContest;
+use super::external::AtcoderContest;
 use crate::domain::vo::category::{AtcoderCategory, ContestCategory};
 use regex::Regex;
 

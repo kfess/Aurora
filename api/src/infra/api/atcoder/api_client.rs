@@ -11,13 +11,13 @@ use crate::{
 
 use super::{
     classifier::classify_contest,
-    types::{AtcoderContest, AtcoderProblem, EstimatedDifficulty},
+    external::{AtcoderContest, AtcoderProblem, Estimation},
 };
 
 const ATCODER_UNOFFICIAL_API_URL: &'static str = "https://kenkoooo.com/atcoder/resources";
 
 /// AtCoder API Client
-/// This struct is used to fetch data from AtCoder API provided from UnOfficial AtCoder API (kenkoooo)
+/// This struct is used to fetch data from AtCoder API provided from Unofficial AtCoder API (kenkoooo)
 pub struct AtcoderAPIClient {
     client: Arc<reqwest::Client>,
     cache: RwLock<Option<(Vec<Problem>, Vec<Contest>)>>,
@@ -45,14 +45,11 @@ impl AtcoderAPIClient {
         Ok(problems)
     }
 
-    pub async fn fetch_estimated_difficulties(
-        &self,
-    ) -> Result<HashMap<String, EstimatedDifficulty>> {
+    pub async fn fetch_estimations(&self) -> Result<HashMap<String, Estimation>> {
         let url = format!("{ATCODER_UNOFFICIAL_API_URL}/problem-models.json");
-        let estimated_diffs =
-            get_json::<HashMap<String, EstimatedDifficulty>>(&url, &self.client).await?;
+        let estimations = get_json::<HashMap<String, Estimation>>(&url, &self.client).await?;
 
-        Ok(estimated_diffs)
+        Ok(estimations)
     }
 
     pub async fn build_problems_contests(&self) -> Result<()> {
@@ -60,13 +57,26 @@ impl AtcoderAPIClient {
             return Ok(());
         }
 
-        // let estimated_diffs = self.fetch_estimated_difficulties().await?;
+        let estimations = self.fetch_estimations().await?;
 
         let mut c_to_p_map: HashMap<String, Vec<Problem>> = HashMap::new();
         let raw_problems = self.fetch_problems().await?;
         let mut problems: Vec<Problem> = vec![];
         raw_problems.iter().for_each(|p| {
-            let problem = build_problem(p.clone());
+            let (diff, is_experimental): (Option<f64>, Option<bool>) = match estimations.get(&p.id)
+            {
+                Some(estimation) => {
+                    let clipped_diff = if estimation.difficulty >= 400.0 {
+                        estimation.difficulty.round()
+                    } else {
+                        (400.0 / f64::exp(1.0 - estimation.difficulty / 400.0)).round()
+                    };
+                    (Some(clipped_diff), Some(estimation.is_experimental))
+                }
+                None => (None, None),
+            };
+
+            let problem = build_problem(p.clone(), diff, is_experimental);
             c_to_p_map
                 .entry(p.contest_id.clone())
                 .or_insert_with(Vec::new)
@@ -110,15 +120,19 @@ impl IAtcodedrAPIClient for AtcoderAPIClient {
     }
 }
 
-fn build_problem(problem: AtcoderProblem) -> Problem {
+fn build_problem(
+    problem: AtcoderProblem,
+    difficulty: Option<f64>,
+    is_experimental: Option<bool>,
+) -> Problem {
     Problem::reconstruct(
         problem.contest_id.to_string(),
         problem.problem_index.to_string(),
         problem.name.to_string(),
         platform::Platform::Atcoder,
         Some(problem.point),
-        None,
-        None,
+        difficulty,
+        is_experimental,
         vec![],
         format!(
             "https://atcoder.jp/contests/{}/tasks/{}",
