@@ -3,11 +3,11 @@ use super::vo::platform::Platform;
 #[derive(Clone, Debug, PartialEq)]
 pub struct Problem {
     // The naming convention for this field is:
-    // <platform>_<contest_name>_<problem_index>
+    // <platform>_<raw_id>_<problem_index>
     id: String,
 
     // The naming convention for this field is:
-    // <platform>_<contest_name>
+    // <platform>_<raw_id>
     contest_id: String,
 
     // A, B, C, ... or 1, 2, 3, ...
@@ -82,23 +82,28 @@ impl Problem {
     }
 
     pub fn reconstruct(
-        contest_name: String,
-        index: String,
-        name: String,
+        raw_contest_id: String,
+        raw_index: String,
+        raw_name: String,
         platform: Platform,
         raw_point: Option<f64>,
         difficulty: Option<f64>,
-        tags: Vec<String>,
-        url: String,
-        solver_count: Option<u64>,
-        submissions: Option<u64>,
+        raw_tags: Vec<String>,
+        raw_url: String,
+        raw_solver_count: Option<u64>,
+        raw_submissions: Option<u64>,
     ) -> Self {
-        let contest_id = format!("{}_{}", String::from(platform), contest_name);
-        let id = format!("{}_{}_{}", String::from(platform), contest_name, index);
-        let title = format!("{}. {}", index, name);
+        let contest_id = format!("{}_{}", String::from(platform), raw_contest_id);
+        let id = format!(
+            "{}_{}_{}",
+            String::from(platform),
+            raw_contest_id,
+            raw_index
+        );
+        let title = format!("{}. {}", raw_index, raw_name);
 
-        let success_rate = match solver_count {
-            Some(solver_count) => match submissions {
+        let success_rate = match raw_solver_count {
+            Some(solver_count) => match raw_submissions {
                 Some(submissions) => Some(solver_count as f64 / submissions as f64 * 100.0),
                 None => None,
             },
@@ -108,16 +113,16 @@ impl Problem {
         Self {
             id,
             contest_id,
-            index,
-            name,
+            index: raw_index,
+            name: raw_name,
             title,
             platform,
             raw_point,
             difficulty,
-            tags,
-            url,
-            solver_count,
-            submissions,
+            tags: raw_tags,
+            url: raw_url,
+            solver_count: raw_solver_count,
+            submissions: raw_submissions,
             success_rate,
         }
     }

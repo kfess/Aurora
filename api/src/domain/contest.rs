@@ -1,45 +1,101 @@
 use super::problem::Problem;
 use super::vo::platform::Platform;
 
+/// Represents a programming contest with details specific to a competition platform.
+///
+/// This struct includes all necessary information about a contest such as its unique identifier,
+/// raw ID as per the external API, contest name, category based on the type of contest,
+/// the platform from which the contest information is sourced, current phase of the contest,
+/// and timing details like start time and duration.
+///
+/// # Fields
+/// - `id`: A unique identifier for the contest, usually prefixed with the platform name.
+/// - `raw_id`: The identifier used by the external API, without platform prefix.
+/// - `name`: The official name of the contest.
+/// - `category`: A classification of the contest (e.g., division, type) based on its characteristics.
+/// - `platform`: The platform (`Platform` enum) that the contest information pertains to.
+/// - `phase`: Current phase of the contest (e.g., "upcoming", "live", "completed").
+/// - `start_time_seconds`: Optional start time of the contest in Unix time seconds.
+/// - `duration_seconds`: Optional duration of the contest in seconds.
+/// - `url`: URL to the contest page on the corresponding platform's website.
+/// - `problems`: A vector of `Problem` objects associated with the contest.
+///
+/// # Examples
+/// ```
+/// let contest = Contest::reconstruct(
+///     "abc001".to_string(),
+///     "AtCoder Beginner Contest 001".to_string(),
+///     Platform::Atcoder,
+///     "finished".to_string(),
+///     Some(1609459200),
+///     Some(5400),
+///     vec![]
+/// );
+/// println!("{:?}", contest);
+/// ```
 #[derive(Clone, Debug)]
 pub struct Contest {
-    /// The naming convention for this field is <platform>_<raw_id>
-    /// Atcoder: "atcoder_abc001", "atcoder_arc001", "atcoder_agc001", ...
-    /// Codeforces: "codeforces_1", "codeforces_2", "codeforces_3", "codeforces_4"
-    /// Yukicoder: "yukicoder_1", "yukicoder_2", "yukicoder_3"
-    /// Aoj: "aoj_volume1", "aoj_volume2", "aoj_joi_prelim_2023", ...
-    /// YOJ: "yoj_graph", "yoj_math", "yoj_string", "yoj_datastructure"
-    pub id: String,
+    /// A globally unique identifier for the contest.
+    ///
+    /// The `id` is typically formatted as `<platform>_<raw_id>`.
+    /// - Atcoder: "atcoder_abc001", "atcoder_arc001", etc.
+    /// - Codeforces: "codeforces_1", "codeforces_2", etc.
+    /// - Yukicoder: "yukicoder_1", "yukicoder_2", etc.
+    /// - Aoj: "aoj_volume1", "aoj_volume2", "aoj_joi_prelim_2023", etc.
+    /// - YOJ: "yoj_graph", "yoj_math", etc.
+    id: String,
 
-    /// The naming convention for this field is <contest_id>
-    /// Aoj: "volume1", "volume2", "joi_prelim_2023", ...
-    pub raw_id: String,
+    /// The platform-specific identifier of the contest. This is part of the `id`.
+    /// - Atcoder: "abc001", "arc001", "agc001", ...
+    /// - Codeforces: "1", "2", "3", "4"
+    /// - Yukicoder: "1", "2", "3"
+    /// - Aoj: "volume1", "volume2", "joi_prelim_2023", ...
+    /// - YOJ: "graph", "math", "string", "datastructure"
+    raw_id: String,
 
-    // The naming convention for this field is:
-    // <contest_name>
-    pub name: String,
+    /// The official name of the contest as it appears on the platform.
+    /// - Atcoder: "AtCoder Beginner Contest 001", "AtCoder Regular Contest 001", ...
+    /// - Codeforces: "Codeforces Round #1", "Codeforces Round #2", ...
+    /// - Yukicoder: "Yukicoder Contest 1", "Yukicoder Contest 2", ...
+    /// - Aoj: "AOJ Volume 1", "AOJ Volume 2", ...
+    /// - YOJ: "YOJ Graph Theory Contest", "YOJ Math Contest", ...
+    name: String,
 
-    /// for example: this field is
-    /// Atcoder: "abc", "arc", "agc", "other"
-    /// Codeforces: "div.1", "div.2", "div.3", "div.4", "educational"
-    /// Yukicoder: "normal", "other", "not-classified"
-    /// Aoj: "volume 1", "volume 2", ..., "<largeCl>"
-    /// Yosupo: "Graph", "Math", "String", "DataStructure", ...
-    pub category: String,
+    /// A classification of the contest based on its characteristics.
+    /// - Atcoder: "ABC", "ARC", "AGC", "Other"
+    /// - Codeforces: "Div. 1", "Div. 2", "Div. 3", "Div. 4", "Educational", "Global Round", "Kotlin", "ICPC", "Q#", "Other"
+    /// - Yukicoder: "Normal", "Other", "Not-classified"
+    /// - Aoj: "Volume 1", "Volume 2", "JOI", etc.
+    /// - YOJ: "Graph", "Math", "String", "DataStructure", "Geometry", etc.
+    category: String,
 
-    pub platform: Platform,
+    /// The platform where the contest is hosted.
+    platform: Platform,
 
-    pub phase: String,
+    /// The current phase of the contest.
+    /// - All Platforms: "Upcoming", "Live", "Finished"
+    phase: String,
 
-    // contest start time in unix time
-    pub start_time_seconds: Option<u64>,
+    /// The start time of the contest in Unix time seconds, if known.
+    /// - This is optional and may not be available for all contests on all platforms.
+    start_time_seconds: Option<u64>,
 
-    // contest duration in seconds
-    pub duration_seconds: Option<u64>,
+    /// The duration of the contest in seconds, if known.
+    /// - This is optional and varies greatly depending on the contest format and platform.
+    duration_seconds: Option<u64>,
 
-    pub url: String,
+    /// The URL to the contest's page on the hosting platform's website.
+    /// - Atcoder: "https://atcoder.jp/contests/abc001"
+    /// - Codeforces: "https://codeforces.com/contest/1"
+    /// - Yukicoder: "https://yukicoder.me/contests/1"
+    /// - Aoj: "https://onlinejudge.u-aizu.ac.jp/challenges/search/volumes/1"
+    /// - YOJ: "https://judge.yosupo.jp/"
+    url: String,
 
-    pub problems: Vec<Problem>,
+    // A list of problems associated with the contest.
+    ///
+    /// This includes all problems that are part of the contest, each represented by a `Problem` struct.
+    problems: Vec<Problem>,
 }
 
 impl Contest {

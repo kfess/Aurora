@@ -43,7 +43,7 @@ mod tests {
             (Platform::Codeforces, "codeforces"),
             (Platform::Yukicoder, "yukicoder"),
             (Platform::Aoj, "aoj"),
-            (Platform::YosupoOnlineJudge, "yosupo_online_judge"),
+            (Platform::YOJ, "yosupo_online_judge"),
         ] {
             assert_eq!(Platform::from(s), v);
             assert_eq!(String::from(v), s);
