@@ -150,21 +150,6 @@ impl Contest {
                 (id, url, start_time_seconds, duration_seconds)
             }
             Platform::Codeforces => {
-                // let category = match &raw_name {
-                //     raw_name if raw_name.contains("Div. 1 + Div. 2") => {
-                //         "Div. 1 + Div. 2".to_string()
-                //     }
-                //     raw_name if raw_name.contains("Div. 1") => "Div. 1".to_string(),
-                //     raw_name if raw_name.contains("Div. 2") => "Div. 2".to_string(),
-                //     raw_name if raw_name.contains("Div. 3") => "Div. 3".to_string(),
-                //     raw_name if raw_name.contains("Div. 4") => "Div. 4".to_string(),
-                //     raw_name if raw_name.contains("Global Round") => "Global Round".to_string(),
-                //     raw_name if raw_name.contains("Educational") => "Educational".to_string(),
-                //     raw_name if raw_name.contains("Kotlin") => "Kotlin".to_string(),
-                //     raw_name if raw_name.contains("ICPC") => "ICPC".to_string(),
-                //     raw_name if raw_name.contains("Q#") => "Q#".to_string(),
-                //     _ => "Other".to_string(),
-                // };
                 let id = format!("{}_{}", String::from(Platform::Codeforces), raw_id);
                 let url = format!("https://codeforces.com/contest/{}", raw_id);
                 let start_time_seconds = raw_start_time_seconds;
@@ -203,7 +188,6 @@ impl Contest {
                 (id, url, start_time_seconds, duration_seconds)
             }
             Platform::YOJ => {
-                // let category = raw_name.to_string();
                 let id = format!("{}_{}", String::from(Platform::YOJ), raw_name);
                 let url = "https://judge.yosupo.jp/".to_string();
                 let start_time_seconds = None;

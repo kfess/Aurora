@@ -26,6 +26,7 @@ pub enum AtcoderCategory {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CodeforcesCategory {
+    Div1AndDiv2,
     Div1,
     Div2,
     Div3,
@@ -121,6 +122,7 @@ impl From<ContestCategory> for String {
                 AtcoderCategory::Other => "Other".to_string(),
             },
             ContestCategory::Codeforces(c) => match c {
+                CodeforcesCategory::Div1AndDiv2 => "div. 1 + div. 2".to_string(),
                 CodeforcesCategory::Div1 => "div. 1".to_string(),
                 CodeforcesCategory::Div2 => "div. 2".to_string(),
                 CodeforcesCategory::Div3 => "div. 3".to_string(),
