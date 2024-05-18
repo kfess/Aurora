@@ -20,19 +20,6 @@ use super::vo::platform::Platform;
 /// - `url`: URL to the contest page on the corresponding platform's website.
 /// - `problems`: A vector of `Problem` objects associated with the contest.
 ///
-/// # Examples
-/// ```
-/// let contest = Contest::reconstruct(
-///     "abc001".to_string(),
-///     "AtCoder Beginner Contest 001".to_string(),
-///     Platform::Atcoder,
-///     "finished".to_string(),
-///     Some(1609459200),
-///     Some(5400),
-///     vec![]
-/// );
-/// println!("{:?}", contest);
-/// ```
 #[derive(Clone, Debug)]
 pub struct Contest {
     /// A globally unique identifier for the contest.
@@ -73,7 +60,7 @@ pub struct Contest {
     platform: Platform,
 
     /// The current phase of the contest.
-    /// - All Platforms: "Upcoming", "Live", "Finished"
+    /// - All Platforms: "before", "coding", "finished", "unknown"
     phase: String,
 
     /// The start time of the contest in Unix time seconds, if known.
