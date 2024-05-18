@@ -127,7 +127,7 @@ impl AojAPIClientTrait for AojAPIClient {
         let raw_submissions = self.fetch_user_submissions(user_id, page, size).await?;
         let submissions = raw_submissions
             .iter()
-            .map(|s| build_submission(s))
+            .map(|s| build_submission(s.clone()))
             .collect();
 
         Ok(submissions)
@@ -137,7 +137,7 @@ impl AojAPIClientTrait for AojAPIClient {
         let raw_submissions = self.fetch_recent_submissions().await?;
         let submissions = raw_submissions
             .iter()
-            .map(|s| build_submission(s))
+            .map(|s| build_submission(s.clone()))
             .collect();
 
         Ok(submissions)

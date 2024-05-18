@@ -1,13 +1,13 @@
-use crate::infra::api::yoj::api_client::IYOJAPIClient;
+use crate::infra::api::yoj::api_client::YOJAPIClientTrait;
 
 pub struct UpdateYOJUsecase<T>
 where
-    T: IYOJAPIClient,
+    T: YOJAPIClientTrait,
 {
     api_client: T,
 }
 
-impl<T: IYOJAPIClient> UpdateYOJUsecase<T> {
+impl<T: YOJAPIClientTrait> UpdateYOJUsecase<T> {
     pub fn new(api_client: T) -> Self {
         Self { api_client }
     }
