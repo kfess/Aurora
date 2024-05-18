@@ -1,6 +1,6 @@
 //! Classifies AtCoder contests by their type.
 //!
-//! This unitity function provides functionality to classify AtCoder contests into categories
+//! This utility function provides functionality to classify AtCoder contests into categories
 //! such as ABC (AtCoder Beginner Contest), ARC (AtCoder Regular Contest), and AGC (AtCoder Grand Contest).
 //! Each contest type may have specific characteristics and purposes. For example:
 //! - **ABC**: Aimed at beginners, typically features easier problems.

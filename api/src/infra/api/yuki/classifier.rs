@@ -1,3 +1,7 @@
+//! Classify yukicoder contest by their type.
+//!
+//! This utility function provides functionality to classify Yukicoder contests into categories
+
 use crate::domain::vo::category::{ContestCategory, YukicoderCategory};
 
 use super::types::YukicoderContest;
