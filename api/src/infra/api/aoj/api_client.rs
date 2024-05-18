@@ -11,7 +11,7 @@ use std::sync::Arc;
 
 use super::*;
 
-const AOJ_URL: &str = "https://judgeapi.u-aizu.ac.jp";
+const AOJ_URL: &'static str = "https://judgeapi.u-aizu.ac.jp";
 
 pub struct AojAPIClient {
     client: Arc<reqwest::Client>,
