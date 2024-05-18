@@ -65,9 +65,9 @@ impl Default for AtcoderContest {
         AtcoderContest {
             id: "default_id".to_string(),
             title: "default_title".to_string(),
-            start_epoch_second: 0,
+            start_epoch_second: 1_468_670_401,
             duration_second: 0,
-            rate_change: "default_rate_change".to_string(),
+            rate_change: "-".to_string(),
         }
     }
 }

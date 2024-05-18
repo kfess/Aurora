@@ -135,7 +135,11 @@ fn get_rated_target(contest: &AtcoderContest) -> Target {
         "-" => Target::Unrated,
         "All" => Target::AGC,
         _ => {
-            let range = contest.rate_change.split("~").collect::<Vec<&str>>();
+            let range = contest
+                .rate_change
+                .split("~")
+                .map(|s| s.trim())
+                .collect::<Vec<&str>>();
 
             if range.len() != 2 {
                 return Target::Unrated;
@@ -167,6 +171,13 @@ mod tests {
     fn build_contest_with_id(id: &str) -> AtcoderContest {
         AtcoderContest {
             id: id.to_string(),
+            ..Default::default()
+        }
+    }
+
+    fn build_contest_with_title(title: &str) -> AtcoderContest {
+        AtcoderContest {
+            title: title.to_string(),
             ..Default::default()
         }
     }
@@ -245,5 +256,136 @@ mod tests {
                 ContestCategory::Atcoder(AtcoderCategory::AHC)
             );
         }
+    }
+
+    #[test]
+    fn test_other_rated() {
+        let contest = build_contest_with_rate_change(" ~ 1999");
+        assert_eq!(
+            classify_contest(&contest),
+            ContestCategory::Atcoder(AtcoderCategory::ABCLike)
+        );
+
+        let contest = build_contest_with_rate_change(" ~ 2799");
+        assert_eq!(
+            classify_contest(&contest),
+            ContestCategory::Atcoder(AtcoderCategory::ARCLike)
+        );
+
+        let contest = build_contest_with_rate_change("All");
+        assert_eq!(
+            classify_contest(&contest),
+            ContestCategory::Atcoder(AtcoderCategory::AGCLike)
+        );
+    }
+
+    #[test]
+    fn test_past() {
+        let contest = build_contest_with_id("past15-open");
+        assert_eq!(
+            classify_contest(&contest),
+            ContestCategory::Atcoder(AtcoderCategory::PAST)
+        );
+    }
+
+    #[test]
+    fn test_joi() {
+        let contest = build_contest_with_id("joi2006yo");
+        assert_eq!(
+            classify_contest(&contest),
+            ContestCategory::Atcoder(AtcoderCategory::JOI)
+        );
+    }
+
+    #[test]
+    fn test_jag() {
+        let contest = build_contest_with_id("jag2015summer-day2");
+        assert_eq!(
+            classify_contest(&contest),
+            ContestCategory::Atcoder(AtcoderCategory::JAG)
+        );
+
+        let contest = build_contest_with_id("JAG2015summer-day2");
+        assert_eq!(
+            classify_contest(&contest),
+            ContestCategory::Atcoder(AtcoderCategory::JAG)
+        );
+    }
+
+    #[test]
+    fn test_marathon() {
+        let titles: [&str; 5] = [
+            "Chokudai Contest",
+            "ハーフマラソン",
+            "HACK TO THE FUTURE",
+            "Asprova",
+            "Heuristics Contest",
+        ];
+        for title in titles {
+            let contest = build_contest_with_title(title);
+            assert_eq!(
+                classify_contest(&contest),
+                ContestCategory::Atcoder(AtcoderCategory::Marathon)
+            );
+        }
+
+        let ids: [&str; 7] = [
+            "future-meets-you-contest",
+            "hokudai-hitachi",
+            "toyota-hc",
+            "genocon2021",
+            "stage0-2021",
+            "caddi2019",
+            "pakencamp-2019-day2",
+        ];
+        for id in ids {
+            let contest = build_contest_with_id(id);
+            assert_eq!(
+                classify_contest(&contest),
+                ContestCategory::Atcoder(AtcoderCategory::Marathon)
+            );
+        }
+    }
+
+    fn test_other_sponsored() {
+        let titles: [&str; 18] = [
+            "ドワンゴ",
+            "Mujin",
+            "SoundHound",
+            "codeFlyer",
+            "COLOCON",
+            "みんなのプロコン",
+            "CODE THANKS FESTIVAL",
+            "CODE FESTIVAL",
+            "DISCO",
+            "日本最強プログラマー学生選手権",
+            "全国統一プログラミング王",
+            "Indeed",
+            "Donuts",
+            "dwango",
+            "DigitalArts",
+            "Code Formula",
+            "天下一プログラマーコンテスト",
+            "Toyota",
+        ];
+
+        for title in titles {
+            let contest = build_contest_with_title(title);
+            assert_eq!(
+                classify_contest(&contest),
+                ContestCategory::Atcoder(AtcoderCategory::OtherSponsored)
+            );
+        }
+    }
+
+    #[test]
+    fn test_other() {
+        let contest = build_contest_with_id("other");
+        assert_eq!(
+            classify_contest(&contest),
+            ContestCategory::Atcoder(AtcoderCategory::Other)
+        );
+
+        test_other_sponsored();
     }
 }
