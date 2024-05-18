@@ -49,7 +49,7 @@ impl YOJAPIClient {
             contests.push(build_contest(&category.name, tmp_problems));
         }
 
-        *self.cache.write().unwrap() = Some((problems.clone(), contests.clone()));
+        *self.cache.write().unwrap() = Some((problems.clone(), contests));
 
         Ok(())
     }

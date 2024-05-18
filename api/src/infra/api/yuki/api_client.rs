@@ -30,14 +30,14 @@ impl YukicoderAPIClient {
 
     async fn fetch_problem(&self, problem_id: u64) -> Result<YukicoderProblemWithStatistics> {
         let url = format!("{}/problems/{}", YUKICODER_URL, problem_id);
-        let problem = get_json(&url, &self.client).await?;
+        let problem = get_json::<YukicoderProblemWithStatistics>(&url, &self.client).await?;
 
         Ok(problem)
     }
 
     async fn fetch_problem_ids(&self, is_recent: bool) -> Result<Vec<u64>> {
         let url = format!("{}/problems", YUKICODER_URL);
-        let mut problems: Vec<YukicoderProblem> = get_json(&url, &self.client).await?;
+        let mut problems = get_json::<Vec<YukicoderProblem>>(&url, &self.client).await?;
 
         if is_recent {
             let a_week_ago = Local::now() - Duration::days(7);
@@ -128,7 +128,7 @@ impl YukicoderAPIClient {
             let raw_problem = self.fetch_problem(problem_id).await?;
             let (contest, idx) = p_to_c_map.get(&problem_id).cloned().unwrap();
 
-            let problem = build_problem(&contest.name, &idx, &raw_problem);
+            let problem = build_problem(&contest.id, &idx, &raw_problem);
             problems.push(problem.clone());
 
             c_to_p_id_map
@@ -173,13 +173,13 @@ impl IYukicoderAPIClient for YukicoderAPIClient {
     }
 }
 
-pub fn build_problem(
-    contest_name: &str,
+fn build_problem(
+    contest_id: &u64,
     index: &str,
     problem: &YukicoderProblemWithStatistics,
 ) -> Problem {
     Problem::reconstruct(
-        contest_name.to_string(),
+        contest_id.to_string(),
         index.to_string(),
         problem.title.to_string(),
         Platform::Yukicoder,
@@ -192,7 +192,7 @@ pub fn build_problem(
     )
 }
 
-pub fn build_contest(contest: &YukicoderContest, problems: Vec<Problem>) -> Contest {
+fn build_contest(contest: &YukicoderContest, problems: Vec<Problem>) -> Contest {
     let start_timestamp = DateTime::parse_from_rfc3339(&contest.date)
         .unwrap()
         .timestamp() as u64;
