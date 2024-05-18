@@ -1,9 +1,43 @@
+//! Classifies Codeforces contests by their type.
+//!
+//! This utility function provides functionality to classify Codeforces contests into categories
+//! such as Educational, Global, Kotlin, ICPC, and various division levels. Each contest type
+//! may have specific characteristics and purposes. For example:
+//! - **Educational**: Contests aimed at providing educational practice.
+//! - **Global**: Large-scale contests open to participants globally.
+//! - **Kotlin**: Contests specifically focused on Kotlin programming language.
+//! - **ICPC**: ICPC-style contests.
+//! - **Q#**: Contests focused on Microsoft's Q# programming language.
+//! - **Divisions (Div. 1, Div. 2, etc.)**: Contests divided by participant rating levels.
+//! - **Other**: Contests that do not fit into any of the above categories.
+
 use crate::domain::vo::category::{CodeforcesCategory, ContestCategory};
 
 use super::external::CodeforcesContest;
 
+/// Classifies a given Codeforces contest into a specific category based on its name.
+///
+/// # Arguments
+/// - `contest`: A reference to a `CodeforcesContest` struct containing contest details.
+///
+/// # Returns
+/// - `ContestCategory`: The category that the contest belongs to, wrapped in the `CodeforcesCategory` enum.
+///
+/// The order of the match arms is important for correct matching, as some contest names may
+/// contain substrings that match multiple categories. This function prioritizes more specific
+/// categories before broader ones.
+///
+/// # Examples
+/// ```
+/// let contest = CodeforcesContest {
+///     id: 1,
+///     name: "Educational Codeforces Round 165 (Rated for Div. 2)".to_string(),
+///     // other fields...
+/// };
+/// let category = classify_contest(&contest);
+/// assert_eq!(category, ContestCategory::Codeforces(CodeforcesCategory::Educational));
+/// ```
 pub fn classify_contest(contest: &CodeforcesContest) -> ContestCategory {
-    // The order of the match arms is important for correct matching.
     match &contest.name {
         name if name.contains("Educational") => {
             ContestCategory::Codeforces(CodeforcesCategory::Educational)
