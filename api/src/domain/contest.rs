@@ -62,7 +62,7 @@ pub struct Contest {
     name: String,
 
     /// A classification of the contest based on its characteristics.
-    /// - Atcoder: "ABC", "ARC", "AGC", "Other"
+    /// - Atcoder: "ABC", "ARC", "AGC", "AHC", "PAST", "JOI", "JAG", "ABCLike", "ARCLike", "AGCLike", "Marathon", "OtherSponsored", "Other"
     /// - Codeforces: "Div. 1", "Div. 2", "Div. 3", "Div. 4", "Educational", "Global Round", "Kotlin", "ICPC", "Q#", "Other"
     /// - Yukicoder: "Normal", "Other", "Not-classified"
     /// - Aoj: "Volume 1", "Volume 2", "JOI", etc.
@@ -133,69 +133,55 @@ impl Contest {
     pub fn reconstruct(
         raw_id: String,
         raw_name: String,
+        category: String,
         platform: Platform,
         raw_phase: String,
         raw_start_time_seconds: Option<u64>,
         raw_duration_seconds: Option<u64>,
         problems: Vec<Problem>,
     ) -> Self {
-        let (category, id, url, start_time_seconds, duration_seconds) = match platform {
+        let (id, url, start_time_seconds, duration_seconds) = match platform {
             Platform::Atcoder => {
-                let category = match &raw_id {
-                    id if id.starts_with("abc") => "ABC".to_string(),
-                    id if id.starts_with("arc") => "ARC".to_string(),
-                    id if id.starts_with("agc") => "AGC".to_string(),
-                    id if id.starts_with("ahc") => "AHC".to_string(),
-                    id if id.starts_with("past") => "PAST".to_string(),
-                    id if id.starts_with("joi") => "JOI".to_string(),
-                    id if id.starts_with("jag") => "JAG".to_string(),
-                    _ => "Other".to_string(),
-                };
                 let id = format!("{}_{}", String::from(Platform::Atcoder), raw_id);
                 let url = format!("https://atcoder.jp/contests/{}", raw_id);
                 let start_time_seconds = raw_start_time_seconds;
                 let duration_seconds = raw_duration_seconds;
 
-                (category, id, url, start_time_seconds, duration_seconds)
+                (id, url, start_time_seconds, duration_seconds)
             }
             Platform::Codeforces => {
-                let category = match &raw_name {
-                    raw_name if raw_name.contains("Div. 1 + Div. 2") => {
-                        "Div. 1 + Div. 2".to_string()
-                    }
-                    raw_name if raw_name.contains("Div. 1") => "Div. 1".to_string(),
-                    raw_name if raw_name.contains("Div. 2") => "Div. 2".to_string(),
-                    raw_name if raw_name.contains("Div. 3") => "Div. 3".to_string(),
-                    raw_name if raw_name.contains("Div. 4") => "Div. 4".to_string(),
-                    raw_name if raw_name.contains("Global Round") => "Global Round".to_string(),
-                    raw_name if raw_name.contains("Educational") => "Educational".to_string(),
-                    raw_name if raw_name.contains("Kotlin") => "Kotlin".to_string(),
-                    raw_name if raw_name.contains("ICPC") => "ICPC".to_string(),
-                    raw_name if raw_name.contains("Q#") => "Q#".to_string(),
-                    _ => "Other".to_string(),
-                };
+                // let category = match &raw_name {
+                //     raw_name if raw_name.contains("Div. 1 + Div. 2") => {
+                //         "Div. 1 + Div. 2".to_string()
+                //     }
+                //     raw_name if raw_name.contains("Div. 1") => "Div. 1".to_string(),
+                //     raw_name if raw_name.contains("Div. 2") => "Div. 2".to_string(),
+                //     raw_name if raw_name.contains("Div. 3") => "Div. 3".to_string(),
+                //     raw_name if raw_name.contains("Div. 4") => "Div. 4".to_string(),
+                //     raw_name if raw_name.contains("Global Round") => "Global Round".to_string(),
+                //     raw_name if raw_name.contains("Educational") => "Educational".to_string(),
+                //     raw_name if raw_name.contains("Kotlin") => "Kotlin".to_string(),
+                //     raw_name if raw_name.contains("ICPC") => "ICPC".to_string(),
+                //     raw_name if raw_name.contains("Q#") => "Q#".to_string(),
+                //     _ => "Other".to_string(),
+                // };
                 let id = format!("{}_{}", String::from(Platform::Codeforces), raw_id);
                 let url = format!("https://codeforces.com/contest/{}", raw_id);
                 let start_time_seconds = raw_start_time_seconds;
                 let duration_seconds = raw_duration_seconds;
 
-                (category, id, url, start_time_seconds, duration_seconds)
+                (id, url, start_time_seconds, duration_seconds)
             }
             Platform::Yukicoder => {
-                let category = if raw_name.starts_with("yukicoder contest") {
-                    "Normal".to_string()
-                } else {
-                    "Other".to_string()
-                };
                 let id = format!("{}_{}", String::from(Platform::Yukicoder), raw_id);
                 let url = format!("https://yukicoder.me/contests/{}", raw_id);
                 let start_time_seconds = raw_start_time_seconds;
                 let duration_seconds = raw_duration_seconds;
 
-                (category, id, url, start_time_seconds, duration_seconds)
+                (id, url, start_time_seconds, duration_seconds)
             }
             Platform::Aoj => {
-                let category = raw_id.split("_").collect::<Vec<&str>>()[0].to_string();
+                // let category = raw_id.split("_").collect::<Vec<&str>>()[0].to_string();
                 let id = format!("{}_{}", String::from(Platform::Aoj), raw_name);
                 let url = if raw_id.starts_with("volume") {
                     "https://onlinejudge.u-aizu.ac.jp/challenges/search/volumes".to_string()
@@ -214,16 +200,16 @@ impl Contest {
                 let start_time_seconds = None;
                 let duration_seconds = None;
 
-                (category, id, url, start_time_seconds, duration_seconds)
+                (id, url, start_time_seconds, duration_seconds)
             }
             Platform::YOJ => {
-                let category = raw_name.to_string();
+                // let category = raw_name.to_string();
                 let id = format!("{}_{}", String::from(Platform::YOJ), raw_name);
                 let url = "https://judge.yosupo.jp/".to_string();
                 let start_time_seconds = None;
                 let duration_seconds = None;
 
-                (category, id, url, start_time_seconds, duration_seconds)
+                (id, url, start_time_seconds, duration_seconds)
             }
         };
 

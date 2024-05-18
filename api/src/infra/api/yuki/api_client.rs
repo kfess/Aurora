@@ -13,6 +13,8 @@ use crate::infra::api::yuki::types::{
     YukicoderContest, YukicoderProblem, YukicoderProblemWithStatistics, YukicoderTag,
 };
 
+use super::classifier::classify_contest;
+
 const YUKICODER_URL: &'static str = "https://yukicoder.me/api/v1";
 
 pub struct YukicoderAPIClient {
@@ -206,6 +208,7 @@ fn build_contest(contest: &YukicoderContest, problems: Vec<Problem>) -> Contest 
     Contest::reconstruct(
         contest.id.to_string(),
         contest.name.to_string(),
+        String::from(classify_contest(contest)),
         Platform::Yukicoder,
         "finished".to_string(),
         Some(start_timestamp),

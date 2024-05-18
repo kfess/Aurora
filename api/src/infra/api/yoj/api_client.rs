@@ -8,6 +8,8 @@ use crate::{
     utils::{api::get_toml, format::num_to_alphabet},
 };
 
+use super::classifier::classify_contest;
+
 const CATEGORY_TOML_URL: &'static str =
     "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/categories.toml";
 
@@ -98,6 +100,7 @@ fn build_contest(category_name: &str, problems: Vec<Problem>) -> Contest {
     Contest::reconstruct(
         category_name.to_string(),
         category_name.to_string(),
+        String::from(classify_contest(category_name)),
         Platform::YOJ,
         "finished".to_string(),
         Option::None,

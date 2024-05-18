@@ -9,7 +9,10 @@ use crate::{
     utils::api::get_json,
 };
 
-use super::types::{AtcoderContest, AtcoderProblem, EstimatedDifficulty};
+use super::{
+    classifier::classify_contest,
+    types::{AtcoderContest, AtcoderProblem, EstimatedDifficulty},
+};
 
 const ATCODER_UNOFFICIAL_API_URL: &'static str = "https://kenkoooo.com/atcoder/resources";
 
@@ -130,6 +133,7 @@ fn build_contest(contest: AtcoderContest, problems: Vec<Problem>) -> Contest {
     Contest::reconstruct(
         contest.id.to_string(),
         contest.title.to_string(),
+        String::from(classify_contest(&contest)),
         platform::Platform::Atcoder,
         "finished".to_string(),
         Some(contest.start_epoch_second),

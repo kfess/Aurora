@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub struct Category {
+pub struct YOJCategory {
     pub name: String,
 
     #[serde(rename = "problems")]
@@ -10,5 +10,5 @@ pub struct Category {
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct ProblemCategories {
-    pub categories: Vec<Category>,
+    pub categories: Vec<YOJCategory>,
 }
