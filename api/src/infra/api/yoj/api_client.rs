@@ -1,7 +1,3 @@
-use anyhow::Result;
-use convert_case::{Case, Casing};
-use std::sync::{Arc, RwLock};
-
 use crate::{
     domain::{
         contest::Contest,
@@ -11,6 +7,10 @@ use crate::{
     infra::api::yoj::external::ProblemCategories,
     utils::{api::get_toml, format::num_to_alphabet},
 };
+use anyhow::Result;
+use async_trait::async_trait;
+use convert_case::{Case, Casing};
+use std::sync::{Arc, RwLock};
 
 use super::classifier::classify_contest;
 
@@ -22,7 +22,8 @@ pub struct YOJAPIClient {
     cache: RwLock<Option<(Vec<Problem>, Vec<Contest>)>>,
 }
 
-pub trait YOJAPIClientTrait {
+#[async_trait]
+pub trait YOJAPIClientTrait: Send + Sync {
     async fn get_problems(&self) -> Result<Vec<Problem>>;
     async fn get_contests(&self) -> Result<Vec<Contest>>;
 }
@@ -66,6 +67,7 @@ impl YOJAPIClient {
     }
 }
 
+#[async_trait]
 impl YOJAPIClientTrait for YOJAPIClient {
     async fn get_problems(&self) -> Result<Vec<Problem>> {
         self.build_problems_contests().await?;

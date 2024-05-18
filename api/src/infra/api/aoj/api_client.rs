@@ -7,6 +7,7 @@ use crate::domain::vo::verdict::Verdict;
 use crate::domain::{problem::Problem, submission::Submission};
 use crate::utils::api::get_json;
 use anyhow::{Ok, Result};
+use async_trait::async_trait;
 use std::sync::Arc;
 
 use super::*;
@@ -17,7 +18,8 @@ pub struct AojAPIClient {
     client: Arc<reqwest::Client>,
 }
 
-pub trait AojAPIClientTrait {
+#[async_trait]
+pub trait AojAPIClientTrait: Send + Sync {
     async fn get_problems(&self) -> Result<Vec<Problem>>;
     async fn get_user_submissions(
         &self,
@@ -113,6 +115,7 @@ impl AojAPIClient {
     }
 }
 
+#[async_trait]
 impl AojAPIClientTrait for AojAPIClient {
     async fn get_problems(&self) -> Result<Vec<Problem>> {
         Ok(vec![])

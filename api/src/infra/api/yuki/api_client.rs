@@ -1,5 +1,5 @@
 use anyhow::{Ok, Result};
-
+use async_trait::async_trait;
 use chrono::{DateTime, Duration, Local};
 use std::sync::Arc;
 use std::{collections::HashMap, sync::RwLock};
@@ -23,7 +23,8 @@ pub struct YukicoderAPIClient {
     cache: RwLock<Option<(Vec<Problem>, Vec<Contest>)>>,
 }
 
-pub trait YukicoderAPIClientTrait {
+#[async_trait]
+pub trait YukicoderAPIClientTrait: Send + Sync {
     async fn get_problems(&self, is_recent: bool) -> Result<Vec<Problem>>;
     async fn get_contests(&self, is_recent: bool) -> Result<Vec<Contest>>;
 }
@@ -158,6 +159,7 @@ impl YukicoderAPIClient {
     }
 }
 
+#[async_trait]
 impl YukicoderAPIClientTrait for YukicoderAPIClient {
     async fn get_problems(&self, is_recent: bool) -> Result<Vec<Problem>> {
         self.build_problems_contests(is_recent).await?;

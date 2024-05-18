@@ -1,4 +1,5 @@
 use anyhow::{Ok, Result};
+use async_trait::async_trait;
 use std::{
     collections::HashMap,
     sync::{Arc, RwLock},
@@ -24,7 +25,8 @@ pub struct CFAPIClient {
     cache: RwLock<Option<(Vec<Problem>, Vec<Contest>)>>,
 }
 
-pub trait CFAPIClientTrait {
+#[async_trait]
+pub trait CFAPIClientTrait: Send + Sync {
     async fn get_problems(&self) -> Result<Vec<Problem>>;
     async fn get_contests(&self) -> Result<Vec<Contest>>;
     async fn get_user_submissions(
@@ -144,6 +146,7 @@ impl CFAPIClient {
     }
 }
 
+#[async_trait]
 impl CFAPIClientTrait for CFAPIClient {
     async fn get_problems(&self) -> Result<Vec<Problem>> {
         self.fetch_problems().await?;

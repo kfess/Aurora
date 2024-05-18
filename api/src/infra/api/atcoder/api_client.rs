@@ -1,4 +1,5 @@
 use anyhow::{Ok, Result};
+use async_trait::async_trait;
 use std::{
     collections::HashMap,
     sync::{Arc, RwLock},
@@ -29,7 +30,8 @@ pub struct AtcoderAPIClient {
     cache: RwLock<Option<(Vec<Problem>, Vec<Contest>)>>,
 }
 
-pub trait AtcoderAPIClientTrait {
+#[async_trait]
+pub trait AtcoderAPIClientTrait: Send + Sync {
     async fn get_problems(&self) -> Result<Vec<Problem>>;
     async fn get_contests(&self) -> Result<Vec<Contest>>;
     async fn get_recent_submissions(&self) -> Result<Vec<Submission>>;
@@ -139,6 +141,7 @@ impl AtcoderAPIClient {
     }
 }
 
+#[async_trait]
 impl AtcoderAPIClientTrait for AtcoderAPIClient {
     async fn get_problems(&self) -> Result<Vec<Problem>> {
         self.build_problems_contests().await?;

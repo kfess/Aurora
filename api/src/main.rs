@@ -1,5 +1,6 @@
 use dotenv::dotenv;
-use infra::api::{yoj::api_client::YOJAPIClient, yuki::api_client::YukicoderAPIClient};
+use infra::api::factory::APIClientFactory;
+use service::update_problems::yuki::UpdateYukicoderUsecase;
 
 mod domain;
 mod infra;
@@ -12,14 +13,11 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 async fn main() -> Result<()> {
     dotenv().ok();
 
-    let api_client = YukicoderAPIClient::new();
-    let usecase = service::update_problems::yuki::UpdateYukicoderUsecase::new(api_client);
-    usecase.update_recent().await;
-
-    // let api_client = YOJAPIClient::new();
-    // let usecase: service::update_problems::yoj::UpdateYOJUsecase<_> =
-    //     service::update_problems::yoj::UpdateYOJUsecase::new(api_client);
-    // usecase.execute().await;
+    let api_factory = APIClientFactory::new()
+        .with_yuki_client()
+        .with_atcoder_client();
+    let usecase = UpdateYukicoderUsecase::new(api_factory);
+    usecase.execute().await;
 
     Ok(())
 }
