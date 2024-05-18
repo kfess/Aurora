@@ -155,7 +155,7 @@ fn build_contest(contest: CodeforcesContest, problems: Vec<Problem>) -> Contest 
         contest.name.to_string(),
         String::from(classify_contest(&contest)),
         Platform::Codeforces,
-        contest.phase.clone(),
+        String::from(contest.phase),
         if contest.start_time_seconds.is_some() {
             Some(contest.start_time_seconds.unwrap() as u64)
         } else {

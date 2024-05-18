@@ -3,7 +3,11 @@ use convert_case::{Case, Casing};
 use std::sync::{Arc, RwLock};
 
 use crate::{
-    domain::{contest::Contest, problem::Problem, vo::platform::Platform},
+    domain::{
+        contest::Contest,
+        problem::Problem,
+        vo::{phase::Phase, platform::Platform},
+    },
     infra::api::yoj::external::ProblemCategories,
     utils::{api::get_toml, format::num_to_alphabet},
 };
@@ -102,7 +106,7 @@ fn build_contest(category_name: &str, problems: Vec<Problem>) -> Contest {
         category_name.to_string(),
         String::from(classify_contest(category_name)),
         Platform::YOJ,
-        "finished".to_string(),
+        String::from(Phase::Finished),
         Option::None,
         Option::None,
         problems,

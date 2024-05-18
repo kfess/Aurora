@@ -5,7 +5,11 @@ use std::{
 };
 
 use crate::{
-    domain::{contest::Contest, problem::Problem, vo::platform},
+    domain::{
+        contest::Contest,
+        problem::Problem,
+        vo::{phase::Phase, platform},
+    },
     utils::api::get_json,
 };
 
@@ -149,7 +153,7 @@ fn build_contest(contest: AtcoderContest, problems: Vec<Problem>) -> Contest {
         contest.title.to_string(),
         String::from(classify_contest(&contest)),
         platform::Platform::Atcoder,
-        "finished".to_string(),
+        String::from(Phase::Finished),
         Some(contest.start_epoch_second),
         Some(contest.duration_second),
         problems,

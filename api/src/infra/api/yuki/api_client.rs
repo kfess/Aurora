@@ -5,6 +5,7 @@ use std::sync::Arc;
 use std::{collections::HashMap, sync::RwLock};
 use tokio::time::{sleep, Duration as TokioDuration};
 
+use crate::domain::vo::phase::Phase;
 use crate::domain::{contest::Contest, problem::Problem, vo::platform::Platform};
 use crate::utils::api::get_json;
 use crate::utils::format::num_to_alphabet;
@@ -210,7 +211,7 @@ fn build_contest(contest: &YukicoderContest, problems: Vec<Problem>) -> Contest 
         contest.name.to_string(),
         String::from(classify_contest(contest)),
         Platform::Yukicoder,
-        "finished".to_string(),
+        String::from(Phase::Finished),
         Some(start_timestamp),
         Some(duration_seconds),
         problems,
