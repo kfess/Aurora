@@ -172,8 +172,8 @@ fn build_submission(s: AojSubmission) -> Submission {
         Platform::Aoj,
         map_status_to_verdict(s.status),
         Some(s.memory),
+        Some(s.code_size),
         Some(s.cpu_time),
-        s.code_size,
         s.submission_date,
         s.problem_id.as_str(),
     )

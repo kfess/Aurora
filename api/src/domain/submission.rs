@@ -29,7 +29,7 @@ pub struct Submission {
     verdict: Verdict,
 
     /// The time taken to execute the submission in milliseconds.
-    execution_time: u64,
+    execution_time: Option<u64>,
 
     /// Optional memory usage of the submission in kilobytes.
     memory: Option<u64>,
@@ -54,7 +54,7 @@ impl Submission {
         verdict: Verdict,
         memory: Option<u64>,
         code_size: Option<u64>,
-        execution_time: u64,
+        execution_time: Option<u64>,
         submission_date: u64,
         problem_id: String,
     ) -> Self {
@@ -81,7 +81,7 @@ impl Submission {
         verdict: Verdict,
         raw_memory: Option<u64>,
         raw_code_size: Option<u64>,
-        raw_execution_time: u64,
+        raw_execution_time: Option<u64>,
         raw_submission_date: u64,
         problem_id: &str,
     ) -> Self {
@@ -98,7 +98,7 @@ impl Submission {
             ),
             Platform::Aoj => (
                 raw_memory,
-                raw_execution_time * 10,
+                Some(raw_execution_time.unwrap() * 10),
                 raw_code_size,
                 raw_submission_date / 1000,
             ),

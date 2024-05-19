@@ -1,6 +1,6 @@
 use dotenv::dotenv;
 use infra::api::factory::APIClientFactory;
-use service::update_problems::yuki::UpdateYukicoderUsecase;
+use service::update_problems::{atcoder::FetchAtcoderUsecase, yuki::UpdateYukicoderUsecase};
 
 mod domain;
 mod infra;
@@ -19,8 +19,8 @@ async fn main() -> Result<()> {
         .with_cf_client()
         .with_aoj_client()
         .with_yoj_client();
-    let usecase = UpdateYukicoderUsecase::new(api_factory);
-    usecase.execute(true).await;
+    let usecase = FetchAtcoderUsecase::new(api_factory);
+    usecase.execute().await;
 
     Ok(())
 }

@@ -71,7 +71,8 @@ impl AtcoderAPIClient {
         Ok(estimations)
     }
 
-    #[allow(dead_code)]
+    /// Fetch the most recent submissions from the AtCoder API.
+    /// Retrieves up to 1,000 of the latest submissions.
     async fn fetch_recent_submissions(&self) -> Result<Vec<AtcoderSubmission>> {
         let url = format!("{ATCODER_STATISTICS_URL}/recent");
         let submissions = get_json::<Vec<AtcoderSubmission>>(&url, &self.client).await?;
@@ -79,7 +80,6 @@ impl AtcoderAPIClient {
         Ok(submissions)
     }
 
-    #[allow(dead_code)]
     async fn fetch_user_submissions(
         &self,
         user: &str,
@@ -120,7 +120,7 @@ impl AtcoderAPIClient {
                 None => (None, None),
             };
 
-            let problem = build_problem(p.clone(), diff, is_experimental);
+            let problem = build_problem(p, diff, is_experimental);
             c_to_p_map
                 .entry(p.contest_id.clone())
                 .or_insert_with(Vec::new)
@@ -131,7 +131,7 @@ impl AtcoderAPIClient {
         let raw_contests = self.fetch_contests().await?;
         let mut contests: Vec<Contest> = vec![];
         raw_contests.iter().for_each(|c| {
-            let contest = build_contest(c.clone(), c_to_p_map.get(&c.id).unwrap().clone());
+            let contest = build_contest(c, c_to_p_map.get(&c.id).unwrap());
             contests.push(contest);
         });
 
@@ -163,7 +163,7 @@ impl AtcoderAPIClientTrait for AtcoderAPIClient {
         let raw_submissions = self.fetch_recent_submissions().await?;
         let submissions = raw_submissions
             .iter()
-            .map(|s| build_submission(s.clone()))
+            .map(|s| build_submission(s))
             .collect();
 
         Ok(submissions)
@@ -177,7 +177,7 @@ impl AtcoderAPIClientTrait for AtcoderAPIClient {
         let raw_submissions = self.fetch_user_submissions(user, from_second).await?;
         let submissions = raw_submissions
             .iter()
-            .map(|s| build_submission(s.clone()))
+            .map(|s| build_submission(s))
             .collect();
 
         Ok(submissions)
@@ -185,7 +185,7 @@ impl AtcoderAPIClientTrait for AtcoderAPIClient {
 }
 
 fn build_problem(
-    problem: AtcoderProblem,
+    problem: &AtcoderProblem,
     difficulty: Option<f64>,
     is_experimental: Option<bool>,
 ) -> Problem {
@@ -207,7 +207,7 @@ fn build_problem(
     )
 }
 
-fn build_contest(contest: AtcoderContest, problems: Vec<Problem>) -> Contest {
+fn build_contest(contest: &AtcoderContest, problems: &Vec<Problem>) -> Contest {
     Contest::reconstruct(
         contest.id.to_string(),
         contest.title.to_string(),
@@ -216,11 +216,11 @@ fn build_contest(contest: AtcoderContest, problems: Vec<Problem>) -> Contest {
         String::from(Phase::Finished),
         Some(contest.start_epoch_second),
         Some(contest.duration_second),
-        problems,
+        problems.clone(),
     )
 }
 
-fn build_submission(s: AtcoderSubmission) -> Submission {
+fn build_submission(s: &AtcoderSubmission) -> Submission {
     Submission::reconstruct(
         s.id,
         &s.user_id,

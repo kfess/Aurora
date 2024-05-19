@@ -112,5 +112,5 @@ pub struct AtcoderSubmission {
 
     pub result: String,
 
-    pub execution_time: u64, // ms
+    pub execution_time: Option<u64>, // ms
 }
