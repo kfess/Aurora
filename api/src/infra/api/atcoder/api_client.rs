@@ -222,11 +222,11 @@ fn build_contest(contest: &AtcoderContest, problems: &Vec<Problem>) -> Contest {
 
 fn build_submission(s: &AtcoderSubmission) -> Submission {
     Submission::reconstruct(
+        platform::Platform::Atcoder,
         s.id,
         &s.user_id,
         &s.language,
-        platform::Platform::Atcoder,
-        Verdict::from(s.result.as_str()),
+        &s.result,
         None,
         Some(s.length),
         s.execution_time,

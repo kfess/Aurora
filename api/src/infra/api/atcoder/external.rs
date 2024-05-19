@@ -78,13 +78,26 @@ impl Default for AtcoderContest {
 /// [AtCoder Problems JSON](https://kenkoooo.com/atcoder/resources/merged-problems.json)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Estimation {
+    #[serde(skip_deserializing)]
     pub slope: f64,
+
+    #[serde(skip_deserializing)]
     pub intercept: f64,
+
+    #[serde(skip_deserializing)]
     pub variance: f64,
+
     pub difficulty: f64,
+
+    #[serde(skip_deserializing)]
     pub discrimination: f64,
+
+    #[serde(skip_deserializing)]
     pub irt_log_likelihood: f64,
+
+    #[serde(skip_deserializing)]
     pub irt_users: u64,
+
     pub is_experimental: bool,
 }
 
@@ -106,6 +119,7 @@ pub struct AtcoderSubmission {
 
     pub language: String,
 
+    #[serde(skip_deserializing)]
     pub point: f64,
 
     pub length: u64, // bytes

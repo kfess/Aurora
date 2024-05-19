@@ -130,7 +130,7 @@ impl AojAPIClientTrait for AojAPIClient {
         let raw_submissions = self.fetch_user_submissions(user_id, page, size).await?;
         let submissions = raw_submissions
             .iter()
-            .map(|s| build_submission(s.clone()))
+            .map(|s| build_submission(s))
             .collect();
 
         Ok(submissions)
@@ -140,7 +140,7 @@ impl AojAPIClientTrait for AojAPIClient {
         let raw_submissions = self.fetch_recent_submissions().await?;
         let submissions = raw_submissions
             .iter()
-            .map(|s| build_submission(s.clone()))
+            .map(|s| build_submission(s))
             .collect();
 
         Ok(submissions)
@@ -164,12 +164,12 @@ fn map_status_to_verdict(status: u16) -> Verdict {
     }
 }
 
-fn build_submission(s: AojSubmission) -> Submission {
+fn build_submission(s: &AojSubmission) -> Submission {
     Submission::reconstruct(
-        s.judge_id,
-        s.user_id.as_str(),
-        s.language.as_str(),
         Platform::Aoj,
+        s.judge_id,
+        &s.user_id,
+        &s.language,
         map_status_to_verdict(s.status),
         Some(s.memory),
         Some(s.code_size),

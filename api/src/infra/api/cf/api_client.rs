@@ -6,7 +6,12 @@ use std::{
 };
 
 use crate::{
-    domain::{contest::Contest, problem::Problem, submission::Submission, vo::platform::Platform},
+    domain::{
+        contest::Contest,
+        problem::Problem,
+        submission::Submission,
+        vo::{platform::Platform, verdict::Verdict},
+    },
     utils::api::get_json,
 };
 
@@ -213,5 +218,24 @@ fn build_contest(contest: CodeforcesContest, problems: Vec<Problem>) -> Contest 
         },
         Some(contest.duration_seconds),
         problems,
+    )
+}
+
+fn build_submission(s: &CodeforcesSubmission) -> Submission {
+    Submission::reconstruct(
+        Platform::Codeforces,
+        s.id,
+        &s.author.members[0].handle,
+        &s.programming_language,
+        &s.verdict,
+        Some(s.memory_consumed_bytes),
+        None,
+        Some(s.time_consumed_millis),
+        s.creation_time_seconds,
+        s.contest_id,
+        Some(s.problem.index),
+        Some(s.problem.name.clone()),
+        s.problem.points,
+        s.problem.rating,
     )
 }

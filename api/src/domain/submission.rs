@@ -1,7 +1,8 @@
+use serde::Serialize;
+
 use super::vo::{language::Language, platform::Platform, verdict::Verdict};
 
-// We do not include contest_id in the submission struct
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct Submission {
     /// A globally unique identifier for the submission.
     ///
@@ -40,56 +41,39 @@ pub struct Submission {
     /// The date and time when the submission was made in Unix time seconds.
     submission_date: u64,
 
-    /// The identifier of the problem associated with this submission.
-    problem_id: String,
+    /// problem related to the submission
+    problem: ProblemInfo,
 }
 
 impl Submission {
-    pub fn new(
-        id: String,
-        user_id: String,
-        language: String,
-        raw_language: String,
-        platform: Platform,
-        verdict: Verdict,
-        memory: Option<u64>,
-        code_size: Option<u64>,
-        execution_time: Option<u64>,
-        submission_date: u64,
-        problem_id: String,
-    ) -> Self {
-        Self {
-            id,
-            user_id,
-            language,
-            raw_language,
-            platform,
-            verdict,
-            memory,
-            code_size,
-            execution_time,
-            submission_date,
-            problem_id,
-        }
+    // Submission data is fetched from the platform and reconstructed into a Submission struct.
+    // Hence, there is no need to manually construct a new submission instance.
+    fn _new() -> Self {
+        unimplemented!()
     }
 
+    /// Reconstructs a Submission instance from raw data fetched from a platform.
     pub fn reconstruct(
-        raw_id: u64,
-        user_id: &str,
-        raw_language: &str,
         platform: Platform,
-        verdict: Verdict,
+        raw_id: u64,
+        raw_user_id: &str,
+        raw_language: &str,
+        raw_verdict: &str,
         raw_memory: Option<u64>,
         raw_code_size: Option<u64>,
         raw_execution_time: Option<u64>,
         raw_submission_date: u64,
-        problem_id: &str,
+        raw_contest_id: Option<u64>,
+        raw_problem_index: Option<String>,
+        raw_problem_name: Option<String>,
+        raw_point: Option<f64>,
+        raw_difficulty: Option<f64>,
     ) -> Self {
         let id = String::from(platform) + "_" + &raw_id.to_string();
         let language = String::from(Language::from(raw_language));
 
         let (memory, execution_time, code_size, submission_date) = match platform {
-            Platform::Atcoder => (None, raw_execution_time, None, raw_submission_date),
+            Platform::Atcoder => (None, raw_execution_time, raw_code_size, raw_submission_date),
             Platform::Codeforces => (
                 Some(raw_memory.unwrap() / 1024),
                 raw_execution_time,
@@ -105,20 +89,33 @@ impl Submission {
             _ => panic!("Platform not supported: {:?}", platform),
         };
 
-        let problem_id = problem_id.split('_').collect::<Vec<&str>>()[1].to_string();
+        // let problem_id = problem_id.split('_').collect::<Vec<&str>>()[1].to_string();
 
         Self {
             id,
-            user_id: user_id.to_string(),
+            user_id: raw_user_id.to_string(),
             language,
             raw_language: raw_language.to_string(),
             platform,
-            verdict,
+            verdict: Verdict::from(raw_verdict),
             memory,
             code_size,
             execution_time,
             submission_date,
-            problem_id,
         }
     }
+}
+
+/// Minimal information about a problem related to a submission.
+/// Intended for use only when the submission data is fetched from the platform.
+#[derive(Clone, Debug, PartialEq, Serialize)]
+pub(self) struct ProblemInfo {
+    id: Option<String>,
+    contest_id: Option<String>,
+    index: Option<String>,
+    name: Option<String>,
+    title: Option<String>,
+    platform: Option<Platform>,
+    raw_point: Option<f64>,
+    difficulty: Option<f64>,
 }

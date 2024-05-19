@@ -34,27 +34,27 @@ impl APIClientFactory {
         }
     }
 
-    pub fn with_atcoder_client(mut self) -> Self {
+    pub fn with_atcoder(mut self) -> Self {
         self.atcoder_client = Some(Arc::new(super::atcoder::api_client::AtcoderAPIClient::new()));
         self
     }
 
-    pub fn with_cf_client(mut self) -> Self {
+    pub fn with_cf(mut self) -> Self {
         self.cf_client = Some(Arc::new(super::cf::api_client::CFAPIClient::new()));
         self
     }
 
-    pub fn with_yuki_client(mut self) -> Self {
+    pub fn with_yuki(mut self) -> Self {
         self.yuki_client = Some(Arc::new(super::yuki::api_client::YukicoderAPIClient::new()));
         self
     }
 
-    pub fn with_aoj_client(mut self) -> Self {
+    pub fn with_aoj(mut self) -> Self {
         self.aoj_client = Some(Arc::new(super::aoj::api_client::AojAPIClient::new()));
         self
     }
 
-    pub fn with_yoj_client(mut self) -> Self {
+    pub fn with_yoj(mut self) -> Self {
         self.yoj_client = Some(Arc::new(super::yoj::api_client::YOJAPIClient::new()));
         self
     }

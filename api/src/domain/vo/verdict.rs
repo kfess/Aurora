@@ -1,7 +1,8 @@
 use regex::Regex;
+use serde::Serialize;
 use std::convert::From;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub enum Verdict {
     Accepted,
     WrongAnswer,
