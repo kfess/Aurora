@@ -15,9 +15,12 @@ async fn main() -> Result<()> {
 
     let api_factory = APIClientFactory::new()
         .with_yuki_client()
-        .with_atcoder_client();
+        .with_atcoder_client()
+        .with_cf_client()
+        .with_aoj_client()
+        .with_yoj_client();
     let usecase = UpdateYukicoderUsecase::new(api_factory);
-    usecase.execute().await;
+    usecase.execute(true).await;
 
     Ok(())
 }
