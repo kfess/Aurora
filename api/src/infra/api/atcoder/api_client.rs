@@ -10,7 +10,7 @@ use crate::{
         contest::Contest,
         problem::Problem,
         submission::Submission,
-        vo::{phase::Phase, platform},
+        vo::{phase::Phase, platform, verdict::Verdict},
     },
     utils::api::get_json,
 };
@@ -160,7 +160,13 @@ impl AtcoderAPIClientTrait for AtcoderAPIClient {
     }
 
     async fn get_recent_submissions(&self) -> Result<Vec<Submission>> {
-        Ok(vec![])
+        let raw_submissions = self.fetch_recent_submissions().await?;
+        let submissions = raw_submissions
+            .iter()
+            .map(|s| build_submission(s.clone()))
+            .collect();
+
+        Ok(submissions)
     }
 
     async fn get_user_submissions(
@@ -168,7 +174,13 @@ impl AtcoderAPIClientTrait for AtcoderAPIClient {
         user: &str,
         from_second: Option<u64>,
     ) -> Result<Vec<Submission>> {
-        Ok(vec![])
+        let raw_submissions = self.fetch_user_submissions(user, from_second).await?;
+        let submissions = raw_submissions
+            .iter()
+            .map(|s| build_submission(s.clone()))
+            .collect();
+
+        Ok(submissions)
     }
 }
 
@@ -205,5 +217,20 @@ fn build_contest(contest: AtcoderContest, problems: Vec<Problem>) -> Contest {
         Some(contest.start_epoch_second),
         Some(contest.duration_second),
         problems,
+    )
+}
+
+fn build_submission(s: AtcoderSubmission) -> Submission {
+    Submission::reconstruct(
+        s.id,
+        &s.user_id,
+        &s.language,
+        platform::Platform::Atcoder,
+        Verdict::from(s.result.as_str()),
+        None,
+        Some(s.length),
+        s.execution_time,
+        s.epoch_second,
+        &s.problem_id,
     )
 }

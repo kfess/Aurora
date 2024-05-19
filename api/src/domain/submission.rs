@@ -3,28 +3,44 @@ use super::vo::{language::Language, platform::Platform, verdict::Verdict};
 // We do not include contest_id in the submission struct
 #[derive(Clone, Debug, PartialEq)]
 pub struct Submission {
-    // The naming convention for this field is:
-    // <platform>_<submission_id>
+    /// A globally unique identifier for the submission.
+    ///
+    /// The `id` is typically formatted as `<platform>_<submission_id>`.
+    /// - Atcoder: "atcoder_123456"
+    /// - Codeforces: "codeforces_654321"
+    /// - Yukicoder: "yukicoder_111111"
+    /// - Aoj: "aoj_222222"
+    /// - YOJ: "yoj_333333"
     id: String,
 
-    user_id: String, // user_id specific to the platform
+    /// The identifier of the user who made the submission, specific to the platform.
+    user_id: String,
 
+    /// The programming language used for the submission.
     language: String,
 
+    /// The raw representation of the programming language used for the submission as returned by the platform.
     raw_language: String,
 
+    /// The platform from which the submission was made.
     platform: Platform,
 
+    /// The result of the submission.
     verdict: Verdict,
 
-    execution_time: u64, // in ms
+    /// The time taken to execute the submission in milliseconds.
+    execution_time: u64,
 
-    memory: Option<u64>, // in KBytes
+    /// Optional memory usage of the submission in kilobytes.
+    memory: Option<u64>,
 
+    /// Optional size of the submitted code in bytes.
     code_size: Option<u64>, // in bytes
 
-    submission_date: u64, // unix time in seconds
+    /// The date and time when the submission was made in Unix time seconds.
+    submission_date: u64,
 
+    /// The identifier of the problem associated with this submission.
     problem_id: String,
 }
 

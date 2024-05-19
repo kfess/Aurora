@@ -94,7 +94,7 @@ pub struct Estimation {
 /// [AtCoder Problems JSON](https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions?user=chokudai&from_second=1560046356)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AtcoderSubmission {
-    pub id: String,
+    pub id: u64,
 
     pub epoch_second: u64,
 
@@ -108,9 +108,9 @@ pub struct AtcoderSubmission {
 
     pub point: f64,
 
-    pub length: u64,
+    pub length: u64, // bytes
 
     pub result: String,
 
-    pub execution_time: u64,
+    pub execution_time: u64, // ms
 }
