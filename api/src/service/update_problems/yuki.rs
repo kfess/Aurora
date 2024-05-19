@@ -1,9 +1,6 @@
 use crate::infra::api::factory::APIClientFactoryTrait;
 
-pub struct UpdateYukicoderUsecase<T>
-where
-    T: APIClientFactoryTrait,
-{
+pub struct UpdateYukicoderUsecase<T: APIClientFactoryTrait> {
     api_client_factory: T,
 }
 

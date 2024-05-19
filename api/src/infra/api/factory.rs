@@ -15,7 +15,7 @@ pub struct APIClientFactory {
 }
 
 #[async_trait]
-pub trait APIClientFactoryTrait {
+pub trait APIClientFactoryTrait: Send + Sync {
     async fn get_atcoder_client(&self) -> Result<Arc<dyn AtcoderAPIClientTrait>, &'static str>;
     async fn get_cf_client(&self) -> Result<Arc<dyn CFAPIClientTrait>, &'static str>;
     async fn get_yuki_client(&self) -> Result<Arc<dyn YukicoderAPIClientTrait>, &'static str>;
