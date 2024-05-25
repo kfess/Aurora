@@ -4,6 +4,7 @@ use std::{
     collections::HashMap,
     sync::{Arc, RwLock},
 };
+use url::Url;
 
 use crate::{
     domain::{
@@ -37,8 +38,8 @@ pub trait CFAPIClientTrait: Send + Sync {
     async fn get_user_submissions(
         &self,
         user_id: &str,
-        page: u32,
-        count: u32,
+        page: Option<u32>,
+        count: Option<u32>,
     ) -> Result<Vec<Submission>>;
     async fn get_recent_submissions(&self) -> Result<Vec<Submission>>;
 }
@@ -89,7 +90,6 @@ impl CFAPIClient {
         Ok(contests)
     }
 
-    #[allow(dead_code)]
     async fn fetch_recent_submissions(&self) -> Result<Vec<CodeforcesSubmission>> {
         let url = format!("{CODEFORCES_URL_PREFIX}/problemset.recentStatus?count=100");
         let result = get_json::<CodeforcesSubmissionResponse>(&url, &self.client).await?;
@@ -98,17 +98,29 @@ impl CFAPIClient {
         Ok(submissions)
     }
 
-    #[allow(dead_code)]
     async fn fetch_user_submissions(
         &self,
         user_id: &str,
-        page: u32,
-        count: u32,
+        from: Option<u32>,
+        count: Option<u32>,
     ) -> Result<Vec<CodeforcesSubmission>> {
-        let url = format!(
-            "{CODEFORCES_URL_PREFIX}/user.status?handle={user_id}&from={page}&count={count}"
-        );
-        let result = get_json::<CodeforcesSubmissionResponse>(&url, &self.client).await?;
+        // let mut url = Url::parse("https://codeforces.com/api/user.status").unwrap();
+        let mut url = Url::parse(&format!(
+            "{CODEFORCES_URL_PREFIX}/user.status?handle={user_id}"
+        ))
+        .unwrap();
+        {
+            let mut query_pairs = url.query_pairs_mut();
+            query_pairs.append_pair("handle", user_id);
+            if let Some(from) = from {
+                query_pairs.append_pair("from", &from.to_string());
+            }
+            if let Some(count) = count {
+                query_pairs.append_pair("count", &count.to_string());
+            }
+        }
+
+        let result = get_json::<CodeforcesSubmissionResponse>(&url.as_str(), &self.client).await?;
         let submissions = result.result.unwrap();
 
         Ok(submissions)
@@ -172,16 +184,26 @@ impl CFAPIClientTrait for CFAPIClient {
     async fn get_user_submissions(
         &self,
         user_id: &str,
-        page: u32,
-        count: u32,
+        from: Option<u32>,
+        count: Option<u32>,
     ) -> Result<Vec<Submission>> {
-        let raw_submissions = self.fetch_user_submissions(user_id, page, count).await?;
-        Ok(vec![])
+        let raw_submissions = self.fetch_user_submissions(user_id, from, count).await?;
+        let submissions = raw_submissions
+            .iter()
+            .map(|s| build_submission(s))
+            .collect::<Vec<Submission>>();
+
+        Ok(submissions)
     }
 
     async fn get_recent_submissions(&self) -> Result<Vec<Submission>> {
         let raw_submissions = self.fetch_recent_submissions().await?;
-        Ok(vec![])
+        let submissions = raw_submissions
+            .iter()
+            .map(|s| build_submission(s))
+            .collect::<Vec<Submission>>();
+
+        Ok(submissions)
     }
 }
 

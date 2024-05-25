@@ -23,7 +23,15 @@ async fn main() -> Result<()> {
         .with_aoj()
         .with_yoj();
     let usecase = FetchSubmissionUsecase::new(api_factory);
-    usecase.fetch_atcoder_recent_subs().await;
+    // usecase.fetch_atcoder_user_subs("kenkoooo", Some(0)).await;
+
+    // usecase.fetch_cf_recent_subs().await;
+    // usecase
+    //     .fetch_cf_user_subs("tourist", Some(1), Some(10))
+    //     .await;
+
+    usecase.fetch_aoj_recent_subs().await;
+    usecase.fetch_aoj_user_subs("eidensuke", None, None).await;
 
     Ok(())
 }

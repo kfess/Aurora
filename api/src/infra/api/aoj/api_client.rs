@@ -9,6 +9,7 @@ use crate::utils::api::get_json;
 use anyhow::{Ok, Result};
 use async_trait::async_trait;
 use std::sync::Arc;
+use url::Url;
 
 use super::*;
 
@@ -24,8 +25,8 @@ pub trait AojAPIClientTrait: Send + Sync {
     async fn get_user_submissions(
         &self,
         user_id: &str,
-        page: u32,
-        size: u32,
+        page: Option<u32>,
+        size: Option<u32>,
     ) -> Result<Vec<Submission>>;
     async fn get_recent_submissions(&self) -> Result<Vec<Submission>>;
 }
@@ -48,14 +49,21 @@ impl AojAPIClient {
     async fn fetch_user_submissions(
         &self,
         user_id: &str,
-        page: u32,
-        size: u32,
+        page: Option<u32>,
+        size: Option<u32>,
     ) -> Result<Vec<AojSubmission>> {
-        let url = format!(
-            "{}/submission_records/users/{}?page={}&size={}",
-            AOJ_URL, user_id, page, size
-        );
-        let submissions: Vec<AojSubmission> = get_json(&url, &self.client).await?;
+        let mut url = Url::parse(&format!("{AOJ_URL}/submission_records/users/{user_id}")).unwrap();
+        {
+            let mut query_pairs = url.query_pairs_mut();
+            if let Some(page) = page {
+                query_pairs.append_pair("page", &page.to_string());
+            }
+            if let Some(size) = size {
+                query_pairs.append_pair("size", &size.to_string());
+            }
+        }
+
+        let submissions: Vec<AojSubmission> = get_json(&url.as_str(), &self.client).await?;
 
         Ok(submissions)
     }
@@ -124,8 +132,8 @@ impl AojAPIClientTrait for AojAPIClient {
     async fn get_user_submissions(
         &self,
         user_id: &str,
-        page: u32,
-        size: u32,
+        page: Option<u32>,
+        size: Option<u32>,
     ) -> Result<Vec<Submission>> {
         let raw_submissions = self.fetch_user_submissions(user_id, page, size).await?;
         let submissions = raw_submissions

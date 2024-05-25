@@ -98,57 +98,6 @@ impl Submission {
             },
         }
     }
-
-    // /// Reconstructs a Submission instance from raw data fetched from a platform.
-    // pub fn reconstruct(
-    //     platform: Platform,
-    //     raw_id: u64,
-    //     raw_user_id: &str,
-    //     raw_language: &str,
-    //     raw_verdict: &str,
-    //     raw_memory: Option<u64>,
-    //     raw_code_size: Option<u64>,
-    //     raw_execution_time: Option<u64>,
-    //     raw_submission_date: u64,
-    //     raw_contest_id: Option<u64>,
-    //     raw_problem_index: Option<String>,
-    //     raw_problem_name: Option<String>,
-    //     raw_point: Option<f64>,
-    //     raw_difficulty: Option<f64>,
-    // ) -> Self {
-    //     let (memory, execution_time, code_size, submission_date) = match platform {
-    //         Platform::Atcoder => (None, raw_execution_time, raw_code_size, raw_submission_date),
-    //         Platform::Codeforces => (
-    //             Some(raw_memory.unwrap() / 1024),
-    //             raw_execution_time,
-    //             None,
-    //             raw_submission_date,
-    //         ),
-    //         Platform::Aoj => (
-    //             raw_memory,
-    //             Some(raw_execution_time.unwrap() * 10),
-    //             raw_code_size,
-    //             raw_submission_date / 1000,
-    //         ),
-    //         _ => panic!("Platform not supported: {:?}", platform),
-    //     };
-
-    //     // let problem_id = problem_id.split('_').collect::<Vec<&str>>()[1].to_string();
-
-    //     Self {
-    //         platform,
-    //         id: String::from(platform) + "_" + &raw_id.to_string(),
-    //         raw_id: raw_id.to_string(),
-    //         user_id: raw_user_id.to_string(),
-    //         language: String::from(Language::from(raw_language)),
-    //         raw_language: raw_language.to_string(),
-    //         verdict: Verdict::from(raw_verdict),
-    //         memory,
-    //         code_size,
-    //         execution_time,
-    //         submission_date,
-    //     }
-    // }
 }
 
 /// Minimal information about a problem related to a submission.

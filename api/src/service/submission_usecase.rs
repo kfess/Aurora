@@ -37,4 +37,50 @@ impl<T: APIClientFactoryTrait> FetchSubmissionUsecase<T> {
             println!("{:?}", submission);
         }
     }
+
+    pub async fn fetch_cf_recent_subs(&self) {
+        log::info!("Codeforces: fetch recent submissions");
+
+        let cf_client = self.api_client_factory.get_cf_client().await.unwrap();
+        let submissions = cf_client.get_recent_submissions().await.unwrap();
+        for submission in submissions {
+            println!("{:?}", submission);
+        }
+    }
+
+    pub async fn fetch_cf_user_subs(&self, user: &str, from: Option<u32>, count: Option<u32>) {
+        log::info!("Codeforces: fetch user submissions");
+
+        let cf_client = self.api_client_factory.get_cf_client().await.unwrap();
+        let submissions = cf_client
+            .get_user_submissions(user, from, count)
+            .await
+            .unwrap();
+        for submission in submissions {
+            println!("{:?}", submission);
+        }
+    }
+
+    pub async fn fetch_aoj_recent_subs(&self) {
+        log::info!("AOJ: fetch user submissions");
+
+        let aoj_client = self.api_client_factory.get_aoj_client().await.unwrap();
+        let submissions = aoj_client.get_recent_submissions().await.unwrap();
+        for submission in submissions {
+            println!("{:?}", submission);
+        }
+    }
+
+    pub async fn fetch_aoj_user_subs(&self, user: &str, page: Option<u32>, size: Option<u32>) {
+        log::info!("AOJ: fetch user submissions");
+
+        let aoj_client = self.api_client_factory.get_aoj_client().await.unwrap();
+        let submissions = aoj_client
+            .get_user_submissions(user, page, size)
+            .await
+            .unwrap();
+        for submission in submissions {
+            println!("{:?}", submission);
+        }
+    }
 }
