@@ -167,14 +167,18 @@ fn map_status_to_verdict(status: u16) -> Verdict {
 fn build_submission(s: &AojSubmission) -> Submission {
     Submission::reconstruct(
         Platform::Aoj,
-        s.judge_id,
-        &s.user_id,
-        &s.language,
-        map_status_to_verdict(s.status),
+        s.judge_id.to_string(),
+        s.user_id.clone(),
+        s.language.clone(),
+        Verdict::from(map_status_to_verdict(s.status)),
+        Some(s.cpu_time * 10),
         Some(s.memory),
         Some(s.code_size),
-        Some(s.cpu_time),
-        s.submission_date,
-        s.problem_id.as_str(),
+        s.submission_date / 1000,
+        None,
+        Some(s.problem_id.clone()),
+        s.problem_title.clone(),
+        None,
+        None,
     )
 }

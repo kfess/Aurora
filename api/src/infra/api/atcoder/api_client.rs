@@ -10,7 +10,11 @@ use crate::{
         contest::Contest,
         problem::Problem,
         submission::Submission,
-        vo::{phase::Phase, platform, verdict::Verdict},
+        vo::{
+            phase::Phase,
+            platform::{self, Platform},
+            verdict::Verdict,
+        },
     },
     utils::api::get_json,
 };
@@ -221,16 +225,22 @@ fn build_contest(contest: &AtcoderContest, problems: &Vec<Problem>) -> Contest {
 }
 
 fn build_submission(s: &AtcoderSubmission) -> Submission {
+    // Atcoder API does not provide problem name, point, and difficulty.
+    // So, we have to set them at the front-end.
     Submission::reconstruct(
-        platform::Platform::Atcoder,
-        s.id,
-        &s.user_id,
-        &s.language,
-        &s.result,
+        Platform::Atcoder,
+        s.id.to_string(),
+        s.user_id.clone(),
+        s.language.clone(),
+        Verdict::from(s.result.as_str()),
+        s.execution_time,
         None,
         Some(s.length),
-        s.execution_time,
         s.epoch_second,
-        &s.problem_id,
+        Some(s.contest_id.clone()),
+        Some(s.problem_id.clone()),
+        None,
+        None,
+        None,
     )
 }
