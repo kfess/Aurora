@@ -38,14 +38,14 @@ impl YukicoderAPIClient {
     }
 
     async fn fetch_problem(&self, problem_id: u64) -> Result<YukicoderProblemWithStatistics> {
-        let url = format!("{}/problems/{}", YUKICODER_URL, problem_id);
+        let url = format!("{YUKICODER_URL}/problems/{problem_id}");
         let problem = get_json::<YukicoderProblemWithStatistics>(&url, &self.client).await?;
 
         Ok(problem)
     }
 
     async fn fetch_problem_ids(&self, is_recent: bool) -> Result<Vec<u64>> {
-        let url = format!("{}/problems", YUKICODER_URL);
+        let url = format!("{YUKICODER_URL}/problems");
         let mut problems = get_json::<Vec<YukicoderProblem>>(&url, &self.client).await?;
 
         if is_recent {
@@ -71,7 +71,7 @@ impl YukicoderAPIClient {
     }
 
     async fn fetch_past_contests(&self, is_recent: bool) -> Result<Vec<YukicoderContest>> {
-        let url = format!("{}/contest/past", YUKICODER_URL);
+        let url = format!("{YUKICODER_URL}/contest/past");
         let mut contests: Vec<YukicoderContest> = get_json(&url, &self.client).await?;
 
         if is_recent {
@@ -97,7 +97,7 @@ impl YukicoderAPIClient {
 
     #[allow(dead_code)]
     async fn fetch_future_contests(&self) -> Result<Vec<YukicoderContest>> {
-        let url = format!("{}/contest/future", YUKICODER_URL);
+        let url = format!("{YUKICODER_URL}/contest/future");
         let future_contests: Vec<YukicoderContest> = get_json(&url, &self.client).await?;
 
         Ok(future_contests)
@@ -105,7 +105,7 @@ impl YukicoderAPIClient {
 
     #[allow(dead_code)]
     async fn fetch_tags(&self) -> Result<Vec<YukicoderTag>> {
-        let url = format!("{}/statistics/tags", YUKICODER_URL);
+        let url = format!("{YUKICODER_URL}/statistics/tags");
         let tags = get_json(&url, &self.client).await?;
 
         Ok(tags)

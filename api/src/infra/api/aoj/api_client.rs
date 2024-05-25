@@ -40,7 +40,7 @@ impl AojAPIClient {
 
     async fn fetch_problems(&self) -> Result<Vec<AojProblem>> {
         const SIZE: u32 = 10000;
-        let url = format!("{}/problems?size={}", AOJ_URL, SIZE);
+        let url = format!("{AOJ_URL}/problems?size={SIZE}");
         let problems: Vec<AojProblem> = get_json(&url, &self.client).await?;
 
         Ok(problems)
@@ -69,14 +69,14 @@ impl AojAPIClient {
     }
 
     async fn fetch_recent_submissions(&self) -> Result<Vec<AojSubmission>> {
-        let url = format!("{}/submission_records/recent", AOJ_URL);
+        let url = format!("{AOJ_URL}/submission_records/recent");
         let submissions: Vec<AojSubmission> = get_json(&url, &self.client).await?;
 
         Ok(submissions)
     }
 
     async fn get_volumes_challenges_list(&self) -> Result<(Vec<u16>, Vec<String>)> {
-        let url = format!("{}/problems/filters", AOJ_URL);
+        let url = format!("{AOJ_URL}/problems/filters");
         let list: AojVolumesChallengesList = get_json(&url, &self.client).await?;
 
         let (volume_ids, large_cls) = (list.volumes, list.large_cls);
@@ -85,7 +85,7 @@ impl AojAPIClient {
     }
 
     async fn get_large_cls_middle_cls(&self) -> Result<Vec<(String, String)>> {
-        let url = format!("{}/challenges", AOJ_URL);
+        let url = format!("{AOJ_URL}/challenges");
         let challenges: AojChallenges = get_json(&url, &self.client).await?;
 
         let pairs: Vec<(String, String)> = challenges
@@ -104,7 +104,7 @@ impl AojAPIClient {
     }
 
     async fn get_problems_by_volume_id(&self, volume_id: u16) -> Result<Vec<AojProblem>> {
-        let url = format!("{}/problems/volumes/{}", AOJ_URL, volume_id);
+        let url = format!("{AOJ_URL}/problems/volumes/{volume_id}");
         let volume: AojVolume = get_json(&url, &self.client).await?;
         let problems = volume.problems;
 
@@ -116,7 +116,7 @@ impl AojAPIClient {
         large_cl: &str,
         middle_cl: &str,
     ) -> Result<Vec<AojProblem>> {
-        let url = format!("{}/challenges/cl/{}/{}", AOJ_URL, large_cl, middle_cl);
+        let url = format!("{AOJ_URL}/challenges/cl/{large_cl}/{middle_cl}");
         let chanllenges: AojChallengesAndRelatedContests = get_json(&url, &self.client).await?;
 
         Ok(vec![])
