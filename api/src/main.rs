@@ -1,5 +1,7 @@
+use std::env;
+
 use dotenv::dotenv;
-use infra::api::factory::APIClientFactory;
+use infra::{api::factory::APIClientFactory, repository::initialize_pool::initialize_pool};
 use service::{
     submission_usecase::FetchSubmissionUsecase,
     update_problems::{atcoder::FetchAtcoderUsecase, yuki::UpdateYukicoderUsecase},
@@ -25,18 +27,23 @@ async fn main() -> Result<()> {
     let usecase = FetchSubmissionUsecase::new(api_factory);
 
     // AtCoder
-    usecase.fetch_atcoder_recent_subs().await;
-    usecase.fetch_atcoder_user_subs("kenkoooo", Some(0)).await;
+    // usecase.fetch_atcoder_recent_subs().await;
+    // usecase.fetch_atcoder_user_subs("kenkoooo", Some(0)).await;
 
-    // Codeforces
-    usecase.fetch_cf_recent_subs().await;
-    usecase
-        .fetch_cf_user_subs("tourist", Some(1), Some(10))
-        .await;
+    // // Codeforces
+    // usecase.fetch_cf_recent_subs().await;
+    // usecase
+    //     .fetch_cf_user_subs("tourist", Some(1), Some(10))
+    //     .await;
 
-    // AOJ
-    usecase.fetch_aoj_recent_subs().await;
-    usecase.fetch_aoj_user_subs("eidensuke", None, None).await;
+    // // AOJ
+    // usecase.fetch_aoj_recent_subs().await;
+    // usecase.fetch_aoj_user_subs("eidensuke", None, None).await;
+
+    let db_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set.");
+    let pool = initialize_pool(db_url)
+        .await
+        .expect("Failed to initialize the connection pool");
 
     Ok(())
 }
