@@ -104,11 +104,9 @@ impl CFAPIClient {
         from: Option<u32>,
         count: Option<u32>,
     ) -> Result<Vec<CodeforcesSubmission>> {
-        // let mut url = Url::parse("https://codeforces.com/api/user.status").unwrap();
         let mut url = Url::parse(&format!(
             "{CODEFORCES_URL_PREFIX}/user.status?handle={user_id}"
-        ))
-        .unwrap();
+        ))?;
         {
             let mut query_pairs = url.query_pairs_mut();
             query_pairs.append_pair("handle", user_id);

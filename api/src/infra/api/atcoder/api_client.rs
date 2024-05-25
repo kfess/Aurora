@@ -189,38 +189,38 @@ impl AtcoderAPIClientTrait for AtcoderAPIClient {
 }
 
 fn build_problem(
-    problem: &AtcoderProblem,
+    p: &AtcoderProblem,
     difficulty: Option<f64>,
     is_experimental: Option<bool>,
 ) -> Problem {
     Problem::reconstruct(
-        problem.contest_id.to_string(),
-        problem.problem_index.to_string(),
-        problem.name.to_string(),
+        p.contest_id.to_string(),
+        p.problem_index.to_string(),
+        p.name.to_string(),
         platform::Platform::Atcoder,
-        Some(problem.point),
+        Some(p.point),
         difficulty,
         is_experimental,
         vec![],
         format!(
             "https://atcoder.jp/contests/{}/tasks/{}",
-            problem.contest_id, problem.problem_index
+            p.contest_id, p.problem_index
         ),
-        Some(problem.solver_count),
+        Some(p.solver_count),
         None,
     )
 }
 
-fn build_contest(contest: &AtcoderContest, problems: &Vec<Problem>) -> Contest {
+fn build_contest(c: &AtcoderContest, ps: &Vec<Problem>) -> Contest {
     Contest::reconstruct(
-        contest.id.to_string(),
-        contest.title.to_string(),
-        String::from(classify_contest(&contest)),
+        c.id.to_string(),
+        c.title.to_string(),
+        String::from(classify_contest(&c)),
         platform::Platform::Atcoder,
         String::from(Phase::Finished),
-        Some(contest.start_epoch_second),
-        Some(contest.duration_second),
-        problems.clone(),
+        Some(c.start_epoch_second),
+        Some(c.duration_second),
+        ps.clone(),
     )
 }
 
