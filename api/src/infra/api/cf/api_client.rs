@@ -214,7 +214,11 @@ fn build_problem(problem: CodeforcesProblem, id_to_solved_count: HashMap<u64, u6
         problem.points,
         problem.rating,
         Some(false),
-        problem.tags.clone(),
+        problem
+            .tags
+            .into_iter()
+            .map(|t| t.trim().to_string())
+            .collect::<Vec<String>>(),
         format!(
             "https://codeforces.com/contest/{}/problem/{}",
             problem.contest_id, problem.index
