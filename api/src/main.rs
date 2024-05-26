@@ -3,10 +3,7 @@ use std::env;
 use dotenv::dotenv;
 use infra::{
     api::factory::APIClientFactory,
-    repository::{
-        initialize_pool::initialize_pool,
-        technical_tag::{TechnicalTagRepository, TechnicalTagRepositoryTrait},
-    },
+    repository::{initialize_pool::initialize_pool, technical_tag::TechnicalTagRepositoryTrait},
 };
 use service::{
     submission_usecase::FetchSubmissionUsecase,
@@ -51,8 +48,7 @@ async fn main() -> Result<()> {
         .await
         .expect("Failed to initialize the connection pool");
 
-    let tag_repository = TechnicalTagRepository::new(pool);
-    tag_repository.get_tags(None).await?;
+    pool.get_tags(None).await?;
 
     Ok(())
 }

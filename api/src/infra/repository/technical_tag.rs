@@ -3,22 +3,14 @@ use sqlx::PgPool;
 
 use crate::domain::vo::technique_tag::TechnicalTag;
 
-pub struct TechnicalTagRepository {
-    pool: PgPool,
-}
-
 pub trait TechnicalTagRepositoryTrait {
     async fn get_tags(&self, algo_id: Option<&str>) -> Result<Vec<TechnicalTag>>;
     async fn create_tag(&self, en_name: &str, ja_name: &str, algorithm_id: &str) -> Result<()>;
 }
 
-impl TechnicalTagRepository {
-    pub fn new(pool: PgPool) -> Self {
-        Self { pool }
-    }
-}
-
-impl TechnicalTagRepositoryTrait for TechnicalTagRepository {
+// In Rust, we can implement a trait for a type that we don't own.
+// So, we do not need to construct a new struct (i.e. TechnicalTagRepository) to implement the trait.
+impl TechnicalTagRepositoryTrait for PgPool {
     /// Get all tags or tags for a specific algorithm
     ///
     /// If `algo_id` is provided, only tags for that algorithm will be returned.
@@ -35,7 +27,7 @@ impl TechnicalTagRepositoryTrait for TechnicalTagRepository {
 
                 let tags = sqlx::query_as::<_, TechnicalTag>(&query)
                     .bind(algo_id)
-                    .fetch_all(&self.pool)
+                    .fetch_all(self)
                     .await?;
 
                 tags
@@ -48,7 +40,7 @@ impl TechnicalTagRepositoryTrait for TechnicalTagRepository {
                 "#;
 
                 let tags = sqlx::query_as::<_, TechnicalTag>(&query)
-                    .fetch_all(&self.pool)
+                    .fetch_all(self)
                     .await?;
 
                 tags
@@ -76,7 +68,7 @@ impl TechnicalTagRepositoryTrait for TechnicalTagRepository {
             .bind(en_name)
             .bind(ja_name)
             .bind(algorithm_id)
-            .execute(&self.pool)
+            .execute(self)
             .await?;
 
         Ok(())
