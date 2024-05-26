@@ -1,11 +1,15 @@
 use anyhow::Result;
 use sqlx::PgPool;
 
-use crate::domain::{problem::Problem, vo::platform::Platform};
+use crate::domain::{
+    problem::Problem,
+    vo::platform::{self, Platform},
+};
 
 pub trait ProblemRepositoryTrait {
     async fn get_all_problems(&self, platform: &str) -> Result<Vec<Problem>>;
     // async fn get_problem_by_id(&self, id: &str) -> Result<Problem>;
+    async fn update_problems(&self, platform: &str, problems: &[Problem]) -> Result<()>;
 }
 
 impl ProblemRepositoryTrait for PgPool {
@@ -42,4 +46,12 @@ impl ProblemRepositoryTrait for PgPool {
     }
 
     // async fn get_problem_by_id(&self, id: &str) -> Result<Problem> {}
+
+    async fn update_problems(&self, platform: &str, problems: &[Problem]) -> Result<()> {
+        for p in problems {
+            println!("{:?}", p);
+        }
+
+        Ok(())
+    }
 }

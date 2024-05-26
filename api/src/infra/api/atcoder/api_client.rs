@@ -111,15 +111,18 @@ impl AtcoderAPIClient {
         let raw_problems = self.fetch_problems().await?;
         let mut problems: Vec<Problem> = vec![];
         raw_problems.iter().for_each(|p| {
-            let (diff, is_experimental): (Option<f64>, Option<bool>) = match estimations.get(&p.id)
-            {
+            let (diff, is_experimental) = match estimations.get(&p.id) {
                 Some(estimation) => {
-                    let clipped_diff = if estimation.difficulty >= 400.0 {
-                        estimation.difficulty.round()
+                    if let Some(difficulty) = estimation.difficulty {
+                        let clipped_diff = if difficulty >= 400.0 {
+                            difficulty.round()
+                        } else {
+                            (400.0 / f64::exp(1.0 - difficulty / 400.0)).round()
+                        };
+                        (Some(clipped_diff), estimation.is_experimental)
                     } else {
-                        (400.0 / f64::exp(1.0 - estimation.difficulty / 400.0)).round()
-                    };
-                    (Some(clipped_diff), Some(estimation.is_experimental))
+                        (None, estimation.is_experimental)
+                    }
                 }
                 None => (None, None),
             };
@@ -135,7 +138,7 @@ impl AtcoderAPIClient {
         let raw_contests = self.fetch_contests().await?;
         let mut contests: Vec<Contest> = vec![];
         raw_contests.iter().for_each(|c| {
-            let contest = build_contest(c, c_to_p_map.get(&c.id).unwrap());
+            let contest = build_contest(c, c_to_p_map.get(&c.id).unwrap_or(&vec![]));
             contests.push(contest);
         });
 
@@ -198,7 +201,7 @@ fn build_problem(
         p.problem_index.to_string(),
         p.name.to_string(),
         platform::Platform::Atcoder,
-        Some(p.point),
+        p.point,
         difficulty,
         is_experimental,
         vec![],
@@ -206,7 +209,7 @@ fn build_problem(
             "https://atcoder.jp/contests/{}/tasks/{}",
             p.contest_id, p.problem_index
         ),
-        Some(p.solver_count),
+        p.solver_count,
         None,
     )
 }

@@ -145,21 +145,17 @@ fn get_rated_target(contest: &AtcoderContest) -> Target {
                 return Target::Unrated;
             }
 
-            match range.get(1) {
-                Some(&val) => {
-                    if val.parse::<u64>().unwrap() < 2000 {
-                        return Target::ABC;
-                    } else {
-                        return Target::ARC;
-                    }
-                }
-                None => {
-                    if range.get(0).is_some() {
-                        return Target::AGC;
-                    }
-                    return Target::Unrated;
+            if let Ok(upper_bound) = range[1].parse::<u32>() {
+                if upper_bound < 2000 {
+                    return Target::ABC;
+                } else {
+                    return Target::ARC;
                 }
             }
+            if range.get(0).is_some() {
+                return Target::AGC;
+            }
+            return Target::Unrated;
         }
     }
 }

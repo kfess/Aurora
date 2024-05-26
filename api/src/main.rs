@@ -6,8 +6,8 @@ use infra::{
     repository::{initialize_pool::initialize_pool, technical_tag::TechnicalTagRepositoryTrait},
 };
 use service::{
-    submission_usecase::FetchSubmissionUsecase,
-    update_problems::{atcoder::FetchAtcoderUsecase, yuki::UpdateYukicoderUsecase},
+    submission::FetchSubmissionUsecase,
+    update_problems::{atcoder::UpdateAtcoderUsecase, yuki::UpdateYukicoderUsecase},
 };
 
 mod domain;
@@ -27,7 +27,16 @@ async fn main() -> Result<()> {
         .with_yuki()
         .with_aoj()
         .with_yoj();
-    let usecase = FetchSubmissionUsecase::new(api_factory);
+
+    let db_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set.");
+    let pool = initialize_pool(db_url)
+        .await
+        .expect("Failed to initialize the connection pool");
+
+    let usecase = UpdateAtcoderUsecase::new(api_factory, pool);
+    usecase.fetch_and_update().await;
+
+    // let usecase = FetchSubmissionUsecase::new(api_factory);
 
     // AtCoder
     // usecase.fetch_atcoder_recent_subs().await;
@@ -43,12 +52,7 @@ async fn main() -> Result<()> {
     // usecase.fetch_aoj_recent_subs().await;
     // usecase.fetch_aoj_user_subs("eidensuke", None, None).await;
 
-    let db_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set.");
-    let pool = initialize_pool(db_url)
-        .await
-        .expect("Failed to initialize the connection pool");
-
-    pool.get_tags(None).await?;
+    // pool.get_tags(None).await?;
 
     Ok(())
 }

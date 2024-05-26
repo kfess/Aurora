@@ -16,31 +16,31 @@ pub struct AtcoderProblem {
 
     pub title: String,
 
-    pub shortest_submission_id: String,
+    pub shortest_submission_id: Option<u32>,
 
-    pub shortest_contest_id: String,
+    pub shortest_contest_id: Option<String>,
 
-    pub shortest_user_id: String,
+    pub shortest_user_id: Option<String>,
 
-    pub fastest_submission_id: String,
+    pub fastest_submission_id: Option<u32>,
 
-    pub fastest_contest_id: String,
+    pub fastest_contest_id: Option<String>,
 
-    pub fastest_user_id: String,
+    pub fastest_user_id: Option<String>,
 
-    pub first_submission_id: String,
+    pub first_submission_id: Option<u32>,
 
-    pub first_contest_id: String,
+    pub first_contest_id: Option<String>,
 
-    pub first_user_id: String,
+    pub first_user_id: Option<String>,
 
-    pub source_code_length: u64,
+    pub source_code_length: Option<u64>,
 
-    pub execution_time: u64,
+    pub execution_time: Option<u64>,
 
-    pub point: f64,
+    pub point: Option<f64>,
 
-    pub solver_count: u64,
+    pub solver_count: Option<u64>,
 }
 
 /// `AtcoderContest` is a struct that contains more detailed information about a contest.
@@ -78,27 +78,21 @@ impl Default for AtcoderContest {
 /// [AtCoder Problems JSON](https://kenkoooo.com/atcoder/resources/merged-problems.json)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Estimation {
-    #[serde(skip_deserializing)]
-    pub slope: f64,
+    pub slope: Option<f64>,
 
-    #[serde(skip_deserializing)]
-    pub intercept: f64,
+    pub intercept: Option<f64>,
 
-    #[serde(skip_deserializing)]
-    pub variance: f64,
+    pub variance: Option<f64>,
 
-    pub difficulty: f64,
+    pub difficulty: Option<f64>,
 
-    #[serde(skip_deserializing)]
-    pub discrimination: f64,
+    pub discrimination: Option<f64>,
 
-    #[serde(skip_deserializing)]
-    pub irt_log_likelihood: f64,
+    pub irt_loglikelihood: Option<f64>,
 
-    #[serde(skip_deserializing)]
-    pub irt_users: u64,
+    pub irt_users: Option<u64>,
 
-    pub is_experimental: bool,
+    pub is_experimental: Option<bool>,
 }
 
 /// `AtcoderSubmission` is a struct that contains more detailed information about a submission.
@@ -119,7 +113,6 @@ pub struct AtcoderSubmission {
 
     pub language: String,
 
-    #[serde(skip_deserializing)]
     pub point: f64,
 
     pub length: u64, // bytes

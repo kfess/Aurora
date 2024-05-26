@@ -1,2 +1,2 @@
-pub mod submission_usecase;
+pub mod submission;
 pub mod update_problems;
