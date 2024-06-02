@@ -1,9 +1,5 @@
 use anyhow::{Ok, Result};
-use async_trait::async_trait;
-use std::{
-    collections::HashMap,
-    sync::{Arc, RwLock},
-};
+use std::collections::HashMap;
 
 use crate::{
     domain::{
@@ -23,52 +19,37 @@ use super::{
     classifier::classify_contest,
     external::{AtcoderContest, AtcoderProblem, AtcoderSubmission, Estimation},
 };
+use crate::infra::api::api_client::ApiClient;
 
 const ATCODER_INFORMATION_URL: &'static str = "https://kenkoooo.com/atcoder/resources";
 const ATCODER_STATISTICS_URL: &'static str = "https://kenkoooo.com/atcoder/atcoder-api/v3";
 
-/// AtCoder API Client
-/// This struct is used to fetch data provided by Unofficial AtCoder API (kenkoooo)
-pub struct AtcoderAPIClient {
-    client: Arc<reqwest::Client>,
-    cache: RwLock<Option<(Vec<Problem>, Vec<Contest>)>>,
-}
-
-#[async_trait]
-pub trait AtcoderAPIClientTrait: Send + Sync {
-    async fn get_problems(&self) -> Result<Vec<Problem>>;
-    async fn get_contests(&self) -> Result<Vec<Contest>>;
-    async fn get_recent_submissions(&self) -> Result<Vec<Submission>>;
-    async fn get_user_submissions(
+pub trait AtcoderAPIClient: Send + Sync {
+    async fn get_atcoder_problems_and_contests(&self) -> Result<(Vec<Problem>, Vec<Contest>)>;
+    async fn get_atcoder_recent_submissions(&self) -> Result<Vec<Submission>>;
+    async fn get_atcoder_user_submissions(
         &self,
         user: &str,
         from_second: Option<u64>,
     ) -> Result<Vec<Submission>>;
 }
 
-impl AtcoderAPIClient {
-    pub fn new() -> Self {
-        Self {
-            client: Arc::new(reqwest::Client::new()),
-            cache: RwLock::new(None),
-        }
-    }
-
-    async fn fetch_contests(&self) -> Result<Vec<AtcoderContest>> {
+impl ApiClient {
+    async fn fetch_atcoder_contests(&self) -> Result<Vec<AtcoderContest>> {
         let url = format!("{ATCODER_INFORMATION_URL}/contests.json");
         let contests = get_json::<Vec<AtcoderContest>>(&url, &self.client).await?;
 
         Ok(contests)
     }
 
-    async fn fetch_problems(&self) -> Result<Vec<AtcoderProblem>> {
+    async fn fetch_atcoder_problems(&self) -> Result<Vec<AtcoderProblem>> {
         let url = format!("{ATCODER_INFORMATION_URL}/merged-problems.json");
         let problems = get_json::<Vec<AtcoderProblem>>(&url, &self.client).await?;
 
         Ok(problems)
     }
 
-    async fn fetch_estimations(&self) -> Result<HashMap<String, Estimation>> {
+    async fn fetch_atcoder_estimations(&self) -> Result<HashMap<String, Estimation>> {
         let url = format!("{ATCODER_INFORMATION_URL}/problem-models.json");
         let estimations = get_json::<HashMap<String, Estimation>>(&url, &self.client).await?;
 
@@ -77,14 +58,14 @@ impl AtcoderAPIClient {
 
     /// Fetch the most recent submissions from the AtCoder API.
     /// Retrieves up to 1,000 of the latest submissions.
-    async fn fetch_recent_submissions(&self) -> Result<Vec<AtcoderSubmission>> {
+    async fn fetch_atcoder_recent_submissions(&self) -> Result<Vec<AtcoderSubmission>> {
         let url = format!("{ATCODER_STATISTICS_URL}/recent");
         let submissions = get_json::<Vec<AtcoderSubmission>>(&url, &self.client).await?;
 
         Ok(submissions)
     }
 
-    async fn fetch_user_submissions(
+    async fn fetch_atcoder_user_submissions(
         &self,
         user: &str,
         from_second: Option<u64>,
@@ -100,15 +81,11 @@ impl AtcoderAPIClient {
         Ok(submissions)
     }
 
-    async fn build_problems_contests(&self) -> Result<()> {
-        if self.cache.read().unwrap().is_some() {
-            return Ok(());
-        }
-
-        let estimations = self.fetch_estimations().await?;
+    async fn build_atcoder_problems_contests(&self) -> Result<(Vec<Problem>, Vec<Contest>)> {
+        let estimations = self.fetch_atcoder_estimations().await?;
 
         let mut c_to_p_map: HashMap<String, Vec<Problem>> = HashMap::new();
-        let raw_problems = self.fetch_problems().await?;
+        let raw_problems = self.fetch_atcoder_problems().await?;
         let mut problems: Vec<Problem> = vec![];
         raw_problems.iter().for_each(|p| {
             let (diff, is_experimental) = clip_difficulty(estimations.get(&p.id));
@@ -120,39 +97,26 @@ impl AtcoderAPIClient {
             problems.push(problem);
         });
 
-        let raw_contests = self.fetch_contests().await?;
+        let raw_contests = self.fetch_atcoder_contests().await?;
         let mut contests: Vec<Contest> = vec![];
         raw_contests.iter().for_each(|c| {
             let contest = build_contest(c, c_to_p_map.get(&c.id).unwrap_or(&vec![]));
             contests.push(contest);
         });
 
-        *self.cache.write().unwrap() = Some((problems.clone(), contests.clone()));
-
-        Ok(())
+        Ok((problems, contests))
     }
 }
 
-#[async_trait]
-impl AtcoderAPIClientTrait for AtcoderAPIClient {
-    async fn get_problems(&self) -> Result<Vec<Problem>> {
-        self.build_problems_contests().await?;
-        let cache = self.cache.read().unwrap();
-        let (problems, _) = cache.as_ref().unwrap();
+impl AtcoderAPIClient for ApiClient {
+    async fn get_atcoder_problems_and_contests(&self) -> Result<(Vec<Problem>, Vec<Contest>)> {
+        let (problems, contests) = self.build_atcoder_problems_contests().await?;
 
-        Ok(problems.clone())
+        Ok((problems, contests))
     }
 
-    async fn get_contests(&self) -> Result<Vec<Contest>> {
-        self.build_problems_contests().await?;
-        let cache = self.cache.read().unwrap();
-        let (_, contests) = cache.as_ref().unwrap();
-
-        Ok(contests.clone())
-    }
-
-    async fn get_recent_submissions(&self) -> Result<Vec<Submission>> {
-        let raw_submissions = self.fetch_recent_submissions().await?;
+    async fn get_atcoder_recent_submissions(&self) -> Result<Vec<Submission>> {
+        let raw_submissions = self.fetch_atcoder_recent_submissions().await?;
         let submissions = raw_submissions
             .iter()
             .map(|s| build_submission(s))
@@ -161,12 +125,14 @@ impl AtcoderAPIClientTrait for AtcoderAPIClient {
         Ok(submissions)
     }
 
-    async fn get_user_submissions(
+    async fn get_atcoder_user_submissions(
         &self,
         user: &str,
         from_second: Option<u64>,
     ) -> Result<Vec<Submission>> {
-        let raw_submissions = self.fetch_user_submissions(user, from_second).await?;
+        let raw_submissions = self
+            .fetch_atcoder_user_submissions(user, from_second)
+            .await?;
         let submissions = raw_submissions
             .iter()
             .map(|s| build_submission(s))

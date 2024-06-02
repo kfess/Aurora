@@ -1,12 +1,11 @@
 use anyhow::{Ok, Result};
-use async_trait::async_trait;
 use chrono::{DateTime, Duration, Local};
-use std::sync::Arc;
-use std::{collections::HashMap, sync::RwLock};
+use std::collections::HashMap;
 use tokio::time::{sleep, Duration as TokioDuration};
 
 use crate::domain::vo::phase::Phase;
 use crate::domain::{contest::Contest, problem::Problem, vo::platform::Platform};
+use crate::infra::api::api_client::ApiClient;
 use crate::utils::api::get_json;
 use crate::utils::format::num_to_alphabet;
 
@@ -18,33 +17,19 @@ use super::classifier::classify_contest;
 
 const YUKICODER_URL: &'static str = "https://yukicoder.me/api/v1";
 
-pub struct YukicoderAPIClient {
-    client: Arc<reqwest::Client>,
-    cache: RwLock<Option<(Vec<Problem>, Vec<Contest>)>>,
+pub trait YukicoderAPIClient: Send + Sync {
+    async fn get_yuki_problems_and_contests(&self) -> Result<(Vec<Problem>, Vec<Contest>)>;
 }
 
-#[async_trait]
-pub trait YukicoderAPIClientTrait: Send + Sync {
-    async fn get_problems(&self, is_recent: bool) -> Result<Vec<Problem>>;
-    async fn get_contests(&self, is_recent: bool) -> Result<Vec<Contest>>;
-}
-
-impl YukicoderAPIClient {
-    pub fn new() -> Self {
-        Self {
-            client: Arc::new(reqwest::Client::new()),
-            cache: RwLock::new(None),
-        }
-    }
-
-    async fn fetch_problem(&self, problem_id: u64) -> Result<YukicoderProblemWithStatistics> {
+impl ApiClient {
+    async fn fetch_yuki_problem(&self, problem_id: u64) -> Result<YukicoderProblemWithStatistics> {
         let url = format!("{YUKICODER_URL}/problems/{problem_id}");
         let problem = get_json::<YukicoderProblemWithStatistics>(&url, &self.client).await?;
 
         Ok(problem)
     }
 
-    async fn fetch_problem_ids(&self, is_recent: bool) -> Result<Vec<u64>> {
+    async fn fetch_yuki_problem_ids(&self, is_recent: bool) -> Result<Vec<u64>> {
         let url = format!("{YUKICODER_URL}/problems");
         let mut problems = get_json::<Vec<YukicoderProblem>>(&url, &self.client).await?;
 
@@ -70,7 +55,7 @@ impl YukicoderAPIClient {
         Ok(problem_ids)
     }
 
-    async fn fetch_past_contests(&self, is_recent: bool) -> Result<Vec<YukicoderContest>> {
+    async fn fetch_yuki_past_contests(&self, is_recent: bool) -> Result<Vec<YukicoderContest>> {
         let url = format!("{YUKICODER_URL}/contest/past");
         let mut contests: Vec<YukicoderContest> = get_json(&url, &self.client).await?;
 
@@ -96,7 +81,7 @@ impl YukicoderAPIClient {
     }
 
     #[allow(dead_code)]
-    async fn fetch_future_contests(&self) -> Result<Vec<YukicoderContest>> {
+    async fn fetch_yuki_future_contests(&self) -> Result<Vec<YukicoderContest>> {
         let url = format!("{YUKICODER_URL}/contest/future");
         let future_contests: Vec<YukicoderContest> = get_json(&url, &self.client).await?;
 
@@ -104,21 +89,20 @@ impl YukicoderAPIClient {
     }
 
     #[allow(dead_code)]
-    async fn fetch_tags(&self) -> Result<Vec<YukicoderTag>> {
+    async fn fetch_yuki_tags(&self) -> Result<Vec<YukicoderTag>> {
         let url = format!("{YUKICODER_URL}/statistics/tags");
         let tags = get_json(&url, &self.client).await?;
 
         Ok(tags)
     }
 
-    async fn build_problems_contests(&self, is_recent: bool) -> Result<()> {
-        if self.cache.read().unwrap().is_some() {
-            return Ok(());
-        }
-
+    async fn build_problems_contests(
+        &self,
+        is_recent: bool,
+    ) -> Result<(Vec<Problem>, Vec<Contest>)> {
         let (raw_problem_ids, raw_contests) = tokio::try_join!(
-            self.fetch_problem_ids(is_recent),
-            self.fetch_past_contests(is_recent)
+            self.fetch_yuki_problem_ids(is_recent),
+            self.fetch_yuki_past_contests(is_recent)
         )?;
 
         let mut p_to_c_map: HashMap<u64, (YukicoderContest, String)> = HashMap::new();
@@ -134,7 +118,7 @@ impl YukicoderAPIClient {
 
         let mut problems: Vec<Problem> = vec![];
         for &problem_id in &raw_problem_ids {
-            let raw_problem = self.fetch_problem(problem_id).await?;
+            let raw_problem = self.fetch_yuki_problem(problem_id).await?;
             let (contest, idx) = p_to_c_map.get(&problem_id).cloned().unwrap();
 
             let problem = build_problem(&contest.id, &idx, &raw_problem);
@@ -153,28 +137,15 @@ impl YukicoderAPIClient {
             .map(|(&id, problems)| build_contest(&c_to_c_map[&id], problems.clone()))
             .collect();
 
-        *self.cache.write().unwrap() = Some((problems.clone(), contests.clone()));
-
-        Ok(())
+        Ok((problems, contests))
     }
 }
 
-#[async_trait]
-impl YukicoderAPIClientTrait for YukicoderAPIClient {
-    async fn get_problems(&self, is_recent: bool) -> Result<Vec<Problem>> {
-        self.build_problems_contests(is_recent).await?;
-        let cache = self.cache.read().unwrap();
-        let (problems, _) = cache.as_ref().unwrap();
+impl YukicoderAPIClient for ApiClient {
+    async fn get_yuki_problems_and_contests(&self) -> Result<(Vec<Problem>, Vec<Contest>)> {
+        let (problems, contests) = self.build_problems_contests(false).await?;
 
-        Ok(problems.clone())
-    }
-
-    async fn get_contests(&self, is_recent: bool) -> Result<Vec<Contest>> {
-        self.build_problems_contests(is_recent).await?;
-        let cache = self.cache.read().unwrap();
-        let (_, contests) = cache.as_ref().unwrap();
-
-        Ok(contests.clone())
+        Ok((problems, contests))
     }
 }
 

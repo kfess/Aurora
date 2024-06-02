@@ -4,49 +4,29 @@ use crate::{
         problem::Problem,
         vo::{phase::Phase, platform::Platform},
     },
-    infra::api::yoj::external::ProblemCategories,
+    infra::api::{api_client::ApiClient, yoj::external::ProblemCategories},
     utils::{api::get_toml, format::num_to_alphabet},
 };
 use anyhow::Result;
-use async_trait::async_trait;
 use convert_case::{Case, Casing};
-use std::sync::{Arc, RwLock};
 
 use super::classifier::classify_contest;
 
 const CATEGORY_TOML_URL: &'static str =
     "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/categories.toml";
 
-pub struct YOJAPIClient {
-    client: Arc<reqwest::Client>,
-    cache: RwLock<Option<(Vec<Problem>, Vec<Contest>)>>,
+pub trait YOJAPIClient: Send + Sync {
+    async fn get_yoj_problems_and_contests(&self) -> Result<(Vec<Problem>, Vec<Contest>)>;
 }
 
-#[async_trait]
-pub trait YOJAPIClientTrait: Send + Sync {
-    async fn get_problems(&self) -> Result<Vec<Problem>>;
-    async fn get_contests(&self) -> Result<Vec<Contest>>;
-}
-
-impl YOJAPIClient {
-    pub fn new() -> Self {
-        Self {
-            client: Arc::new(reqwest::Client::new()),
-            cache: RwLock::new(None),
-        }
-    }
-
-    async fn fetch_categories(&self) -> Result<ProblemCategories> {
+impl ApiClient {
+    async fn fetch_yoj_categories(&self) -> Result<ProblemCategories> {
         let categories = get_toml(CATEGORY_TOML_URL, &self.client).await?;
         Ok(categories)
     }
 
-    async fn build_problems_contests(&self) -> Result<()> {
-        if self.cache.read().unwrap().is_some() {
-            return Ok(());
-        }
-
-        let raw_categories = self.fetch_categories().await?;
+    async fn build_yoj_problems_contests(&self) -> Result<(Vec<Problem>, Vec<Contest>)> {
+        let raw_categories = self.fetch_yoj_categories().await?;
 
         let mut problems: Vec<Problem> = vec![];
         let mut contests: Vec<Contest> = vec![];
@@ -61,28 +41,15 @@ impl YOJAPIClient {
             contests.push(build_contest(&category.name, tmp_problems));
         }
 
-        *self.cache.write().unwrap() = Some((problems.clone(), contests));
-
-        Ok(())
+        Ok((problems, contests))
     }
 }
 
-#[async_trait]
-impl YOJAPIClientTrait for YOJAPIClient {
-    async fn get_problems(&self) -> Result<Vec<Problem>> {
-        self.build_problems_contests().await?;
-        let cache = self.cache.read().unwrap();
-        let (problems, _) = cache.as_ref().unwrap();
+impl YOJAPIClient for ApiClient {
+    async fn get_yoj_problems_and_contests(&self) -> Result<(Vec<Problem>, Vec<Contest>)> {
+        let (problems, contests) = self.build_yoj_problems_contests().await?;
 
-        Ok(problems.clone())
-    }
-
-    async fn get_contests(&self) -> Result<Vec<Contest>> {
-        self.build_problems_contests().await?;
-        let cache = self.cache.read().unwrap();
-        let (_, contests) = cache.as_ref().unwrap();
-
-        Ok(contests.clone())
+        Ok((problems, contests))
     }
 }
 

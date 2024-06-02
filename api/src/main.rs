@@ -1,8 +1,7 @@
-use std::env;
-
 use dotenv::dotenv;
 use infra::{
-    api::factory::APIClientFactory,
+    // api::factory::APIClientFactory,
+    api::atcoder::api_client::AtcoderAPIClient,
     repository::{initialize_pool::initialize_pool, technical_tag::TechnicalTagRepositoryTrait},
 };
 use service::{
@@ -11,6 +10,7 @@ use service::{
         aoj::UpdateAojUsecase, atcoder::UpdateAtcoderUsecase, yuki::UpdateYukicoderUsecase,
     },
 };
+use std::env;
 
 mod domain;
 mod infra;
@@ -23,22 +23,18 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 async fn main() -> Result<()> {
     dotenv().ok();
 
-    let api_factory = APIClientFactory::new()
-        .with_atcoder()
-        .with_cf()
-        .with_yuki()
-        .with_aoj()
-        .with_yoj();
-
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set.");
     let pool = initialize_pool(db_url)
         .await
         .expect("Failed to initialize the connection pool");
 
-    let usecase = UpdateAojUsecase::new(api_factory, pool);
+    let api_client = infra::api::api_client::ApiClient::new();
+    api_client.get_atcoder_problems_and_contests().await?;
+
+    let usecase = UpdateAtcoderUsecase::new(api_client, pool);
     usecase.fetch_and_update().await;
 
-    // let usecase = UpdateAtcoderUsecase::new(api_factory, pool);
+    // let usecase = UpdateAojUsecase::new(api_factory, pool);
     // usecase.fetch_and_update().await;
 
     // let usecase = FetchSubmissionUsecase::new(api_factory);

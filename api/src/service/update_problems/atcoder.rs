@@ -1,16 +1,16 @@
 use crate::infra::{
-    api::factory::APIClientFactoryTrait, repository::problem::ProblemRepositoryTrait,
+    api::atcoder::api_client::AtcoderAPIClient, repository::problem::ProblemRepositoryTrait,
 };
 
-pub struct UpdateAtcoderUsecase<T: APIClientFactoryTrait, P: ProblemRepositoryTrait> {
-    api_client_factory: T,
-    repository: P,
+pub struct UpdateAtcoderUsecase<C: AtcoderAPIClient, R: ProblemRepositoryTrait> {
+    api_client: C,
+    repository: R,
 }
 
-impl<T: APIClientFactoryTrait, P: ProblemRepositoryTrait> UpdateAtcoderUsecase<T, P> {
-    pub fn new(api_client_factory: T, repository: P) -> Self {
+impl<C: AtcoderAPIClient, R: ProblemRepositoryTrait> UpdateAtcoderUsecase<C, R> {
+    pub fn new(api_client: C, repository: R) -> Self {
         Self {
-            api_client_factory,
+            api_client,
             repository,
         }
     }
@@ -20,9 +20,12 @@ impl<T: APIClientFactoryTrait, P: ProblemRepositoryTrait> UpdateAtcoderUsecase<T
     pub async fn fetch_and_update(&self) {
         log::info!("AtCoder: update problems and contests");
 
-        let atcoder_client = self.api_client_factory.get_atcoder_client().await.unwrap();
+        let (problems, _contests) = self
+            .api_client
+            .get_atcoder_problems_and_contests()
+            .await
+            .unwrap();
 
-        let problems = atcoder_client.get_problems().await.unwrap();
         self.repository
             .update_problems("atcoder", &problems)
             .await

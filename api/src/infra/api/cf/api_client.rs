@@ -1,9 +1,5 @@
 use anyhow::{Ok, Result};
-use async_trait::async_trait;
-use std::{
-    collections::HashMap,
-    sync::{Arc, RwLock},
-};
+use std::collections::HashMap;
 use url::Url;
 
 use crate::{
@@ -13,6 +9,7 @@ use crate::{
         submission::Submission,
         vo::{platform::Platform, verdict::Verdict},
     },
+    infra::api::api_client::ApiClient,
     utils::api::get_json,
 };
 
@@ -26,33 +23,21 @@ use super::{
 
 const CODEFORCES_URL_PREFIX: &'static str = "https://codeforces.com/api";
 
-pub struct CFAPIClient {
-    client: Arc<reqwest::Client>,
-    cache: RwLock<Option<(Vec<Problem>, Vec<Contest>)>>,
-}
-
-#[async_trait]
-pub trait CFAPIClientTrait: Send + Sync {
-    async fn get_problems(&self) -> Result<Vec<Problem>>;
-    async fn get_contests(&self) -> Result<Vec<Contest>>;
-    async fn get_user_submissions(
+pub trait CFAPIClient: Send + Sync {
+    async fn get_cf_problems_and_contests(&self) -> Result<(Vec<Problem>, Vec<Contest>)>;
+    async fn get_cf_user_submissions(
         &self,
         user_id: &str,
         page: Option<u32>,
         count: Option<u32>,
     ) -> Result<Vec<Submission>>;
-    async fn get_recent_submissions(&self) -> Result<Vec<Submission>>;
+    async fn get_cf_recent_submissions(&self) -> Result<Vec<Submission>>;
 }
 
-impl CFAPIClient {
-    pub fn new() -> Self {
-        Self {
-            client: Arc::new(reqwest::Client::new()),
-            cache: RwLock::new(None),
-        }
-    }
-
-    async fn fetch_problems(&self) -> Result<(Vec<CodeforcesProblem>, Vec<CodeforcesProblemStat>)> {
+impl ApiClient {
+    async fn fetch_cf_problems(
+        &self,
+    ) -> Result<(Vec<CodeforcesProblem>, Vec<CodeforcesProblemStat>)> {
         let url = format!("{CODEFORCES_URL_PREFIX}/problemset.problems");
         let result = get_json::<CodeforcesProblemResponse>(&url, &self.client).await?;
         let problems_with_stats = result.result.unwrap();
@@ -63,7 +48,7 @@ impl CFAPIClient {
         ))
     }
 
-    async fn fetch_past_contests(&self) -> Result<Vec<CodeforcesContest>> {
+    async fn fetch_cf_past_contests(&self) -> Result<Vec<CodeforcesContest>> {
         let url = format!("{CODEFORCES_URL_PREFIX}/contest.list");
         let result = get_json::<CodeforcesContestResponse>(&url, &self.client).await?;
         let contests = result
@@ -77,7 +62,7 @@ impl CFAPIClient {
     }
 
     #[allow(dead_code)]
-    async fn fetch_future_contests(&self) -> Result<Vec<CodeforcesContest>> {
+    async fn fetch_cf_future_contests(&self) -> Result<Vec<CodeforcesContest>> {
         let url = format!("{CODEFORCES_URL_PREFIX}/contest.list");
         let result = get_json::<CodeforcesContestResponse>(&url, &self.client).await?;
         let contests = result
@@ -90,7 +75,7 @@ impl CFAPIClient {
         Ok(contests)
     }
 
-    async fn fetch_recent_submissions(&self) -> Result<Vec<CodeforcesSubmission>> {
+    async fn fetch_cf_recent_submissions(&self) -> Result<Vec<CodeforcesSubmission>> {
         let url = format!("{CODEFORCES_URL_PREFIX}/problemset.recentStatus?count=100");
         let result = get_json::<CodeforcesSubmissionResponse>(&url, &self.client).await?;
         let submissions = result.result.unwrap();
@@ -98,7 +83,7 @@ impl CFAPIClient {
         Ok(submissions)
     }
 
-    async fn fetch_user_submissions(
+    async fn fetch_cf_user_submissions(
         &self,
         user_id: &str,
         from: Option<u32>,
@@ -124,13 +109,9 @@ impl CFAPIClient {
         Ok(submissions)
     }
 
-    async fn build_problems_contests(&self) -> Result<()> {
-        if self.cache.read().unwrap().is_some() {
-            return Ok(());
-        }
-
-        let (raw_problems, raw_stats) = self.fetch_problems().await?;
-        let raw_contests = self.fetch_past_contests().await?;
+    async fn build_cf_problems_contests(&self) -> Result<(Vec<Problem>, Vec<Contest>)> {
+        let (raw_problems, raw_stats) = self.fetch_cf_problems().await?;
+        let raw_contests = self.fetch_cf_past_contests().await?;
 
         let id_to_solved_count: HashMap<u64, u64> = raw_stats
             .iter()
@@ -155,37 +136,24 @@ impl CFAPIClient {
             contests.push(build_contest(c.clone(), ps));
         });
 
-        *self.cache.write().unwrap() = Some((problems, contests));
-
-        Ok(())
+        Ok((problems, contests))
     }
 }
 
-#[async_trait]
-impl CFAPIClientTrait for CFAPIClient {
-    async fn get_problems(&self) -> Result<Vec<Problem>> {
-        self.build_problems_contests().await?;
-        let cache = self.cache.read().unwrap();
-        let (problems, _) = cache.as_ref().unwrap();
+impl CFAPIClient for ApiClient {
+    async fn get_cf_problems_and_contests(&self) -> Result<(Vec<Problem>, Vec<Contest>)> {
+        let (problems, contests) = self.build_cf_problems_contests().await?;
 
-        Ok(problems.clone())
+        Ok((problems, contests))
     }
 
-    async fn get_contests(&self) -> Result<Vec<Contest>> {
-        self.build_problems_contests().await?;
-        let cache = self.cache.read().unwrap();
-        let (_, contests) = cache.as_ref().unwrap();
-
-        Ok(contests.clone())
-    }
-
-    async fn get_user_submissions(
+    async fn get_cf_user_submissions(
         &self,
         user_id: &str,
         from: Option<u32>,
         count: Option<u32>,
     ) -> Result<Vec<Submission>> {
-        let raw_submissions = self.fetch_user_submissions(user_id, from, count).await?;
+        let raw_submissions = self.fetch_cf_user_submissions(user_id, from, count).await?;
         let submissions = raw_submissions
             .iter()
             .map(|s| build_submission(s))
@@ -194,8 +162,8 @@ impl CFAPIClientTrait for CFAPIClient {
         Ok(submissions)
     }
 
-    async fn get_recent_submissions(&self) -> Result<Vec<Submission>> {
-        let raw_submissions = self.fetch_recent_submissions().await?;
+    async fn get_cf_recent_submissions(&self) -> Result<Vec<Submission>> {
+        let raw_submissions = self.fetch_cf_recent_submissions().await?;
         let submissions = raw_submissions
             .iter()
             .map(|s| build_submission(s))

@@ -2,56 +2,31 @@ use self::external::{
     AojChallenges, AojChallengesAndRelatedContests, AojProblem, AojSubmission, AojVolume,
     AojVolumesChallengesList,
 };
-use crate::domain::contest::Contest;
-use crate::domain::problem;
 use crate::domain::vo::platform::Platform;
 use crate::domain::vo::verdict::Verdict;
-use crate::domain::{problem::Problem, submission::Submission};
+use crate::domain::{contest::Contest, problem::Problem, submission::Submission};
+use crate::infra::api::api_client::ApiClient;
 use crate::utils::api::get_json;
 use anyhow::{Ok, Result};
-use async_trait::async_trait;
-use std::sync::{Arc, RwLock};
 use url::Url;
 
 use super::*;
 
 const AOJ_URL: &'static str = "https://judgeapi.u-aizu.ac.jp";
 
-pub struct AojAPIClient {
-    client: Arc<reqwest::Client>,
-    cache: RwLock<Option<(Vec<Problem>, Vec<Contest>)>>,
-}
-
-#[async_trait]
-pub trait AojAPIClientTrait: Send + Sync {
-    async fn get_problems(&self) -> Result<Vec<Problem>>;
-    async fn get_contests(&self) -> Result<Vec<Contest>>;
-    async fn get_user_submissions(
+pub trait AojAPIClient: Send + Sync {
+    async fn get_aoj_problems_and_contests(&self) -> Result<(Vec<Problem>, Vec<Contest>)>;
+    async fn get_aoj_user_submissions(
         &self,
         user_id: &str,
         page: Option<u32>,
         size: Option<u32>,
     ) -> Result<Vec<Submission>>;
-    async fn get_recent_submissions(&self) -> Result<Vec<Submission>>;
+    async fn get_aoj_recent_submissions(&self) -> Result<Vec<Submission>>;
 }
 
-impl AojAPIClient {
-    pub fn new() -> Self {
-        return Self {
-            client: Arc::new(reqwest::Client::new()),
-            cache: RwLock::new(None),
-        };
-    }
-
-    // async fn fetch_problems(&self) -> Result<Vec<AojProblem>> {
-    //     const SIZE: u32 = 10000;
-    //     let url = format!("{AOJ_URL}/problems?size={SIZE}");
-    //     let problems: Vec<AojProblem> = get_json(&url, &self.client).await?;
-
-    //     Ok(problems)
-    // }
-
-    async fn fetch_user_submissions(
+impl ApiClient {
+    async fn fetch_aoj_user_submissions(
         &self,
         user_id: &str,
         page: Option<u32>,
@@ -73,14 +48,14 @@ impl AojAPIClient {
         Ok(submissions)
     }
 
-    async fn fetch_recent_submissions(&self) -> Result<Vec<AojSubmission>> {
+    async fn fetch_aoj_recent_submissions(&self) -> Result<Vec<AojSubmission>> {
         let url = format!("{AOJ_URL}/submission_records/recent");
         let submissions: Vec<AojSubmission> = get_json(&url, &self.client).await?;
 
         Ok(submissions)
     }
 
-    async fn fetch_volumes_challenges_list(&self) -> Result<Vec<u16>> {
+    async fn fetch_aoj_volumes_challenges_list(&self) -> Result<Vec<u16>> {
         let url = format!("{AOJ_URL}/problems/filters");
         let list: AojVolumesChallengesList = get_json(&url, &self.client).await?;
 
@@ -89,7 +64,7 @@ impl AojAPIClient {
         Ok(volume_ids)
     }
 
-    async fn fetch_large_cls_middle_cls(&self) -> Result<Vec<(String, String)>> {
+    async fn fetch_aoj_large_cls_middle_cls(&self) -> Result<Vec<(String, String)>> {
         let url = format!("{AOJ_URL}/challenges");
         let challenges: AojChallenges = get_json(&url, &self.client).await?;
 
@@ -108,7 +83,7 @@ impl AojAPIClient {
         Ok(pairs)
     }
 
-    async fn fetch_problems_by_volume_id(&self, volume_id: u16) -> Result<Vec<AojProblem>> {
+    async fn fetch_aoj_problems_by_volume_id(&self, volume_id: u16) -> Result<Vec<AojProblem>> {
         let url = format!("{AOJ_URL}/problems/volumes/{volume_id}");
         let volume: AojVolume = get_json(&url, &self.client).await?;
         let problems = volume.problems;
@@ -116,7 +91,7 @@ impl AojAPIClient {
         Ok(problems)
     }
 
-    async fn fetch_challenges_by_large_cl_middle_cl(
+    async fn fetch_aoj_challenges_by_large_cl_middle_cl(
         &self,
         large_cl: &str,
         middle_cl: &str,
@@ -146,18 +121,14 @@ impl AojAPIClient {
         Ok(pair)
     }
 
-    async fn build_problems_contests(&self) -> Result<()> {
-        if self.cache.read().unwrap().is_some() {
-            return Ok(());
-        }
-
+    async fn build_aoj_problems_contests(&self) -> Result<(Vec<Problem>, Vec<Contest>)> {
         let mut all_problems: Vec<Problem> = vec![];
         let mut all_contests: Vec<Contest> = vec![];
 
         // volume 内の問題を取得
-        let volume_ids = self.fetch_volumes_challenges_list().await?;
+        let volume_ids = self.fetch_aoj_volumes_challenges_list().await?;
         for vol_id in volume_ids {
-            let raw_problems_in_vol = self.fetch_problems_by_volume_id(vol_id).await?;
+            let raw_problems_in_vol = self.fetch_aoj_problems_by_volume_id(vol_id).await?;
 
             let problems_in_vol = raw_problems_in_vol
                 .iter()
@@ -170,10 +141,10 @@ impl AojAPIClient {
         }
 
         // large_cl, middle_cl から問題を取得
-        let pairs = self.fetch_large_cls_middle_cls().await?;
+        let pairs = self.fetch_aoj_large_cls_middle_cls().await?;
         for pair in pairs {
             let raw_year_problems = self
-                .fetch_challenges_by_large_cl_middle_cl(&pair.0, &pair.1)
+                .fetch_aoj_challenges_by_large_cl_middle_cl(&pair.0, &pair.1)
                 .await?;
 
             for (year, title, problems) in raw_year_problems {
@@ -188,37 +159,24 @@ impl AojAPIClient {
             }
         }
 
-        *self.cache.write().unwrap() = Some((all_problems, all_contests));
-
-        Ok(())
+        Ok((all_problems, all_contests))
     }
 }
 
-#[async_trait]
-impl AojAPIClientTrait for AojAPIClient {
-    async fn get_problems(&self) -> Result<Vec<Problem>> {
-        self.build_problems_contests().await?;
-        let cache = self.cache.read().unwrap();
-        let (problems, _) = cache.as_ref().unwrap();
+impl AojAPIClient for ApiClient {
+    async fn get_aoj_problems_and_contests(&self) -> Result<(Vec<Problem>, Vec<Contest>)> {
+        let (problems, contests) = self.build_aoj_problems_contests().await?;
 
-        Ok(problems.clone())
+        Ok((problems, contests))
     }
 
-    async fn get_contests(&self) -> Result<Vec<Contest>> {
-        self.build_problems_contests().await?;
-        let cache = self.cache.read().unwrap();
-        let (_, contests) = cache.as_ref().unwrap();
-
-        Ok(contests.clone())
-    }
-
-    async fn get_user_submissions(
+    async fn get_aoj_user_submissions(
         &self,
         user_id: &str,
         page: Option<u32>,
         size: Option<u32>,
     ) -> Result<Vec<Submission>> {
-        let raw_submissions = self.fetch_user_submissions(user_id, page, size).await?;
+        let raw_submissions = self.fetch_aoj_user_submissions(user_id, page, size).await?;
         let submissions = raw_submissions
             .iter()
             .map(|s| build_submission(s))
@@ -227,8 +185,8 @@ impl AojAPIClientTrait for AojAPIClient {
         Ok(submissions)
     }
 
-    async fn get_recent_submissions(&self) -> Result<Vec<Submission>> {
-        let raw_submissions = self.fetch_recent_submissions().await?;
+    async fn get_aoj_recent_submissions(&self) -> Result<Vec<Submission>> {
+        let raw_submissions = self.fetch_aoj_recent_submissions().await?;
         let submissions = raw_submissions
             .iter()
             .map(|s| build_submission(s))

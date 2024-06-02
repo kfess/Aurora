@@ -1,26 +1,21 @@
-use crate::infra::api::factory::APIClientFactoryTrait;
+use crate::infra::api::yuki::api_client::YukicoderAPIClient;
 
-pub struct UpdateYukicoderUsecase<T: APIClientFactoryTrait> {
-    api_client_factory: T,
+pub struct UpdateYukicoderUsecase<C: YukicoderAPIClient> {
+    api_client: C,
 }
 
-impl<T: APIClientFactoryTrait> UpdateYukicoderUsecase<T> {
-    pub fn new(api_client_factory: T) -> Self {
-        Self { api_client_factory }
+impl<C: YukicoderAPIClient> UpdateYukicoderUsecase<C> {
+    pub fn new(api_client: C) -> Self {
+        Self { api_client }
     }
 
     pub async fn execute(&self, is_recent: bool) {
         log::info!("Yukicoder: update problems and contests");
 
-        let yuki_client = self.api_client_factory.get_yuki_client().await.unwrap();
-        let problems = yuki_client.get_problems(is_recent).await.unwrap();
-        for problem in problems {
-            println!("{:?}", problem);
-        }
-
-        let contests = yuki_client.get_contests(is_recent).await.unwrap();
-        for contest in contests.iter() {
-            println!("{:?}", contest);
-        }
+        let (problems, contests) = self
+            .api_client
+            .get_yuki_problems_and_contests()
+            .await
+            .unwrap();
     }
 }

@@ -1,14 +1,14 @@
-use crate::infra::api::cf::api_client::CFAPIClientTrait;
+use crate::infra::api::cf::api_client::CFAPIClient;
 
-pub struct UpdateCodeforcesUsecase<T>
+pub struct UpdateCodeforcesUsecase<C>
 where
-    T: CFAPIClientTrait,
+    C: CFAPIClient,
 {
-    api_client: T,
+    api_client: C,
 }
 
-impl<T: CFAPIClientTrait> UpdateCodeforcesUsecase<T> {
-    pub fn new(api_client: T) -> Self {
+impl<C: CFAPIClient> UpdateCodeforcesUsecase<C> {
+    pub fn new(api_client: C) -> Self {
         return Self { api_client };
     }
 
