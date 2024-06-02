@@ -7,7 +7,7 @@ use crate::domain::vo::verdict::Verdict;
 use crate::domain::{contest::Contest, problem::Problem, submission::Submission};
 use crate::infra::api::api_client::ApiClient;
 use crate::utils::api::get_json;
-use anyhow::{Ok, Result};
+use anyhow::{Context, Ok, Result};
 use url::Url;
 
 use super::*;
@@ -50,7 +50,10 @@ impl ApiClient {
 
     async fn fetch_aoj_recent_submissions(&self) -> Result<Vec<AojSubmission>> {
         let url = format!("{AOJ_URL}/submission_records/recent");
-        let submissions: Vec<AojSubmission> = get_json(&url, &self.client).await?;
+        let submissions: Vec<AojSubmission> = get_json(&url, &self.client)
+            .await
+            .with_context(|| format!(""))
+            .unwrap();
 
         Ok(submissions)
     }
