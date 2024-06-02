@@ -2,13 +2,15 @@ use self::external::{
     AojChallenges, AojChallengesAndRelatedContests, AojProblem, AojSubmission, AojVolume,
     AojVolumesChallengesList,
 };
+use crate::domain::contest::Contest;
+use crate::domain::problem;
 use crate::domain::vo::platform::Platform;
 use crate::domain::vo::verdict::Verdict;
 use crate::domain::{problem::Problem, submission::Submission};
 use crate::utils::api::get_json;
 use anyhow::{Ok, Result};
 use async_trait::async_trait;
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 use url::Url;
 
 use super::*;
@@ -17,11 +19,13 @@ const AOJ_URL: &'static str = "https://judgeapi.u-aizu.ac.jp";
 
 pub struct AojAPIClient {
     client: Arc<reqwest::Client>,
+    cache: RwLock<Option<(Vec<Problem>, Vec<Contest>)>>,
 }
 
 #[async_trait]
 pub trait AojAPIClientTrait: Send + Sync {
     async fn get_problems(&self) -> Result<Vec<Problem>>;
+    async fn get_contests(&self) -> Result<Vec<Contest>>;
     async fn get_user_submissions(
         &self,
         user_id: &str,
@@ -35,16 +39,17 @@ impl AojAPIClient {
     pub fn new() -> Self {
         return Self {
             client: Arc::new(reqwest::Client::new()),
+            cache: RwLock::new(None),
         };
     }
 
-    async fn fetch_problems(&self) -> Result<Vec<AojProblem>> {
-        const SIZE: u32 = 10000;
-        let url = format!("{AOJ_URL}/problems?size={SIZE}");
-        let problems: Vec<AojProblem> = get_json(&url, &self.client).await?;
+    // async fn fetch_problems(&self) -> Result<Vec<AojProblem>> {
+    //     const SIZE: u32 = 10000;
+    //     let url = format!("{AOJ_URL}/problems?size={SIZE}");
+    //     let problems: Vec<AojProblem> = get_json(&url, &self.client).await?;
 
-        Ok(problems)
-    }
+    //     Ok(problems)
+    // }
 
     async fn fetch_user_submissions(
         &self,
@@ -75,16 +80,16 @@ impl AojAPIClient {
         Ok(submissions)
     }
 
-    async fn get_volumes_challenges_list(&self) -> Result<(Vec<u16>, Vec<String>)> {
+    async fn fetch_volumes_challenges_list(&self) -> Result<Vec<u16>> {
         let url = format!("{AOJ_URL}/problems/filters");
         let list: AojVolumesChallengesList = get_json(&url, &self.client).await?;
 
-        let (volume_ids, large_cls) = (list.volumes, list.large_cls);
+        let (volume_ids, _) = (list.volumes, list.large_cls);
 
-        Ok((volume_ids, large_cls))
+        Ok(volume_ids)
     }
 
-    async fn get_large_cls_middle_cls(&self) -> Result<Vec<(String, String)>> {
+    async fn fetch_large_cls_middle_cls(&self) -> Result<Vec<(String, String)>> {
         let url = format!("{AOJ_URL}/challenges");
         let challenges: AojChallenges = get_json(&url, &self.client).await?;
 
@@ -103,7 +108,7 @@ impl AojAPIClient {
         Ok(pairs)
     }
 
-    async fn get_problems_by_volume_id(&self, volume_id: u16) -> Result<Vec<AojProblem>> {
+    async fn fetch_problems_by_volume_id(&self, volume_id: u16) -> Result<Vec<AojProblem>> {
         let url = format!("{AOJ_URL}/problems/volumes/{volume_id}");
         let volume: AojVolume = get_json(&url, &self.client).await?;
         let problems = volume.problems;
@@ -111,22 +116,100 @@ impl AojAPIClient {
         Ok(problems)
     }
 
-    async fn get_challenges_by_large_cl_middle_cl(
+    async fn fetch_challenges_by_large_cl_middle_cl(
         &self,
         large_cl: &str,
         middle_cl: &str,
-    ) -> Result<Vec<AojProblem>> {
+    ) -> Result<Vec<(u16, String, Vec<AojProblem>)>> {
         let url = format!("{AOJ_URL}/challenges/cl/{large_cl}/{middle_cl}");
         let chanllenges: AojChallengesAndRelatedContests = get_json(&url, &self.client).await?;
 
-        Ok(vec![])
+        // 年度と問題のペアを作成
+        let mut pair: Vec<(u16, String, Vec<AojProblem>)> = vec![];
+        for contest in chanllenges.contests {
+            let year = contest.year;
+            let title_problems = contest
+                .days
+                .iter()
+                .map(|d| {
+                    let title = d.title.clone();
+                    let problems = d.problems.clone();
+                    (title, problems)
+                })
+                .collect::<Vec<(String, Vec<AojProblem>)>>();
+
+            for (title, problems) in title_problems {
+                pair.push((year, title, problems));
+            }
+        }
+
+        Ok(pair)
+    }
+
+    async fn build_problems_contests(&self) -> Result<()> {
+        if self.cache.read().unwrap().is_some() {
+            return Ok(());
+        }
+
+        let mut all_problems: Vec<Problem> = vec![];
+        let mut all_contests: Vec<Contest> = vec![];
+
+        // volume 内の問題を取得
+        let volume_ids = self.fetch_volumes_challenges_list().await?;
+        for vol_id in volume_ids {
+            let raw_problems_in_vol = self.fetch_problems_by_volume_id(vol_id).await?;
+
+            let problems_in_vol = raw_problems_in_vol
+                .iter()
+                .map(|p| build_problem_from_vol(vol_id, p))
+                .collect::<Vec<Problem>>();
+
+            let contest = build_contest_from_vol(vol_id, &problems_in_vol);
+            all_contests.push(contest);
+            all_problems.extend(problems_in_vol);
+        }
+
+        // large_cl, middle_cl から問題を取得
+        let pairs = self.fetch_large_cls_middle_cls().await?;
+        for pair in pairs {
+            let raw_year_problems = self
+                .fetch_challenges_by_large_cl_middle_cl(&pair.0, &pair.1)
+                .await?;
+
+            for (year, title, problems) in raw_year_problems {
+                let problems = problems
+                    .iter()
+                    .map(|p| build_problen_from_cl(&pair.0, &pair.1, year, p))
+                    .collect::<Vec<Problem>>();
+
+                let contest = build_contest_from_cl(&pair.0, &pair.1, year, &title, &problems);
+                all_contests.push(contest);
+                all_problems.extend(problems);
+            }
+        }
+
+        *self.cache.write().unwrap() = Some((all_problems, all_contests));
+
+        Ok(())
     }
 }
 
 #[async_trait]
 impl AojAPIClientTrait for AojAPIClient {
     async fn get_problems(&self) -> Result<Vec<Problem>> {
-        Ok(vec![])
+        self.build_problems_contests().await?;
+        let cache = self.cache.read().unwrap();
+        let (problems, _) = cache.as_ref().unwrap();
+
+        Ok(problems.clone())
+    }
+
+    async fn get_contests(&self) -> Result<Vec<Contest>> {
+        self.build_problems_contests().await?;
+        let cache = self.cache.read().unwrap();
+        let (_, contests) = cache.as_ref().unwrap();
+
+        Ok(contests.clone())
     }
 
     async fn get_user_submissions(
@@ -188,5 +271,75 @@ fn build_submission(s: &AojSubmission) -> Submission {
         s.problem_title.clone(),
         None,
         None,
+    )
+}
+
+fn build_problem_from_vol(vol_id: u16, p: &AojProblem) -> Problem {
+    Problem::reconstruct(
+        Platform::Aoj,
+        vol_id.to_string().as_str(),
+        &p.id,
+        &p.name,
+        None,
+        None,
+        None,
+        vec![],
+        &format!(
+            "https://onlinejudge.u-aizu.ac.jp/challenges/search/volumes/{}",
+            p.id
+        ),
+        Some(p.solved_user),
+        Some(p.submissions),
+    )
+}
+
+fn build_problen_from_cl(large_cl: &str, middle_cl: &str, year: u16, p: &AojProblem) -> Problem {
+    Problem::reconstruct(
+        Platform::Aoj,
+        &format!("{large_cl}_{middle_cl}_{year}"),
+        &p.id,
+        &p.name,
+        None,
+        None,
+        None,
+        vec![],
+        &format!(
+            "https://onlinejudge.u-aizu.ac.jp/challenges/sources/{}/{}/{}?year={}",
+            large_cl, middle_cl, p.id, year
+        ),
+        Some(p.solved_user),
+        Some(p.submissions),
+    )
+}
+
+fn build_contest_from_vol(vol_id: u16, ps: &Vec<Problem>) -> Contest {
+    Contest::reconstruct(
+        format!("volume_{}", vol_id),
+        format!("Volume {}", vol_id),
+        format!("Volume {}", vol_id),
+        Platform::Aoj,
+        String::from("finished"),
+        None,
+        None,
+        ps.clone(),
+    )
+}
+
+fn build_contest_from_cl(
+    large_cl: &str,
+    middle_cl: &str,
+    year: u16,
+    title: &str,
+    ps: &Vec<Problem>,
+) -> Contest {
+    Contest::reconstruct(
+        format!("{large_cl}_{middle_cl}_{year}"),
+        title.to_string(),
+        String::from(large_cl),
+        Platform::Aoj,
+        String::from("finished"),
+        None,
+        None,
+        ps.clone(),
     )
 }

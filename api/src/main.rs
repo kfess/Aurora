@@ -7,7 +7,9 @@ use infra::{
 };
 use service::{
     submission::FetchSubmissionUsecase,
-    update_problems::{atcoder::UpdateAtcoderUsecase, yuki::UpdateYukicoderUsecase},
+    update_problems::{
+        aoj::UpdateAojUsecase, atcoder::UpdateAtcoderUsecase, yuki::UpdateYukicoderUsecase,
+    },
 };
 
 mod domain;
@@ -33,8 +35,11 @@ async fn main() -> Result<()> {
         .await
         .expect("Failed to initialize the connection pool");
 
-    let usecase = UpdateAtcoderUsecase::new(api_factory, pool);
+    let usecase = UpdateAojUsecase::new(api_factory, pool);
     usecase.fetch_and_update().await;
+
+    // let usecase = UpdateAtcoderUsecase::new(api_factory, pool);
+    // usecase.fetch_and_update().await;
 
     // let usecase = FetchSubmissionUsecase::new(api_factory);
 

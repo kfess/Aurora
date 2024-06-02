@@ -2,6 +2,8 @@
 //!
 //! This module handles use cases related to submissions.
 //! Its primary functions are to fetch recent submissions and submissions by user.
+//!
+//! Submission is only available for AtCoder, Codeforces, and AOJ.
 
 use crate::infra::api::factory::APIClientFactoryTrait;
 

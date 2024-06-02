@@ -1,10 +1,7 @@
 use anyhow::Result;
 use sqlx::PgPool;
 
-use crate::domain::{
-    problem::Problem,
-    vo::platform::{self, Platform},
-};
+use crate::domain::problem::Problem;
 
 pub trait ProblemRepositoryTrait {
     async fn get_all_problems(&self, platform: &str) -> Result<Vec<Problem>>;

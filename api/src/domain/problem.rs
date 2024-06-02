@@ -153,15 +153,15 @@ impl Problem {
     }
 
     pub fn reconstruct(
-        raw_contest_id: String,
-        raw_index: String,
-        raw_name: String,
         platform: Platform,
+        raw_contest_id: &str,
+        raw_index: &str,
+        raw_name: &str,
         raw_point: Option<f64>,
         difficulty: Option<f64>,
         is_experimental: Option<bool>,
         raw_tags: Vec<String>,
-        raw_url: String,
+        raw_url: &str,
         raw_solver_count: Option<u64>,
         raw_submissions: Option<u64>,
     ) -> Self {
@@ -171,7 +171,7 @@ impl Problem {
             raw_contest_id,
             raw_index
         );
-        let title = format!("{}. {}", raw_index, raw_name);
+        let title = format!("{raw_index}. {raw_name}");
 
         let success_rate = match raw_solver_count {
             Some(solver_count) => match raw_submissions {
@@ -183,16 +183,16 @@ impl Problem {
 
         Self {
             id,
-            contest_id: raw_contest_id,
-            index: raw_index,
-            name: raw_name,
+            contest_id: String::from(raw_contest_id),
+            index: String::from(raw_index),
+            name: String::from(raw_name),
             title,
             platform,
             raw_point,
             difficulty,
             is_experimental,
             tags: raw_tags,
-            url: raw_url,
+            url: String::from(raw_url),
             solver_count: raw_solver_count,
             submissions: raw_submissions,
             success_rate,

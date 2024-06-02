@@ -73,7 +73,7 @@ pub struct AojSubmission {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AojVolume {
-    pub progress: u16,
+    pub progress: f32,
 
     pub number_of_problems: u16,
 
@@ -117,7 +117,7 @@ pub struct AojMiddleCls {
 
     pub number_of_solved: u16,
 
-    pub progress: u16,
+    pub progress: f32,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -145,9 +145,9 @@ pub struct AojContest {
 
     pub middle_cl: String,
 
-    pub year: String,
+    pub year: u16,
 
-    pub progress: u16,
+    pub progress: f32,
 
     pub number_of_problems: u16,
 
@@ -165,7 +165,7 @@ pub struct AojDay {
 
     pub title: String,
 
-    pub progress: u16,
+    pub progress: f32,
 
     pub number_of_problems: u16,
 

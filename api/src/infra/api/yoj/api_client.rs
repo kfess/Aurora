@@ -88,15 +88,15 @@ impl YOJAPIClientTrait for YOJAPIClient {
 
 fn build_problem(category_name: &str, index: usize, raw_problem: &str) -> Problem {
     Problem::reconstruct(
-        category_name.to_string(),
-        num_to_alphabet(index),
-        raw_problem.to_string().to_case(Case::Title),
         Platform::YOJ,
+        &category_name,
+        &num_to_alphabet(index),
+        raw_problem.to_case(Case::Title).as_str(),
         Option::None,
         Option::None,
         Option::None,
         vec![],
-        format!("https://judge.yosupo.jp/problem/{}", raw_problem),
+        &format!("https://judge.yosupo.jp/problem/{raw_problem}"),
         Option::None,
         Option::None,
     )

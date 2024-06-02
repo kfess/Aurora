@@ -164,7 +164,7 @@ impl CFAPIClient {
 #[async_trait]
 impl CFAPIClientTrait for CFAPIClient {
     async fn get_problems(&self) -> Result<Vec<Problem>> {
-        self.fetch_problems().await?;
+        self.build_problems_contests().await?;
         let cache = self.cache.read().unwrap();
         let (problems, _) = cache.as_ref().unwrap();
 
@@ -172,7 +172,7 @@ impl CFAPIClientTrait for CFAPIClient {
     }
 
     async fn get_contests(&self) -> Result<Vec<Contest>> {
-        self.fetch_past_contests().await?;
+        self.build_problems_contests().await?;
         let cache = self.cache.read().unwrap();
         let (_, contests) = cache.as_ref().unwrap();
 
@@ -207,10 +207,10 @@ impl CFAPIClientTrait for CFAPIClient {
 
 fn build_problem(problem: CodeforcesProblem, id_to_solved_count: HashMap<u64, u64>) -> Problem {
     Problem::reconstruct(
-        problem.contest_id.to_string(),
-        problem.index.clone(),
-        problem.name.clone(),
         Platform::Codeforces,
+        &problem.contest_id.to_string().as_str(),
+        &problem.index,
+        &problem.name,
         problem.points,
         problem.rating,
         Some(false),
@@ -219,7 +219,7 @@ fn build_problem(problem: CodeforcesProblem, id_to_solved_count: HashMap<u64, u6
             .into_iter()
             .map(|t| t.trim().to_string())
             .collect::<Vec<String>>(),
-        format!(
+        &format!(
             "https://codeforces.com/contest/{}/problem/{}",
             problem.contest_id, problem.index
         ),

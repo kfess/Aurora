@@ -111,22 +111,7 @@ impl AtcoderAPIClient {
         let raw_problems = self.fetch_problems().await?;
         let mut problems: Vec<Problem> = vec![];
         raw_problems.iter().for_each(|p| {
-            let (diff, is_experimental) = match estimations.get(&p.id) {
-                Some(estimation) => {
-                    if let Some(difficulty) = estimation.difficulty {
-                        let clipped_diff = if difficulty >= 400.0 {
-                            difficulty.round()
-                        } else {
-                            (400.0 / f64::exp(1.0 - difficulty / 400.0)).round()
-                        };
-                        (Some(clipped_diff), estimation.is_experimental)
-                    } else {
-                        (None, estimation.is_experimental)
-                    }
-                }
-                None => (None, None),
-            };
-
+            let (diff, is_experimental) = clip_difficulty(estimations.get(&p.id));
             let problem = build_problem(p, diff, is_experimental);
             c_to_p_map
                 .entry(p.contest_id.clone())
@@ -191,21 +176,39 @@ impl AtcoderAPIClientTrait for AtcoderAPIClient {
     }
 }
 
+fn clip_difficulty(estimation: Option<&Estimation>) -> (Option<f64>, Option<bool>) {
+    match estimation {
+        Some(estimation) => {
+            if let Some(difficulty) = estimation.difficulty {
+                let clipped_diff = if difficulty >= 400.0 {
+                    difficulty.round()
+                } else {
+                    (400.0 / f64::exp(1.0 - difficulty / 400.0)).round()
+                };
+                (Some(clipped_diff), estimation.is_experimental)
+            } else {
+                (None, estimation.is_experimental)
+            }
+        }
+        None => (None, None),
+    }
+}
+
 fn build_problem(
     p: &AtcoderProblem,
     difficulty: Option<f64>,
     is_experimental: Option<bool>,
 ) -> Problem {
     Problem::reconstruct(
-        p.contest_id.to_string(),
-        p.problem_index.to_string(),
-        p.name.to_string(),
         platform::Platform::Atcoder,
+        &p.contest_id,
+        &p.problem_index,
+        &p.name,
         p.point,
         difficulty,
         is_experimental,
         vec![],
-        format!(
+        &format!(
             "https://atcoder.jp/contests/{}/tasks/{}",
             p.contest_id, p.problem_index
         ),

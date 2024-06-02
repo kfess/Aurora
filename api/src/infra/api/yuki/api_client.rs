@@ -184,15 +184,15 @@ fn build_problem(
     problem: &YukicoderProblemWithStatistics,
 ) -> Problem {
     Problem::reconstruct(
-        contest_id.to_string(),
-        index.to_string(),
-        problem.title.to_string(),
         Platform::Yukicoder,
+        contest_id.to_string().as_str(),
+        index,
+        &problem.title,
         Some(problem.level),
         Option::None,
         Option::None,
         problem.tags.split(",").map(|s| s.to_string()).collect(),
-        format!("https://yukicoder.me/problems/no/{}", problem.no),
+        &format!("https://yukicoder.me/problems/no/{}", problem.no),
         Some(problem.statistics.solved),
         Some(problem.statistics.total),
     )
