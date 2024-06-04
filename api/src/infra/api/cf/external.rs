@@ -49,7 +49,7 @@ pub(super) struct CodeforcesProblemStat {
 
     pub index: String,
 
-    pub solved_count: i64,
+    pub solved_count: i32,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

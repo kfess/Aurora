@@ -17,9 +17,9 @@ pub struct AojProblem {
 
     pub max_score: u64,
 
-    pub solved_user: i64,
+    pub solved_user: i32,
 
-    pub submissions: i64,
+    pub submissions: i32,
 
     pub recommendations: u64,
 

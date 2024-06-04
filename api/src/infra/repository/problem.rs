@@ -14,13 +14,28 @@ impl ProblemRepository for PgPool {
     async fn get_all_problems(&self) -> Result<Vec<Problem>> {
         let problems = sqlx::query_as::<_, Problem>(
             r#"
-                SELECT problems.id, problems.contest_id, problems.problem_index AS "index!", problems.name,
-                    problems.title, problems.platform, problems.raw_point, problems.difficulty,
-                    problems.is_experimental, problems.url, problems.solver_count,
-                    problems.submissions, problems.success_rate
-                FROM problems
-                INNER JOIN problem_tags ON problems.id = problem_tags.problem_id
-                "#
+                SELECT
+                    problems.id,
+                    problems.contest_id,
+                    problems.problem_index AS index,
+                    problems.name,
+                    problems.title,
+                    problems.platform,
+                    problems.raw_point,
+                    problems.difficulty,
+                    problems.is_experimental,
+                    problems.url,
+                    problems.solver_count,
+                    problems.submissions,
+                    problems.success_rate,
+                    ARRAY_REMOVE (ARRAY_AGG (technical_tags.en_name), NULL) AS tags
+                FROM
+                    problems
+                    LEFT JOIN problem_tags ON problems.id = problem_tags.problem_id
+                    LEFT JOIN technical_tags ON problem_tags.technical_tag_id = technical_tags.id
+                GROUP BY
+                    problems.id
+                "#,
         )
         .fetch_all(self)
         .await
@@ -30,25 +45,79 @@ impl ProblemRepository for PgPool {
     }
 
     async fn get_problems_by_platform(&self, platform: &str) -> Result<Vec<Problem>> {
-        Ok(vec![])
+        let problems = sqlx::query_as::<_, Problem>(
+            r#"
+                SELECT
+                    problems.id,
+                    problems.contest_id,
+                    problems.problem_index AS index,
+                    problems.name,
+                    problems.title,
+                    problems.platform,
+                    problems.raw_point,
+                    problems.difficulty,
+                    problems.is_experimental,
+                    problems.url,
+                    problems.solver_count,
+                    problems.submissions,
+                    problems.success_rate,
+                    ARRAY_REMOVE (ARRAY_AGG (technical_tags.en_name), NULL) AS tags
+                FROM
+                    problems
+                    LEFT JOIN problem_tags ON problems.id = problem_tags.problem_id
+                    LEFT JOIN technical_tags ON problem_tags.technical_tag_id = technical_tags.id
+                WHERE
+                    problems.platform = $1
+                GROUP BY
+                    problems.id
+                "#,
+        )
+        .bind(platform)
+        .fetch_all(self)
+        .await
+        .with_context(|| format!("Failed to fetch problems"))?;
+
+        for p in problems.iter() {
+            println!("{:?}", p);
+        }
+
+        Ok(problems)
     }
 
     async fn get_problem_by_id(&self, id: &str) -> Result<Problem> {
         let problem = sqlx::query_as::<_, Problem>(
             r#"
-                SELECT problems.id, problems.contest_id, problems.problem_index AS "index!", problems.name,
-                    problems.title, problems.platform, problems.raw_point, problems.difficulty,
-                    problems.is_experimental, problems.url, problems.solver_count,
-                    problems.submissions, problems.success_rate
-                FROM problems
-                INNER JOIN problem_tags ON problems.id = problem_tags.problem_id
-                WHERE problems.id = $1
+            SELECT
+                problems.id,
+                problems.contest_id,
+                problems.problem_index AS index,
+                problems.name,
+                problems.title,
+                problems.platform,
+                problems.raw_point,
+                problems.difficulty,
+                problems.is_experimental,
+                problems.url,
+                problems.solver_count,
+                problems.submissions,
+                problems.success_rate,
+                ARRAY_REMOVE (ARRAY_AGG (technical_tags.en_name), NULL) AS tags
+            FROM
+                problems
+                LEFT JOIN problem_tags ON problems.id = problem_tags.problem_id
+                LEFT JOIN technical_tags ON problem_tags.technical_tag_id = technical_tags.id
+            WHERE
+                problems.id = $1
+            GROUP BY
+                problems.id
                 "#,
         )
         .bind(id)
         .fetch_one(self)
         .await
         .with_context(|| format!("Failed to fetch problem"))?;
+
+        println!("{:?}", problem);
 
         Ok(problem)
     }

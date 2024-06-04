@@ -40,7 +40,7 @@ pub struct AtcoderProblem {
 
     pub point: Option<f64>,
 
-    pub solver_count: Option<i64>,
+    pub solver_count: Option<i32>,
 }
 
 /// `AtcoderContest` is a struct that contains more detailed information about a contest.

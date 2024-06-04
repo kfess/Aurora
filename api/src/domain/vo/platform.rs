@@ -1,6 +1,17 @@
 use std::convert::From;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize, sqlx::Type)]
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    serde::Serialize,
+    serde::Deserialize,
+    sqlx::Decode,
+    sqlx::Encode,
+)]
+#[sqlx(rename_all = "lowercase")]
 pub enum Platform {
     Atcoder,
     Codeforces,
@@ -31,6 +42,16 @@ impl From<Platform> for String {
             Platform::Aoj => "aoj".to_string(),
             Platform::YOJ => "yosupo_online_judge".to_string(),
         }
+    }
+}
+
+impl sqlx::Type<sqlx::Postgres> for Platform {
+    fn type_info() -> <sqlx::Postgres as sqlx::Database>::TypeInfo {
+        <&str as sqlx::Type<sqlx::Postgres>>::type_info()
+    }
+
+    fn compatible(ty: &<sqlx::Postgres as sqlx::Database>::TypeInfo) -> bool {
+        <&str as sqlx::Type<sqlx::Postgres>>::compatible(ty)
     }
 }
 

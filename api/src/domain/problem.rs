@@ -1,6 +1,6 @@
 use super::vo::platform::Platform;
 
-#[derive(Clone, Debug, PartialEq, sqlx::FromRow)]
+#[derive(Clone, Debug, PartialEq, sqlx::FromRow, serde::Serialize, serde::Deserialize)]
 pub struct Problem {
     /// The unique identifier of the problem.
     ///
@@ -108,10 +108,10 @@ pub struct Problem {
     pub url: String,
 
     /// The number of users who have solved the problem.
-    pub solver_count: Option<i64>,
+    pub solver_count: Option<i32>,
 
     /// The number of submissions made to the problem.
-    pub submissions: Option<i64>,
+    pub submissions: Option<i32>,
 
     /// The success rate of the problem.
     pub success_rate: Option<f64>,
@@ -130,8 +130,8 @@ impl Problem {
         is_experimental: Option<bool>,
         tags: Vec<String>,
         url: String,
-        solver_count: Option<i64>,
-        submissions: Option<i64>,
+        solver_count: Option<i32>,
+        submissions: Option<i32>,
         success_rate: Option<f64>,
     ) -> Self {
         Self {
@@ -162,8 +162,8 @@ impl Problem {
         is_experimental: Option<bool>,
         raw_tags: Vec<String>,
         raw_url: &str,
-        raw_solver_count: Option<i64>,
-        raw_submissions: Option<i64>,
+        raw_solver_count: Option<i32>,
+        raw_submissions: Option<i32>,
     ) -> Self {
         let id = format!(
             "{}_{}_{}",

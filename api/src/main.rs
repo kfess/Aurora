@@ -2,7 +2,10 @@ use dotenv::dotenv;
 use infra::{
     // api::factory::APIClientFactory,
     api::atcoder::api_client::AtcoderAPIClient,
-    repository::{initialize_pool::initialize_pool, technical_tag::TechnicalTagRepositoryTrait},
+    repository::{
+        initialize_pool::initialize_pool, problem::ProblemRepository,
+        technical_tag::TechnicalTagRepositoryTrait,
+    },
 };
 use service::{
     submission::FetchSubmissionUsecase,
@@ -30,13 +33,14 @@ async fn main() -> Result<()> {
         .expect("Failed to initialize the connection pool");
 
     let api_client = infra::api::api_client::ApiClient::new();
-    api_client.get_atcoder_problems_and_contests().await?;
+
+    pool.get_problem_by_id("codeforces_9_E").await?;
 
     // let usecase = UpdateAtcoderUsecase::new(api_client, pool);
     // usecase.fetch_and_update().await;
 
-    let usecase = UpdateCodeforcesUsecase::new(api_client, pool);
-    usecase.fetch_and_update().await;
+    // let usecase = UpdateCodeforcesUsecase::new(api_client, pool);
+    // usecase.fetch_and_update().await;
 
     // let usecase = UpdateAojUsecase::new(api_factory, pool);
     // usecase.fetch_and_update().await;
