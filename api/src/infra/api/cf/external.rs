@@ -9,6 +9,7 @@ pub(super) enum Status {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub(super) struct CodeforcesAPIResponse<T> {
     pub status: Status,
     pub result: Option<T>,
@@ -48,10 +49,11 @@ pub(super) struct CodeforcesProblemStat {
 
     pub index: String,
 
-    pub solved_count: u64,
+    pub solved_count: i64,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub(super) struct CodeforcesProblemResult {
     pub problems: Vec<CodeforcesProblem>,
 
@@ -156,6 +158,7 @@ pub(super) struct CodeforcesParty {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub(super) struct CodeforcesMember {
     pub handle: String,
 

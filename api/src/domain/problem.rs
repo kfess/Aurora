@@ -1,6 +1,6 @@
 use super::vo::platform::Platform;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, sqlx::FromRow)]
 pub struct Problem {
     /// The unique identifier of the problem.
     ///
@@ -14,7 +14,7 @@ pub struct Problem {
     ///
     /// For Aoj, the `id` is formatted as `<platform>_<volume_id>_<index>` or `<platform>_<large_cl>_<middle_cl>_<index>`.
     /// - Aoj: aoj_1_0001, aoj_1_0002, aoj_JOI_Prelim_0001, aoj_JOI_Prelim_0002, ...
-    id: String,
+    pub id: String,
 
     /// The contest ID of the problem.
     ///
@@ -25,7 +25,7 @@ pub struct Problem {
     /// - yukicoder: <contest_id> (e.g., 1000)
     /// - YosupoOnlineJudge: <category_name> (e.g., Graph, Math, etc.)
     /// - Aoj: <volume_id> (e.g., 1) or <large_cl>_<middle_cl> (e.g., JOI_Prelim)
-    contest_id: String,
+    pub contest_id: String,
 
     /// The index of the problem within the contest.
     ///
@@ -36,7 +36,7 @@ pub struct Problem {
     /// - yukicoder: A, B, C, ...
     /// - YosupoOnlineJudge: A, B, C, ...
     /// - Aoj: "0001", "0002", "0003", ...
-    index: String,
+    pub index: String,
 
     /// The name of the problem.
     ///
@@ -47,7 +47,7 @@ pub struct Problem {
     /// - yukicoder: 2つの整数
     /// - YosupoOnlineJudge: Shortest Path
     /// - おせんべい
-    name: String,
+    pub name: String,
 
     /// The title of the problem.
     ///
@@ -57,7 +57,7 @@ pub struct Problem {
     /// - yukicoder: A. 2つの整数
     /// - YosupoOnlineJudge: A. Shortest Path
     /// - Aoj: 0001. おせんべい
-    title: String,
+    pub title: String,
 
     /// The platform to which the problem belongs.
     ///
@@ -67,7 +67,7 @@ pub struct Problem {
     /// - yukicoder
     /// - YosupoOnlineJudge
     /// - Aoj
-    platform: Platform,
+    pub platform: Platform,
 
     /// The raw point of the problem.
     /// The value of this field is dependent on the platform.
@@ -77,7 +77,7 @@ pub struct Problem {
     /// - yukicoder: 0.5, 1, 1.5, ..., 4.5, 5 (level)
     /// - YosupoOnlineJudge: None
     /// - Aoj: None
-    raw_point: Option<f64>,
+    pub raw_point: Option<f64>,
 
     /// The value of this field is estimated using the following method:
     ///
@@ -87,16 +87,16 @@ pub struct Problem {
     ///
     /// The `Difficulty` is defined as the AtCoder internal rating at which the probability of solving the problem within the time limit is 0.5.
     /// This method is similar to the approach used by AtCoder Problems.
-    difficulty: Option<f64>,
+    pub difficulty: Option<f64>,
 
     /// Whether the estimated difficulty is experimental or not.
     ///
     /// If the difficulty is experimental, the value of this field is `true`.
     /// Otherwise, the value of this field is `false`.
-    is_experimental: Option<bool>,
+    pub is_experimental: Option<bool>,
 
     /// The tags of the problem.
-    tags: Vec<String>,
+    pub tags: Vec<String>,
 
     /// The URL of the problem.
     ///
@@ -105,16 +105,16 @@ pub struct Problem {
     /// - AtCoder: https://atcoder.jp/contests/abc100/tasks/abc100_a
     /// - Codeforces: https://codeforces.com/contest/1000/problem/A
     /// - yukicoder: https://yukicoder.me/problems/no/1000
-    url: String,
+    pub url: String,
 
     /// The number of users who have solved the problem.
-    solver_count: Option<u64>,
+    pub solver_count: Option<i64>,
 
     /// The number of submissions made to the problem.
-    submissions: Option<u64>,
+    pub submissions: Option<i64>,
 
     /// The success rate of the problem.
-    success_rate: Option<f64>,
+    pub success_rate: Option<f64>,
 }
 
 impl Problem {
@@ -130,8 +130,8 @@ impl Problem {
         is_experimental: Option<bool>,
         tags: Vec<String>,
         url: String,
-        solver_count: Option<u64>,
-        submissions: Option<u64>,
+        solver_count: Option<i64>,
+        submissions: Option<i64>,
         success_rate: Option<f64>,
     ) -> Self {
         Self {
@@ -162,8 +162,8 @@ impl Problem {
         is_experimental: Option<bool>,
         raw_tags: Vec<String>,
         raw_url: &str,
-        raw_solver_count: Option<u64>,
-        raw_submissions: Option<u64>,
+        raw_solver_count: Option<i64>,
+        raw_submissions: Option<i64>,
     ) -> Self {
         let id = format!(
             "{}_{}_{}",

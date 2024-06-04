@@ -71,9 +71,9 @@ pub struct YukicoderTag {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct YukicoderStatistics {
-    pub total: u64,
+    pub total: i64,
 
-    pub solved: u64,
+    pub solved: i64,
 
     pub first_accepted_time_second: i64,
 

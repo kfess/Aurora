@@ -1,4 +1,6 @@
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+use std::convert::From;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize, sqlx::Type)]
 pub enum Platform {
     Atcoder,
     Codeforces,
@@ -7,7 +9,7 @@ pub enum Platform {
     YOJ,
 }
 
-impl std::convert::From<&str> for Platform {
+impl From<&str> for Platform {
     fn from(value: &str) -> Self {
         match value {
             "atcoder" => Platform::Atcoder,
@@ -20,7 +22,7 @@ impl std::convert::From<&str> for Platform {
     }
 }
 
-impl std::convert::From<Platform> for String {
+impl From<Platform> for String {
     fn from(value: Platform) -> Self {
         match value {
             Platform::Atcoder => "atcoder".to_string(),

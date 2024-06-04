@@ -1,11 +1,9 @@
-use crate::infra::{
-    api::aoj::api_client::AojAPIClient, repository::problem::ProblemRepositoryTrait,
-};
+use crate::infra::{api::aoj::api_client::AojAPIClient, repository::problem::ProblemRepository};
 
 pub struct UpdateAojUsecase<C, R>
 where
     C: AojAPIClient,
-    R: ProblemRepositoryTrait,
+    R: ProblemRepository,
 {
     api_client: C,
     repository: R,
@@ -14,7 +12,7 @@ where
 impl<C, R> UpdateAojUsecase<C, R>
 where
     C: AojAPIClient,
-    R: ProblemRepositoryTrait,
+    R: ProblemRepository,
 {
     pub fn new(api_client: C, repository: R) -> Self {
         return Self {
@@ -31,9 +29,6 @@ where
             .get_aoj_problems_and_contests()
             .await
             .unwrap();
-        self.repository
-            .update_problems("aoj", &problems)
-            .await
-            .unwrap();
+        self.repository.update_problems(&problems).await.unwrap();
     }
 }

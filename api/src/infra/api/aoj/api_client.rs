@@ -1,4 +1,4 @@
-use self::external::{
+use super::external::{
     AojChallenges, AojChallengesAndRelatedContests, AojProblem, AojSubmission, AojVolume,
     AojVolumesChallengesList,
 };
@@ -9,8 +9,6 @@ use crate::infra::api::api_client::ApiClient;
 use crate::utils::api::get_json;
 use anyhow::{Context, Ok, Result};
 use url::Url;
-
-use super::*;
 
 const AOJ_URL: &'static str = "https://judgeapi.u-aizu.ac.jp";
 

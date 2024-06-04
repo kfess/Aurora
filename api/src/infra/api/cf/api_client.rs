@@ -113,7 +113,7 @@ impl ApiClient {
         let (raw_problems, raw_stats) = self.fetch_cf_problems().await?;
         let raw_contests = self.fetch_cf_past_contests().await?;
 
-        let id_to_solved_count: HashMap<u64, u64> = raw_stats
+        let id_to_solved_count: HashMap<u64, i64> = raw_stats
             .iter()
             .map(|s| (s.contest_id, s.solved_count))
             .collect();
@@ -132,7 +132,7 @@ impl ApiClient {
 
         let mut contests: Vec<Contest> = vec![];
         raw_contests.iter().for_each(|c| {
-            let ps: Vec<Problem> = c_to_p_map.get(&c.id).unwrap().clone();
+            let ps: Vec<Problem> = c_to_p_map.get(&c.id).unwrap_or(&vec![]).clone();
             contests.push(build_contest(c.clone(), ps));
         });
 
@@ -173,7 +173,7 @@ impl CFAPIClient for ApiClient {
     }
 }
 
-fn build_problem(problem: CodeforcesProblem, id_to_solved_count: HashMap<u64, u64>) -> Problem {
+fn build_problem(problem: CodeforcesProblem, id_to_solved_count: HashMap<u64, i64>) -> Problem {
     Problem::reconstruct(
         Platform::Codeforces,
         &problem.contest_id.to_string().as_str(),

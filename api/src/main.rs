@@ -7,7 +7,8 @@ use infra::{
 use service::{
     submission::FetchSubmissionUsecase,
     update_problems::{
-        aoj::UpdateAojUsecase, atcoder::UpdateAtcoderUsecase, yuki::UpdateYukicoderUsecase,
+        aoj::UpdateAojUsecase, atcoder::UpdateAtcoderUsecase, cf::UpdateCodeforcesUsecase,
+        yuki::UpdateYukicoderUsecase,
     },
 };
 use std::env;
@@ -31,7 +32,10 @@ async fn main() -> Result<()> {
     let api_client = infra::api::api_client::ApiClient::new();
     api_client.get_atcoder_problems_and_contests().await?;
 
-    let usecase = UpdateAtcoderUsecase::new(api_client, pool);
+    // let usecase = UpdateAtcoderUsecase::new(api_client, pool);
+    // usecase.fetch_and_update().await;
+
+    let usecase = UpdateCodeforcesUsecase::new(api_client, pool);
     usecase.fetch_and_update().await;
 
     // let usecase = UpdateAojUsecase::new(api_factory, pool);
