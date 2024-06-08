@@ -18,6 +18,7 @@ enum BindValue<'a> {
     I32(i32),
 }
 
+#[trait_variant::make]
 pub trait ProblemRepository {
     async fn get_all_problems(&self) -> Result<Vec<Problem>>;
     async fn get_problems_by_platform(&self, platform: &str) -> Result<Vec<Problem>>;
