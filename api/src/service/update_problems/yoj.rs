@@ -35,6 +35,8 @@ where
             println!("{:?}", contest);
         }
 
+        self.repository.update_problems(&problems).await.unwrap();
+
         Ok(())
     }
 }

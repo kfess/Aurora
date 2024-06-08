@@ -32,6 +32,12 @@ where
             .await
             .unwrap();
 
+        for contest in contests.iter() {
+            println!("{:?}", contest);
+        }
+
+        self.repository.update_problems(&problems).await.unwrap();
+
         Ok(())
     }
 }
