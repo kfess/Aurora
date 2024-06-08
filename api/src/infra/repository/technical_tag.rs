@@ -3,7 +3,7 @@ use sqlx::PgPool;
 
 use crate::domain::vo::technique_tag::TechnicalTag;
 
-#[async_trait]
+#[trait_variant::make]
 pub trait TechnicalTagRepositoryTrait {
     async fn get_tags(&self, algo_id: Option<&str>) -> Result<Vec<TechnicalTag>>;
     async fn create_tag(&self, en_name: &str, ja_name: &str, algorithm_id: &str) -> Result<()>;
