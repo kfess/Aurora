@@ -17,6 +17,7 @@ use super::classifier::classify_contest;
 
 const YUKICODER_URL: &'static str = "https://yukicoder.me/api/v1";
 
+#[trait_variant::make]
 pub trait YukicoderAPIClient: Send + Sync {
     async fn get_yuki_problems_and_contests(&self) -> Result<(Vec<Problem>, Vec<Contest>)>;
 }

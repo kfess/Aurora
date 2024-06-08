@@ -23,6 +23,7 @@ use super::{
 
 const CODEFORCES_URL_PREFIX: &'static str = "https://codeforces.com/api";
 
+#[trait_variant::make]
 pub trait CFAPIClient: Send + Sync {
     async fn get_cf_problems_and_contests(&self) -> Result<(Vec<Problem>, Vec<Contest>)>;
     async fn get_cf_user_submissions(

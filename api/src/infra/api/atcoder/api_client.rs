@@ -24,6 +24,7 @@ use crate::infra::api::api_client::ApiClient;
 const ATCODER_INFORMATION_URL: &'static str = "https://kenkoooo.com/atcoder/resources";
 const ATCODER_STATISTICS_URL: &'static str = "https://kenkoooo.com/atcoder/atcoder-api/v3";
 
+#[trait_variant::make]
 pub trait AtcoderAPIClient: Send + Sync {
     async fn get_atcoder_problems_and_contests(&self) -> Result<(Vec<Problem>, Vec<Contest>)>;
     async fn get_atcoder_recent_submissions(&self) -> Result<Vec<Submission>>;

@@ -15,6 +15,7 @@ use super::classifier::classify_contest;
 const CATEGORY_TOML_URL: &'static str =
     "https://raw.githubusercontent.com/yosupo06/library-checker-problems/master/categories.toml";
 
+#[trait_variant::make]
 pub trait YOJAPIClient: Send + Sync {
     async fn get_yoj_problems_and_contests(&self) -> Result<(Vec<Problem>, Vec<Contest>)>;
 }
