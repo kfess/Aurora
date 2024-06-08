@@ -46,3 +46,5 @@ CREATE TABLE
         FOREIGN KEY (problem_id) REFERENCES problems (id),
         FOREIGN KEY (technical_tag_id) REFERENCES technical_tags (id)
     );
+
+-- Index

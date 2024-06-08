@@ -2,6 +2,7 @@
 //! with All Problems/Contest Information from Various Programming Contest Sites
 
 use anyhow::Result;
+use dotenv::dotenv;
 use std::env;
 use std::sync::Arc;
 
@@ -13,6 +14,7 @@ use api::service::update_problems;
 async fn main() -> Result<()> {
     log::info!("Batch process started.");
 
+    dotenv().ok();
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set.");
     let pool = Arc::new(
         initialize_pool(db_url)
@@ -46,7 +48,7 @@ async fn main() -> Result<()> {
         log::info!("Start fetching Yukicoder problems.");
         let usecase =
             update_problems::yuki::UpdateYukicoderUsecase::new(api_client.clone(), pool.clone());
-        usecase.fetch_and_update(false).await?;
+        // usecase.fetch_and_update(false).await?;
 
         log::info!("Finished fetching Yukicoder problems.");
     }
@@ -55,7 +57,7 @@ async fn main() -> Result<()> {
     {
         log::info!("Start fetching yosupo online judge problems.");
         let usecase = update_problems::yoj::UpdateYOJUsecase::new(api_client.clone(), pool.clone());
-        usecase.fetch_and_update().await?;
+        // usecase.fetch_and_update().await?;
 
         log::info!("Finished fetching yosupo online judge problems.");
     }
@@ -64,7 +66,7 @@ async fn main() -> Result<()> {
     {
         log::info!("Start fetching Aizu Online Judge problems.");
         let usecase = update_problems::aoj::UpdateAojUsecase::new(api_client.clone(), pool.clone());
-        usecase.fetch_and_update().await?;
+        // usecase.fetch_and_update().await?;
 
         log::info!("Finished fetching Aizu Online Judge problems.");
     }

@@ -1,15 +1,11 @@
 use dotenv::dotenv;
-use infra::repository::{
+
+use api::infra::repository::{
     initialize_pool::initialize_pool,
     problem::{Condition, ProblemRepository},
 };
 
 use std::env;
-
-mod domain;
-mod infra;
-mod service;
-mod utils;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 

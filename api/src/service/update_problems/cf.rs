@@ -1,9 +1,6 @@
 use std::sync::Arc;
 
-use crate::infra::{
-    api::cf::api_client::CFAPIClient,
-    repository::{self, problem::ProblemRepository},
-};
+use crate::infra::{api::cf::api_client::CFAPIClient, repository::problem::ProblemRepository};
 use anyhow::{Context, Result};
 
 pub struct UpdateCodeforcesUsecase<C, R>

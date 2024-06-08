@@ -23,3 +23,7 @@ sqlx-cli = "0.7.4"
 tokio = {version = "1.37.0", features = ["full"]}
 toml = "0.8.12"
 url = "2.5.0"
+
+[[bin]]
+name = "batch_update"
+path = "src/bin/batch_update.rs"
