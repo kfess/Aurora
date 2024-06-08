@@ -1,21 +1,37 @@
-use crate::infra::api::yuki::api_client::YukicoderAPIClient;
+use crate::infra::{
+    api::yuki::api_client::YukicoderAPIClient, repository::problem::ProblemRepository,
+};
+use anyhow::Result;
+use std::sync::Arc;
 
-pub struct UpdateYukicoderUsecase<C: YukicoderAPIClient> {
-    api_client: C,
+pub struct UpdateYukicoderUsecase<C, R>
+where
+    C: YukicoderAPIClient,
+    R: ProblemRepository,
+{
+    api_client: Arc<C>,
+    repository: Arc<R>,
 }
 
-impl<C: YukicoderAPIClient> UpdateYukicoderUsecase<C> {
-    pub fn new(api_client: C) -> Self {
-        Self { api_client }
+impl<C, R> UpdateYukicoderUsecase<C, R>
+where
+    C: YukicoderAPIClient,
+    R: ProblemRepository,
+{
+    pub fn new(api_client: Arc<C>, repository: Arc<R>) -> Self {
+        Self {
+            api_client,
+            repository,
+        }
     }
 
-    pub async fn execute(&self, is_recent: bool) {
-        log::info!("Yukicoder: update problems and contests");
-
+    pub async fn fetch_and_update(&self, is_recent: bool) -> Result<()> {
         let (problems, contests) = self
             .api_client
             .get_yuki_problems_and_contests()
             .await
             .unwrap();
+
+        Ok(())
     }
 }

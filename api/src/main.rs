@@ -1,19 +1,9 @@
 use dotenv::dotenv;
-use infra::{
-    // api::factory::APIClientFactory,
-    api::atcoder::api_client::AtcoderAPIClient,
-    repository::{
-        initialize_pool::initialize_pool, problem::ProblemRepository,
-        technical_tag::TechnicalTagRepositoryTrait,
-    },
+use infra::repository::{
+    initialize_pool::initialize_pool,
+    problem::{Condition, ProblemRepository},
 };
-use service::{
-    submission::FetchSubmissionUsecase,
-    update_problems::{
-        aoj::UpdateAojUsecase, atcoder::UpdateAtcoderUsecase, cf::UpdateCodeforcesUsecase,
-        yuki::UpdateYukicoderUsecase,
-    },
-};
+
 use std::env;
 
 mod domain;
@@ -32,36 +22,16 @@ async fn main() -> Result<()> {
         .await
         .expect("Failed to initialize the connection pool");
 
-    let api_client = infra::api::api_client::ApiClient::new();
-
-    pool.get_problem_by_id("codeforces_9_E").await?;
-
-    // let usecase = UpdateAtcoderUsecase::new(api_client, pool);
-    // usecase.fetch_and_update().await;
-
-    // let usecase = UpdateCodeforcesUsecase::new(api_client, pool);
-    // usecase.fetch_and_update().await;
-
-    // let usecase = UpdateAojUsecase::new(api_factory, pool);
-    // usecase.fetch_and_update().await;
-
-    // let usecase = FetchSubmissionUsecase::new(api_factory);
-
-    // AtCoder
-    // usecase.fetch_atcoder_recent_subs().await;
-    // usecase.fetch_atcoder_user_subs("kenkoooo", Some(0)).await;
-
-    // // Codeforces
-    // usecase.fetch_cf_recent_subs().await;
-    // usecase
-    //     .fetch_cf_user_subs("tourist", Some(1), Some(10))
-    //     .await;
-
-    // // AOJ
-    // usecase.fetch_aoj_recent_subs().await;
-    // usecase.fetch_aoj_user_subs("eidensuke", None, None).await;
-
-    // pool.get_tags(None).await?;
+    pool.get_problems_by_condition(&Condition {
+        platform: Some("codeforces"),
+        algo_id: None,
+        technical_tag_id: None,
+        page: Some(2),
+        page_size: Some(20),
+        from_difficulty: None,
+        to_difficulty: Some(2200),
+    })
+    .await?;
 
     Ok(())
 }

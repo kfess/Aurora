@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::infra::{
     api::cf::api_client::CFAPIClient,
     repository::{self, problem::ProblemRepository},
@@ -9,21 +11,19 @@ where
     C: CFAPIClient,
     R: ProblemRepository,
 {
-    api_client: C,
-    repository: R,
+    api_client: Arc<C>,
+    repository: Arc<R>,
 }
 
 impl<C: CFAPIClient, R: ProblemRepository> UpdateCodeforcesUsecase<C, R> {
-    pub fn new(api_client: C, repository: R) -> Self {
+    pub fn new(api_client: Arc<C>, repository: Arc<R>) -> Self {
         return Self {
             api_client,
             repository,
         };
     }
 
-    pub async fn fetch_and_update(&self) {
-        log::info!("Codeforces: update problems and contests");
-
+    pub async fn fetch_and_update(&self) -> Result<()> {
         let (problems, _contests) = self
             .api_client
             .get_cf_problems_and_contests()
@@ -36,5 +36,7 @@ impl<C: CFAPIClient, R: ProblemRepository> UpdateCodeforcesUsecase<C, R> {
             .await
             .with_context(|| "Failed to update Codeforces problems")
             .unwrap();
+
+        Ok(())
     }
 }

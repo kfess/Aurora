@@ -3,9 +3,30 @@ use sqlx::{PgPool, Postgres, QueryBuilder};
 
 use crate::domain::problem::Problem;
 
+pub struct Condition<'a> {
+    pub platform: Option<&'a str>,
+    pub algo_id: Option<&'a str>,
+    pub technical_tag_id: Option<&'a str>,
+    pub page: Option<i32>,
+    pub page_size: Option<i32>,
+    pub from_difficulty: Option<i32>,
+    pub to_difficulty: Option<i32>,
+}
+
+enum BindValue<'a> {
+    Str(&'a str),
+    I32(i32),
+}
+
 pub trait ProblemRepository {
     async fn get_all_problems(&self) -> Result<Vec<Problem>>;
     async fn get_problems_by_platform(&self, platform: &str) -> Result<Vec<Problem>>;
+    async fn get_problems_by_algo_id(&self, algo_id: &str) -> Result<Vec<Problem>>;
+    async fn get_problems_by_technical_tag_id(
+        &self,
+        technical_tag_id: &str,
+    ) -> Result<Vec<Problem>>;
+    async fn get_problems_by_condition(&self, condition: &Condition<'_>) -> Result<Vec<Problem>>;
     async fn get_problem_by_id(&self, id: &str) -> Result<Problem>;
     async fn update_problems(&self, problems: &[Problem]) -> Result<()>;
 }
@@ -84,32 +105,199 @@ impl ProblemRepository for PgPool {
         Ok(problems)
     }
 
+    async fn get_problems_by_algo_id(&self, algo_id: &str) -> Result<Vec<Problem>> {
+        let problems = sqlx::query_as::<_, Problem>(
+            r#"
+                SELECT
+                    problems.id,
+                    problems.contest_id,
+                    problems.problem_index AS index,
+                    problems.name,
+                    problems.title,
+                    problems.platform,
+                    problems.raw_point,
+                    problems.difficulty,
+                    problems.is_experimental,
+                    problems.url,
+                    problems.solver_count,
+                    problems.submissions,
+                    problems.success_rate,
+                    ARRAY_REMOVE (ARRAY_AGG (technical_tags.en_name), NULL) AS tags
+                FROM
+                    problems
+                    LEFT JOIN problem_tags ON problems.id = problem_tags.problem_id
+                    LEFT JOIN technical_tags ON problem_tags.technical_tag_id = technical_tags.id
+                WHERE
+                    technical_tags.algorithm_id = $1
+                GROUP BY
+                    problems.id
+                "#,
+        )
+        .bind(algo_id)
+        .fetch_all(self)
+        .await
+        .with_context(|| format!("Failed to fetch problems"))?;
+
+        for p in problems.iter() {
+            println!("{:?}", p);
+        }
+
+        Ok(problems)
+    }
+
+    async fn get_problems_by_technical_tag_id(
+        &self,
+        technical_tag_id: &str,
+    ) -> Result<Vec<Problem>> {
+        let problems = sqlx::query_as::<_, Problem>(
+            r#"
+                SELECT
+                    problems.id,
+                    problems.contest_id,
+                    problems.problem_index AS index,
+                    problems.name,
+                    problems.title,
+                    problems.platform,
+                    problems.raw_point,
+                    problems.difficulty,
+                    problems.is_experimental,
+                    problems.url,
+                    problems.solver_count,
+                    problems.submissions,
+                    problems.success_rate,
+                    ARRAY_REMOVE (ARRAY_AGG (technical_tags.en_name), NULL) AS tags
+                FROM
+                    problems
+                    LEFT JOIN problem_tags ON problems.id = problem_tags.problem_id
+                    LEFT JOIN technical_tags ON problem_tags.technical_tag_id = technical_tags.id
+                WHERE
+                    problem_tags.technical_tag_id = $1
+                GROUP BY
+                    problems.id
+                "#,
+        )
+        .bind(technical_tag_id)
+        .fetch_all(self)
+        .await
+        .with_context(|| format!("Failed to fetch problems"))?;
+
+        for p in problems.iter() {
+            println!("{:?}", p);
+        }
+
+        Ok(problems)
+    }
+
+    async fn get_problems_by_condition(&self, condition: &Condition<'_>) -> Result<Vec<Problem>> {
+        let mut query_builder: QueryBuilder<Postgres> = sqlx::QueryBuilder::new(
+            r#"
+                SELECT
+                    problems.id,
+                    problems.contest_id,
+                    problems.problem_index AS index,
+                    problems.name,
+                    problems.title,
+                    problems.platform,
+                    problems.raw_point,
+                    problems.difficulty,
+                    problems.is_experimental,
+                    problems.url,
+                    problems.solver_count,
+                    problems.submissions,
+                    problems.success_rate,
+                    ARRAY_REMOVE (ARRAY_AGG (technical_tags.en_name), NULL) AS tags
+                FROM
+                    problems
+                    LEFT JOIN problem_tags ON problems.id = problem_tags.problem_id
+                    LEFT JOIN technical_tags ON problem_tags.technical_tag_id = technical_tags.id
+                "#,
+        );
+
+        let mut conditions: Vec<(&str, BindValue)> = Vec::new();
+
+        if let Some(platform) = condition.platform {
+            conditions.push(("problems.platform = ", BindValue::Str(platform)));
+        }
+
+        if let Some(algo_id) = condition.algo_id {
+            conditions.push(("technical_tags.algorithm_id = ", BindValue::Str(algo_id)));
+        }
+
+        if let Some(technical_tag_id) = condition.technical_tag_id {
+            conditions.push((
+                "problem_tags.technical_tag_id = ",
+                BindValue::Str(technical_tag_id),
+            ));
+        }
+
+        if !conditions.is_empty() {
+            query_builder.push(" WHERE ");
+
+            for (i, (column, value)) in conditions.iter().enumerate() {
+                if i > 0 {
+                    query_builder.push(" AND ");
+                }
+                match value {
+                    BindValue::Str(v) => {
+                        query_builder.push(column).push_bind(v);
+                    }
+                    BindValue::I32(v) => {
+                        query_builder.push(column).push_bind(v);
+                    }
+                }
+            }
+        }
+
+        query_builder.push(" GROUP BY problems.id");
+
+        let page = condition.page.unwrap_or(1);
+        let page_size = condition.page_size.unwrap_or(20);
+        let offset = (page - 1) * page_size;
+
+        query_builder
+            .push(" LIMIT ")
+            .push_bind(page_size)
+            .push(" OFFSET ")
+            .push_bind(offset);
+
+        let problems = query_builder
+            .build_query_as::<Problem>()
+            .fetch_all(self)
+            .await?;
+
+        for p in problems.iter() {
+            println!("{:?}", p);
+        }
+
+        Ok(problems)
+    }
+
     async fn get_problem_by_id(&self, id: &str) -> Result<Problem> {
         let problem = sqlx::query_as::<_, Problem>(
             r#"
-            SELECT
-                problems.id,
-                problems.contest_id,
-                problems.problem_index AS index,
-                problems.name,
-                problems.title,
-                problems.platform,
-                problems.raw_point,
-                problems.difficulty,
-                problems.is_experimental,
-                problems.url,
-                problems.solver_count,
-                problems.submissions,
-                problems.success_rate,
-                ARRAY_REMOVE (ARRAY_AGG (technical_tags.en_name), NULL) AS tags
-            FROM
-                problems
-                LEFT JOIN problem_tags ON problems.id = problem_tags.problem_id
-                LEFT JOIN technical_tags ON problem_tags.technical_tag_id = technical_tags.id
-            WHERE
-                problems.id = $1
-            GROUP BY
-                problems.id
+                SELECT
+                    problems.id,
+                    problems.contest_id,
+                    problems.problem_index AS index,
+                    problems.name,
+                    problems.title,
+                    problems.platform,
+                    problems.raw_point,
+                    problems.difficulty,
+                    problems.is_experimental,
+                    problems.url,
+                    problems.solver_count,
+                    problems.submissions,
+                    problems.success_rate,
+                    ARRAY_REMOVE (ARRAY_AGG (technical_tags.en_name), NULL) AS tags
+                FROM
+                    problems
+                    LEFT JOIN problem_tags ON problems.id = problem_tags.problem_id
+                    LEFT JOIN technical_tags ON problem_tags.technical_tag_id = technical_tags.id
+                WHERE
+                    problems.id = $1
+                GROUP BY
+                    problems.id
                 "#,
         )
         .bind(id)
