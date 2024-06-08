@@ -12,6 +12,7 @@ use url::Url;
 
 const AOJ_URL: &'static str = "https://judgeapi.u-aizu.ac.jp";
 
+#[trait_variant::make]
 pub trait AojAPIClient: Send + Sync {
     async fn get_aoj_problems_and_contests(&self) -> Result<(Vec<Problem>, Vec<Contest>)>;
     async fn get_aoj_user_submissions(
