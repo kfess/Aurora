@@ -16,7 +16,7 @@ use regex::Regex;
 /// This is used to determine if a contest is rated or not.
 /// If the contest starts before this time, it is considered unrated.
 /// Otherwise, it is considered rated.
-const AGC_001_START: i32 = 1_468_670_400;
+const AGC_001_START: i64 = 1_468_670_400;
 
 /// Special heuristic contests that do not follow the usual naming convention.
 /// So, we need to handle them separately.

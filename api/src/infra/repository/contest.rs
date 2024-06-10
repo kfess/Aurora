@@ -154,28 +154,30 @@ impl ContestRepository for PgPool {
         let mut transaction = self.begin().await.unwrap();
 
         for chunk in contests.chunks(100) {
-            let mut query_builder: QueryBuilder<Postgres> = sqlx::QueryBuilder::new(
-                r#"
+            // contests テーブルの更新
+            {
+                let mut query_builder: QueryBuilder<Postgres> = sqlx::QueryBuilder::new(
+                    r#"
                 INSERT INTO contests (
                     id, raw_id, name, category, platform, phase, start_time_seconds, duration_seconds, url
                 )
                 "#,
-            );
+                );
 
-            query_builder.push_values(chunk, |mut separated, contest| {
-                separated.push_bind(&contest.id);
-                separated.push_bind(&contest.raw_id);
-                separated.push_bind(&contest.name);
-                separated.push_bind(&contest.category);
-                separated.push_bind(&contest.platform);
-                separated.push_bind(&contest.phase);
-                separated.push_bind(&contest.start_time_seconds);
-                separated.push_bind(&contest.duration_seconds);
-                separated.push_bind(&contest.url);
-            });
+                query_builder.push_values(chunk, |mut separated, contest| {
+                    separated.push_bind(&contest.id);
+                    separated.push_bind(&contest.raw_id);
+                    separated.push_bind(&contest.name);
+                    separated.push_bind(&contest.category);
+                    separated.push_bind(&contest.platform);
+                    separated.push_bind(&contest.phase);
+                    separated.push_bind(&contest.start_time_seconds);
+                    separated.push_bind(&contest.duration_seconds);
+                    separated.push_bind(&contest.url);
+                });
 
-            query_builder.push(
-                r#"
+                query_builder.push(
+                    r#"
                 ON CONFLICT (id) DO UPDATE SET
                     raw_id = EXCLUDED.raw_id,
                     name = EXCLUDED.name,
@@ -186,13 +188,46 @@ impl ContestRepository for PgPool {
                     duration_seconds = EXCLUDED.duration_seconds,
                     url = EXCLUDED.url
                 "#,
-            );
+                );
 
-            let query = query_builder.build();
-            query
-                .execute(&mut *transaction)
-                .await
-                .with_context(|| format!("Failed to update contests: {:?}", chunk))?;
+                let query = query_builder.build();
+                query
+                    .execute(&mut *transaction)
+                    .await
+                    .with_context(|| format!("Failed to update contests: {:?}", chunk))?;
+            }
+
+            // contest_problems テーブルの更新
+            {
+                let mut query_builder: QueryBuilder<Postgres> = sqlx::QueryBuilder::new(
+                    r#"
+                INSERT INTO contest_problems (contest_id, problem_id)
+                "#,
+                );
+
+                query_builder.push_values(chunk, |mut separated, contest| {
+                    for problem in contest.problems.iter() {
+                        separated
+                            .push("(")
+                            .push_bind(&contest.id)
+                            .push(",")
+                            .push_bind(&problem.id)
+                            .push(")");
+                    }
+                });
+
+                query_builder.push(
+                    r#"
+                ON CONFLICT (contest_id, problem_id) DO NOTHING
+                "#,
+                );
+
+                let query = query_builder.build();
+                query
+                    .execute(&mut *transaction)
+                    .await
+                    .with_context(|| format!("Failed to update contest_problems: {:?}", chunk))?;
+            }
         }
 
         transaction.commit().await.unwrap();

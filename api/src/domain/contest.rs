@@ -65,11 +65,11 @@ pub struct Contest {
 
     /// The start time of the contest in Unix time seconds, if known.
     /// - This is optional and may not be available for all contests on all platforms.
-    pub start_time_seconds: Option<i32>,
+    pub start_time_seconds: Option<i64>,
 
     /// The duration of the contest in seconds, if known.
     /// - This is optional and varies greatly depending on the contest format and platform.
-    pub duration_seconds: Option<i32>,
+    pub duration_seconds: Option<i64>,
 
     /// The URL to the contest's page on the hosting platform's website.
     /// - Atcoder: "https://atcoder.jp/contests/abc001"
@@ -93,8 +93,8 @@ impl Contest {
         category: String,
         platform: Platform,
         phase: String,
-        start_time_seconds: Option<i32>,
-        duration_seconds: Option<i32>,
+        start_time_seconds: Option<i64>,
+        duration_seconds: Option<i64>,
         url: String,
         problems: Vec<Problem>,
     ) -> Self {
@@ -123,8 +123,8 @@ impl Contest {
         category: String,
         platform: Platform,
         raw_phase: String,
-        raw_start_time_seconds: Option<i32>,
-        raw_duration_seconds: Option<i32>,
+        raw_start_time_seconds: Option<i64>,
+        raw_duration_seconds: Option<i64>,
         problems: Vec<Problem>,
     ) -> Self {
         let (id, url, start_time_seconds, duration_seconds) = match platform {
@@ -205,8 +205,8 @@ impl Contest {
         category: String,
         platform: Platform,
         phase: String,
-        start_time_seconds: Option<i32>,
-        duration_seconds: Option<i32>,
+        start_time_seconds: Option<i64>,
+        duration_seconds: Option<i64>,
         url: String,
     ) -> Self {
         Self {
