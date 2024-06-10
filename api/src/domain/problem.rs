@@ -198,4 +198,38 @@ impl Problem {
             success_rate,
         }
     }
+
+    pub fn reconstruct_from_db(
+        id: String,
+        contest_id: String,
+        index: String,
+        name: String,
+        title: String,
+        platform: Platform,
+        raw_point: Option<f64>,
+        difficulty: Option<f64>,
+        is_experimental: Option<bool>,
+        tags: Vec<String>,
+        url: String,
+        solver_count: Option<i32>,
+        submissions: Option<i32>,
+        success_rate: Option<f64>,
+    ) -> Self {
+        Self {
+            id,
+            contest_id,
+            index,
+            name,
+            title,
+            platform,
+            raw_point,
+            difficulty,
+            is_experimental,
+            tags,
+            url,
+            solver_count,
+            submissions,
+            success_rate,
+        }
+    }
 }

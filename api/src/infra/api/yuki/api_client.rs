@@ -173,11 +173,11 @@ fn build_problem(
 fn build_contest(contest: &YukicoderContest, problems: Vec<Problem>) -> Contest {
     let start_timestamp = DateTime::parse_from_rfc3339(&contest.date)
         .unwrap()
-        .timestamp() as u64;
+        .timestamp() as i32;
 
     let duration_seconds = DateTime::parse_from_rfc3339(&contest.end_date)
         .unwrap()
-        .timestamp() as u64
+        .timestamp() as i32
         - start_timestamp;
 
     Contest::reconstruct(

@@ -77,11 +77,11 @@ pub(super) struct CodeforcesContest {
 
     pub frozen: bool,
 
-    pub duration_seconds: u64,
+    pub duration_seconds: i32,
 
-    pub start_time_seconds: Option<i64>,
+    pub start_time_seconds: Option<i32>,
 
-    pub relative_time_seconds: Option<i64>,
+    pub relative_time_seconds: Option<i32>,
 
     pub prepared_by: Option<String>,
 

@@ -26,6 +26,7 @@ async fn main() -> Result<()> {
     // Atcoder
     {
         log::info!("Start fetching AtCoder problems.");
+
         let usecase =
             update_problems::atcoder::UpdateAtcoderUsecase::new(api_client.clone(), pool.clone());
         usecase.fetch_and_update().await?;
@@ -36,6 +37,7 @@ async fn main() -> Result<()> {
     // Codeforces
     {
         log::info!("Start fetching Codeforces problems.");
+
         let usecase =
             update_problems::cf::UpdateCodeforcesUsecase::new(api_client.clone(), pool.clone());
         usecase.fetch_and_update().await?;
@@ -46,6 +48,7 @@ async fn main() -> Result<()> {
     // Yukicoder
     {
         log::info!("Start fetching Yukicoder problems.");
+
         let usecase =
             update_problems::yuki::UpdateYukicoderUsecase::new(api_client.clone(), pool.clone());
         // usecase.fetch_and_update(false).await?;
@@ -56,6 +59,7 @@ async fn main() -> Result<()> {
     // yosupo online judge
     {
         log::info!("Start fetching yosupo online judge problems.");
+
         let usecase = update_problems::yoj::UpdateYOJUsecase::new(api_client.clone(), pool.clone());
         // usecase.fetch_and_update().await?;
 
@@ -65,6 +69,7 @@ async fn main() -> Result<()> {
     // Aizu Online Judge
     {
         log::info!("Start fetching Aizu Online Judge problems.");
+
         let usecase = update_problems::aoj::UpdateAojUsecase::new(api_client.clone(), pool.clone());
         // usecase.fetch_and_update().await?;
 

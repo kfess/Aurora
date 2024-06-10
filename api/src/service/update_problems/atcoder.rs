@@ -3,16 +3,25 @@ use anyhow::Ok;
 use anyhow::Result;
 use std::sync::Arc;
 
+use crate::infra::repository::contest::ContestRepository;
 use crate::infra::{
     api::atcoder::api_client::AtcoderAPIClient, repository::problem::ProblemRepository,
 };
 
-pub struct UpdateAtcoderUsecase<C: AtcoderAPIClient, R: ProblemRepository> {
+pub struct UpdateAtcoderUsecase<C, R>
+where
+    C: AtcoderAPIClient,
+    R: ProblemRepository + ContestRepository,
+{
     api_client: Arc<C>,
     repository: Arc<R>,
 }
 
-impl<C: AtcoderAPIClient, R: ProblemRepository> UpdateAtcoderUsecase<C, R> {
+impl<C, R> UpdateAtcoderUsecase<C, R>
+where
+    C: AtcoderAPIClient,
+    R: ProblemRepository + ContestRepository,
+{
     pub fn new(api_client: Arc<C>, repository: Arc<R>) -> Self {
         Self {
             api_client,

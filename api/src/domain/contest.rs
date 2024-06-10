@@ -20,7 +20,7 @@ use super::vo::platform::Platform;
 /// - `url`: URL to the contest page on the corresponding platform's website.
 /// - `problems`: A vector of `Problem` objects associated with the contest.
 ///
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, sqlx::FromRow)]
 pub struct Contest {
     /// A globally unique identifier for the contest.
     ///
@@ -30,7 +30,7 @@ pub struct Contest {
     /// - Yukicoder: "yukicoder_1", "yukicoder_2", etc.
     /// - Aoj: "aoj_volume1", "aoj_volume2", "aoj_joi_prelim_2023", etc.
     /// - YOJ: "yoj_graph", "yoj_math", etc.
-    id: String,
+    pub id: String,
 
     /// The platform-specific identifier of the contest. This is part of the `id`.
     /// - Atcoder: "abc001", "arc001", "agc001", ...
@@ -38,7 +38,7 @@ pub struct Contest {
     /// - Yukicoder: "1", "2", "3"
     /// - Aoj: "volume_1", "volume_2", "joi_prelim_2023", ...
     /// - YOJ: "graph", "math", "string", "datastructure"
-    raw_id: String,
+    pub raw_id: String,
 
     /// The official name of the contest as it appears on the platform.
     /// - Atcoder: "AtCoder Beginner Contest 001", "AtCoder Regular Contest 001", ...
@@ -46,7 +46,7 @@ pub struct Contest {
     /// - Yukicoder: "Yukicoder Contest 1", "Yukicoder Contest 2", ...
     /// - Aoj: "Volume 1", "Volume 2", "22nd Japanese Olympiad in Informatics, Preliminary Round 1-1", ...
     /// - YOJ: "Graph", "Math", ...
-    name: String,
+    pub name: String,
 
     /// A classification of the contest based on its characteristics.
     /// - Atcoder: "ABC", "ARC", "AGC", "AHC", "PAST", "JOI", "JAG", "ABCLike", "ARCLike", "AGCLike", "Marathon", "OtherSponsored", "Other"
@@ -54,22 +54,22 @@ pub struct Contest {
     /// - Yukicoder: "Normal", "Other", "Not-classified"
     /// - Aoj: "Volume 1", "Volume 2", "JOI", etc.
     /// - YOJ: "Graph", "Math", "String", "DataStructure", "Geometry", etc.
-    category: String,
+    pub category: String,
 
     /// The platform where the contest is hosted.
-    platform: Platform,
+    pub platform: Platform,
 
     /// The current phase of the contest.
     /// - All Platforms: "before", "coding", "finished", "unknown"
-    phase: String,
+    pub phase: String,
 
     /// The start time of the contest in Unix time seconds, if known.
     /// - This is optional and may not be available for all contests on all platforms.
-    start_time_seconds: Option<u64>,
+    pub start_time_seconds: Option<i32>,
 
     /// The duration of the contest in seconds, if known.
     /// - This is optional and varies greatly depending on the contest format and platform.
-    duration_seconds: Option<u64>,
+    pub duration_seconds: Option<i32>,
 
     /// The URL to the contest's page on the hosting platform's website.
     /// - Atcoder: "https://atcoder.jp/contests/abc001"
@@ -77,12 +77,12 @@ pub struct Contest {
     /// - Yukicoder: "https://yukicoder.me/contests/1"
     /// - Aoj: "https://onlinejudge.u-aizu.ac.jp/challenges/search/volumes/1"
     /// - YOJ: "https://judge.yosupo.jp/"
-    url: String,
+    pub url: String,
 
     // A list of problems associated with the contest.
     ///
     /// This includes all problems that are part of the contest, each represented by a `Problem` struct.
-    problems: Vec<Problem>,
+    pub problems: Vec<Problem>,
 }
 
 impl Contest {
@@ -93,8 +93,8 @@ impl Contest {
         category: String,
         platform: Platform,
         phase: String,
-        start_time_seconds: Option<u64>,
-        duration_seconds: Option<u64>,
+        start_time_seconds: Option<i32>,
+        duration_seconds: Option<i32>,
         url: String,
         problems: Vec<Problem>,
     ) -> Self {
@@ -123,8 +123,8 @@ impl Contest {
         category: String,
         platform: Platform,
         raw_phase: String,
-        raw_start_time_seconds: Option<u64>,
-        raw_duration_seconds: Option<u64>,
+        raw_start_time_seconds: Option<i32>,
+        raw_duration_seconds: Option<i32>,
         problems: Vec<Problem>,
     ) -> Self {
         let (id, url, start_time_seconds, duration_seconds) = match platform {
@@ -195,6 +195,31 @@ impl Contest {
             duration_seconds,
             url,
             problems,
+        }
+    }
+
+    pub fn reconstruct_from_db_wo_problems(
+        id: String,
+        raw_id: String,
+        name: String,
+        category: String,
+        platform: Platform,
+        phase: String,
+        start_time_seconds: Option<i32>,
+        duration_seconds: Option<i32>,
+        url: String,
+    ) -> Self {
+        Self {
+            id,
+            raw_id,
+            name,
+            category,
+            platform,
+            phase,
+            start_time_seconds,
+            duration_seconds,
+            url,
+            problems: vec![],
         }
     }
 }

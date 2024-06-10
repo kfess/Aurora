@@ -51,9 +51,9 @@ pub struct AtcoderProblem {
 pub struct AtcoderContest {
     pub id: String,
 
-    pub start_epoch_second: u64,
+    pub start_epoch_second: i32,
 
-    pub duration_second: u64,
+    pub duration_second: i32,
 
     pub title: String,
 

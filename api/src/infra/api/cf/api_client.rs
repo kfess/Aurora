@@ -205,7 +205,7 @@ fn build_contest(contest: CodeforcesContest, problems: Vec<Problem>) -> Contest 
         Platform::Codeforces,
         String::from(contest.phase),
         if contest.start_time_seconds.is_some() {
-            Some(contest.start_time_seconds.unwrap() as u64)
+            Some(contest.start_time_seconds.unwrap() as i32)
         } else {
             None
         },
