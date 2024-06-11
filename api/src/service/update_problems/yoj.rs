@@ -1,12 +1,15 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use std::sync::Arc;
 
-use crate::infra::{api::yoj::api_client::YOJAPIClient, repository::problem::ProblemRepository};
+use crate::infra::{
+    api::yoj::api_client::YOJAPIClient,
+    repository::{contest::ContestRepository, problem::ProblemRepository},
+};
 
 pub struct UpdateYOJUsecase<C, R>
 where
     C: YOJAPIClient,
-    R: ProblemRepository,
+    R: ProblemRepository + ContestRepository,
 {
     api_client: Arc<C>,
     repository: Arc<R>,
@@ -15,7 +18,7 @@ where
 impl<C, R> UpdateYOJUsecase<C, R>
 where
     C: YOJAPIClient,
-    R: ProblemRepository,
+    R: ProblemRepository + ContestRepository,
 {
     pub fn new(api_client: Arc<C>, repository: Arc<R>) -> Self {
         Self {
@@ -31,11 +34,17 @@ where
             .await
             .unwrap();
 
-        for contest in contests.iter() {
-            println!("{:?}", contest);
-        }
+        self.repository
+            .update_problems(&problems)
+            .await
+            .with_context(|| format!("Failed to update yosupo online judge problems"))
+            .unwrap();
 
-        self.repository.update_problems(&problems).await.unwrap();
+        self.repository
+            .update_contests(&contests)
+            .await
+            .with_context(|| format!("Failed to update yosupo online judge contests"))
+            .unwrap();
 
         Ok(())
     }

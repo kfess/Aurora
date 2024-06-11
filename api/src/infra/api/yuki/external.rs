@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "PascalCase")]
 pub struct YukicoderProblem {
     pub no: u64,
 
@@ -23,7 +23,7 @@ pub struct YukicoderProblem {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "PascalCase")]
 pub struct YukicoderProblemWithStatistics {
     pub no: u64,
 
@@ -47,7 +47,7 @@ pub struct YukicoderProblemWithStatistics {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "PascalCase")]
 pub struct YukicoderContest {
     pub id: u64,
 
@@ -61,7 +61,7 @@ pub struct YukicoderContest {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "PascalCase")]
 pub struct YukicoderTag {
     pub key: String,
 
@@ -69,7 +69,7 @@ pub struct YukicoderTag {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "PascalCase")]
 pub struct YukicoderStatistics {
     pub total: i32,
 
@@ -77,6 +77,7 @@ pub struct YukicoderStatistics {
 
     pub first_accepted_time_second: i64,
 
+    #[serde(rename = "FirstACSubmissionId")]
     pub first_ac_submission_id: u64,
 
     pub short_code_submission_id: u64,

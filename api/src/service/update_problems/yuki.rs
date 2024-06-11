@@ -1,13 +1,14 @@
 use crate::infra::{
-    api::yuki::api_client::YukicoderAPIClient, repository::problem::ProblemRepository,
+    api::yuki::api_client::YukicoderAPIClient,
+    repository::{contest::ContestRepository, problem::ProblemRepository},
 };
-use anyhow::Result;
+use anyhow::{Context, Result};
 use std::sync::Arc;
 
 pub struct UpdateYukicoderUsecase<C, R>
 where
     C: YukicoderAPIClient,
-    R: ProblemRepository,
+    R: ProblemRepository + ContestRepository,
 {
     api_client: Arc<C>,
     repository: Arc<R>,
@@ -16,7 +17,7 @@ where
 impl<C, R> UpdateYukicoderUsecase<C, R>
 where
     C: YukicoderAPIClient,
-    R: ProblemRepository,
+    R: ProblemRepository + ContestRepository,
 {
     pub fn new(api_client: Arc<C>, repository: Arc<R>) -> Self {
         Self {
@@ -36,7 +37,11 @@ where
             println!("{:?}", contest);
         }
 
-        self.repository.update_problems(&problems).await.unwrap();
+        self.repository
+            .update_problems(&problems)
+            .await
+            .with_context(|| format!("Failed to update Yukicoder problems"))
+            .unwrap();
 
         Ok(())
     }

@@ -4,11 +4,12 @@ DROP TABLE IF EXISTS technical_tags;
 
 DROP TABLE IF EXISTS algorithms;
 
+DROP TABLE IF EXISTS contest_problems;
+
 DROP TABLE IF EXISTS problems;
 
 DROP TABLE IF EXISTS contests;
 
-DROP TABLE IF EXISTS contest_problems;
 
 CREATE TABLE
     problems (
@@ -59,8 +60,8 @@ CREATE TABLE
         category VARCHAR(255) NOT NULL,
         platform VARCHAR(255) NOT NULL,
         phase VARCHAR(255) NOT NULL,
-        start_time_seconds INT,
-        duration_seconds INT,
+        start_time_seconds BIGINT,
+        duration_seconds BIGINT,
         url VARCHAR(255) NOT NULL
     );
 

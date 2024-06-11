@@ -205,20 +205,22 @@ impl ContestRepository for PgPool {
                 "#,
                 );
 
-                query_builder.push_values(chunk, |mut separated, contest| {
-                    for problem in contest.problems.iter() {
-                        separated
-                            .push("(")
-                            .push_bind(&contest.id)
-                            .push(",")
-                            .push_bind(&problem.id)
-                            .push(")");
-                    }
+                let problems = chunk
+                    .iter()
+                    .flat_map(|contest| contest.problems.iter())
+                    .collect::<Vec<&Problem>>();
+
+                query_builder.push_values(problems, |mut separated, problem| {
+                    separated
+                        .push_bind(&problem.contest_id)
+                        .push_bind(&problem.id);
                 });
 
                 query_builder.push(
                     r#"
-                ON CONFLICT (contest_id, problem_id) DO NOTHING
+                ON CONFLICT (contest_id, problem_id) DO UPDATE SET
+                    contest_id = EXCLUDED.contest_id,
+                    problem_id = EXCLUDED.problem_id
                 "#,
                 );
 

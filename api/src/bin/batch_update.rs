@@ -3,6 +3,7 @@
 
 use anyhow::Result;
 use dotenv::dotenv;
+use env_logger;
 use std::env;
 use std::sync::Arc;
 
@@ -12,6 +13,7 @@ use api::service::update_problems;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    env_logger::init();
     log::info!("Batch process started.");
 
     dotenv().ok();
@@ -40,7 +42,7 @@ async fn main() -> Result<()> {
 
         let usecase =
             update_problems::cf::UpdateCodeforcesUsecase::new(api_client.clone(), pool.clone());
-        usecase.fetch_and_update().await?;
+        // usecase.fetch_and_update().await?;
 
         log::info!("Finished fetching Codeforces problems.")
     }
@@ -51,7 +53,7 @@ async fn main() -> Result<()> {
 
         let usecase =
             update_problems::yuki::UpdateYukicoderUsecase::new(api_client.clone(), pool.clone());
-        // usecase.fetch_and_update(false).await?;
+        // usecase.fetch_and_update(true).await?;
 
         log::info!("Finished fetching Yukicoder problems.");
     }
@@ -61,7 +63,7 @@ async fn main() -> Result<()> {
         log::info!("Start fetching yosupo online judge problems.");
 
         let usecase = update_problems::yoj::UpdateYOJUsecase::new(api_client.clone(), pool.clone());
-        // usecase.fetch_and_update().await?;
+        usecase.fetch_and_update().await?;
 
         log::info!("Finished fetching yosupo online judge problems.");
     }

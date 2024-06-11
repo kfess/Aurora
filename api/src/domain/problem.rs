@@ -183,7 +183,7 @@ impl Problem {
 
         Self {
             id,
-            contest_id: String::from(raw_contest_id),
+            contest_id: format!("{}_{}", String::from(platform), raw_contest_id),
             index: String::from(raw_index),
             name: String::from(raw_name),
             title,
