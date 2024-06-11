@@ -26,17 +26,6 @@ use super::external::CodeforcesContest;
 /// The order of the match arms is important for correct matching, as some contest names may
 /// contain substrings that match multiple categories. This function prioritizes more specific
 /// categories before broader ones.
-///
-/// # Examples
-/// ```
-/// let contest = CodeforcesContest {
-///     id: 1,
-///     name: "Educational Codeforces Round 165 (Rated for Div. 2)".to_string(),
-///     // other fields...
-/// };
-/// let category = classify_contest(&contest);
-/// assert_eq!(category, ContestCategory::Codeforces(CodeforcesCategory::Educational));
-/// ```
 pub(super) fn classify_contest(contest: &CodeforcesContest) -> ContestCategory {
     match &contest.name {
         name if name.contains("Educational") => {
