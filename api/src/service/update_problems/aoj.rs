@@ -28,8 +28,6 @@ where
     }
 
     pub async fn fetch_and_update(&self) -> Result<()> {
-        log::info!("Aizu Online Judge: update problems and contests");
-
         let (problems, contests) = self
             .api_client
             .get_aoj_problems_and_contests()

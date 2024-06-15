@@ -153,13 +153,12 @@ impl Contest {
                 (id, url, start_time_seconds, duration_seconds)
             }
             Platform::Aoj => {
-                // let category = raw_id.split("_").collect::<Vec<&str>>()[0].to_string();
-                let id = format!("{}_{}", String::from(Platform::Aoj), raw_name);
+                let id = format!("{}_{}", String::from(Platform::Aoj), raw_id);
                 let url = if raw_id.starts_with("volume") {
                     "https://onlinejudge.u-aizu.ac.jp/challenges/search/volumes".to_string()
                 } else {
                     match raw_id.split("_").collect::<Vec<&str>>().as_slice() {
-                        [large_cl, middle_cl, year] => {
+                        [large_cl, middle_cl, year, _idx] => {
                             format!(
                                 "https://onlinejudge.u-aizu.ac.jp/challenges/sources/{large_cl}/{middle_cl}?year={year}",
                             )

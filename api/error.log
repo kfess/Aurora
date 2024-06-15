@@ -1,0 +1,105 @@
+   Compiling api v0.1.0 (/home/kita456/projects/Aurora/api)
+warning: unused variable: `is_recent`
+  --> src/service/update_problems/yuki.rs:29:42
+   |
+29 |     pub async fn fetch_and_update(&self, is_recent: bool) -> Result<()> {
+   |                                          ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_is_recent`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+warning: unreachable pattern
+   --> src/domain/vo/category.rs:225:13
+    |
+225 |             "Other" => ContestCategory::Codeforces(CodeforcesCategory::Other),
+    |             ^^^^^^^
+    |
+    = note: `#[warn(unreachable_patterns)]` on by default
+
+warning: unreachable pattern
+   --> src/domain/vo/category.rs:227:13
+    |
+227 |             "Other" => ContestCategory::Yukicoder(YukicoderCategory::Other),
+    |             ^^^^^^^
+
+warning: unreachable pattern
+   --> src/domain/vo/category.rs:238:13
+    |
+238 |             "Other" => ContestCategory::YOJ(YOJCategory::Other),
+    |             ^^^^^^^
+
+warning: unreachable pattern
+   --> src/domain/vo/category.rs:271:13
+    |
+271 |             "JOI" => ContestCategory::Aoj(AojCategory::JOI),
+    |             ^^^^^
+
+warning: unreachable pattern
+   --> src/domain/vo/category.rs:273:13
+    |
+273 |             "ICPC" => ContestCategory::Aoj(AojCategory::ICPC),
+    |             ^^^^^^
+
+warning: unreachable pattern
+   --> src/domain/vo/category.rs:274:13
+    |
+274 |             "JAG" => ContestCategory::Aoj(AojCategory::JAG),
+    |             ^^^^^
+
+warning: unreachable pattern
+   --> src/domain/vo/category.rs:277:13
+    |
+277 |             "Other" => ContestCategory::Aoj(AojCategory::Other),
+    |             ^^^^^^^
+
+warning: associated function `new` is never used
+  --> src/domain/contest.rs:89:8
+   |
+88 | impl Contest {
+   | ------------ associated function in this implementation
+89 |     fn new(
+   |        ^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: variant `Int` is never constructed
+  --> src/infra/repository/contest.rs:17:5
+   |
+15 | enum BindValue<'a> {
+   |      --------- variant in this enum
+16 |     Str(&'a str),
+17 |     Int(i32),
+   |     ^^^
+
+warning: variant `I32` is never constructed
+  --> src/infra/repository/problem.rs:18:5
+   |
+16 | enum BindValue<'a> {
+   |      --------- variant in this enum
+17 |     Str(&'a str),
+18 |     I32(i32),
+   |     ^^^
+
+warning: `api` (lib) generated 11 warnings (run `cargo fix --lib -p api` to apply 1 suggestion)
+warning: unused variable: `usecase`
+  --> src/bin/batch_update.rs:55:13
+   |
+55 |         let usecase =
+   |             ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_usecase`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+warning: `api` (bin "batch_update") generated 1 warning (run `cargo fix --bin "batch_update"` to apply 1 suggestion)
+    Finished dev [unoptimized + debuginfo] target(s) in 6.82s
+     Running `target/debug/batch_update`
+[2024-06-13T14:11:21Z INFO  batch_update] Batch process started.
+[2024-06-13T14:11:21Z INFO  batch_update] Start fetching AtCoder problems.
+[2024-06-13T14:11:27Z INFO  batch_update] Finished fetching AtCoder problems.
+[2024-06-13T14:11:27Z INFO  batch_update] Start fetching Codeforces problems.
+[2024-06-13T14:11:32Z INFO  batch_update] Finished fetching Codeforces problems.
+[2024-06-13T14:11:32Z INFO  batch_update] Start fetching Yukicoder problems.
+[2024-06-13T14:11:32Z INFO  batch_update] Finished fetching Yukicoder problems.
+[2024-06-13T14:11:32Z INFO  batch_update] Start fetching yosupo online judge problems.
+[2024-06-13T14:11:32Z INFO  batch_update] Finished fetching yosupo online judge problems.
+[2024-06-13T14:11:32Z INFO  batch_update] Start fetching Aizu Online Judge problems.
+[2024-06-13T14:11:34Z INFO  batch_update] Finished fetching Aizu Online Judge problems.
+[2024-06-13T14:11:34Z INFO  batch_update] Batch process finished.

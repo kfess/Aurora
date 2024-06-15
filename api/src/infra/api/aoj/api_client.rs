@@ -128,7 +128,7 @@ impl ApiClient {
         let mut all_contests: Vec<Contest> = vec![];
 
         // volume 内の問題を取得
-        let volume_ids = self.fetch_aoj_volumes_challenges_list().await?;
+        let volume_ids: Vec<u16> = self.fetch_aoj_volumes_challenges_list().await?;
         for vol_id in volume_ids {
             let raw_problems_in_vol = self.fetch_aoj_problems_by_volume_id(vol_id).await?;
 
@@ -149,13 +149,14 @@ impl ApiClient {
                 .fetch_aoj_challenges_by_large_cl_middle_cl(&pair.0, &pair.1)
                 .await?;
 
-            for (year, title, problems) in raw_year_problems {
+            for (idx, (year, title, problems)) in raw_year_problems.iter().enumerate() {
                 let problems = problems
                     .iter()
-                    .map(|p| build_problen_from_cl(&pair.0, &pair.1, year, p))
+                    .map(|p| build_problen_from_cl(&pair.0, &pair.1, *year, idx, p))
                     .collect::<Vec<Problem>>();
 
-                let contest = build_contest_from_cl(&pair.0, &pair.1, year, &title, &problems);
+                let contest =
+                    build_contest_from_cl(&pair.0, &pair.1, *year, &title, idx, &problems);
                 all_contests.push(contest);
                 all_problems.extend(problems);
             }
@@ -237,7 +238,7 @@ fn build_submission(s: &AojSubmission) -> Submission {
 fn build_problem_from_vol(vol_id: u16, p: &AojProblem) -> Problem {
     Problem::reconstruct(
         Platform::Aoj,
-        vol_id.to_string().as_str(),
+        &format!("volume_{}", vol_id),
         &p.id,
         &p.name,
         None,
@@ -253,10 +254,16 @@ fn build_problem_from_vol(vol_id: u16, p: &AojProblem) -> Problem {
     )
 }
 
-fn build_problen_from_cl(large_cl: &str, middle_cl: &str, year: u16, p: &AojProblem) -> Problem {
+fn build_problen_from_cl(
+    large_cl: &str,
+    middle_cl: &str,
+    year: u16,
+    idx: usize,
+    p: &AojProblem,
+) -> Problem {
     Problem::reconstruct(
         Platform::Aoj,
-        &format!("{large_cl}_{middle_cl}_{year}"),
+        &format!("{large_cl}_{middle_cl}_{year}_{idx}"),
         &p.id,
         &p.name,
         None,
@@ -290,10 +297,11 @@ fn build_contest_from_cl(
     middle_cl: &str,
     year: u16,
     title: &str,
+    idx: usize,
     ps: &Vec<Problem>,
 ) -> Contest {
     Contest::reconstruct(
-        format!("{large_cl}_{middle_cl}_{year}"),
+        format!("{large_cl}_{middle_cl}_{year}_{idx}"),
         title.to_string(),
         String::from(large_cl),
         Platform::Aoj,

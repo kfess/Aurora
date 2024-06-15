@@ -13,10 +13,11 @@ use api::service::update_problems;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    dotenv().ok();
+
     env_logger::init();
     log::info!("Batch process started.");
 
-    dotenv().ok();
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set.");
     let pool = Arc::new(
         initialize_pool(db_url)
@@ -42,7 +43,7 @@ async fn main() -> Result<()> {
 
         let usecase =
             update_problems::cf::UpdateCodeforcesUsecase::new(api_client.clone(), pool.clone());
-        // usecase.fetch_and_update().await?;
+        usecase.fetch_and_update().await?;
 
         log::info!("Finished fetching Codeforces problems.")
     }
@@ -73,11 +74,12 @@ async fn main() -> Result<()> {
         log::info!("Start fetching Aizu Online Judge problems.");
 
         let usecase = update_problems::aoj::UpdateAojUsecase::new(api_client.clone(), pool.clone());
-        // usecase.fetch_and_update().await?;
+        usecase.fetch_and_update().await?;
 
         log::info!("Finished fetching Aizu Online Judge problems.");
     }
 
     log::info!("Batch process finished.");
+
     Ok(())
 }
