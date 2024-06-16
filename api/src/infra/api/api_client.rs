@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+#[derive(Clone)]
 pub struct ApiClient {
     pub client: Arc<reqwest::Client>,
 }

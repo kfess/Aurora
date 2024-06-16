@@ -5,93 +5,135 @@
 //!
 //! Submission is only available for AtCoder, Codeforces, and AOJ.
 
-use crate::infra::api::{
-    aoj::api_client::AojAPIClient, atcoder::api_client::AtcoderAPIClient,
-    cf::api_client::CFAPIClient,
+use anyhow::Result;
+
+use crate::{
+    domain::{submission::Submission, vo::platform::Platform},
+    infra::api::{
+        aoj::api_client::AojAPIClient, atcoder::api_client::AtcoderAPIClient,
+        cf::api_client::CFAPIClient,
+    },
 };
+
+pub enum PageCondition<'a> {
+    Atcoder {
+        user: &'a str,
+        from_second: Option<u64>,
+    },
+    Codeforces {
+        user: &'a str,
+        from: Option<u32>,
+        count: Option<u32>,
+    },
+    Aoj {
+        user: &'a str,
+        page: Option<u32>,
+        size: Option<u32>,
+    },
+}
 
 pub struct FetchSubmissionUsecase<C>
 where
-    C: AtcoderAPIClient + CFAPIClient + AojAPIClient,
+    C: AtcoderAPIClient + CFAPIClient + AojAPIClient + Clone,
 {
     api_client: C,
 }
 
+impl<C> Clone for FetchSubmissionUsecase<C>
+where
+    C: AtcoderAPIClient + CFAPIClient + AojAPIClient + Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            api_client: self.api_client.clone(),
+        }
+    }
+}
+
+#[trait_variant::make]
+pub trait FetchSubmission {
+    async fn fetch_recent_submissions(&self, platform: &Platform) -> Result<Vec<Submission>>;
+    async fn fetch_user_submissions(
+        &self,
+        platform: &Platform,
+        condition: &PageCondition,
+    ) -> Result<Vec<Submission>>;
+}
+
 impl<C> FetchSubmissionUsecase<C>
 where
-    C: AtcoderAPIClient + CFAPIClient + AojAPIClient,
+    C: AtcoderAPIClient + CFAPIClient + AojAPIClient + Clone,
 {
     pub fn new(api_client: C) -> Self {
         Self { api_client }
     }
+}
 
-    pub async fn fetch_atcoder_recent_subs(&self) {
-        log::info!("AtCoder: fetch recent submissions");
+impl<C> FetchSubmission for FetchSubmissionUsecase<C>
+where
+    C: AtcoderAPIClient + CFAPIClient + AojAPIClient + Clone,
+{
+    async fn fetch_recent_submissions(&self, platform: &Platform) -> Result<Vec<Submission>> {
+        let submissions = match platform {
+            Platform::Atcoder => self
+                .api_client
+                .get_atcoder_recent_submissions()
+                .await
+                .unwrap(),
+            Platform::Codeforces => self.api_client.get_cf_recent_submissions().await.unwrap(),
+            Platform::Aoj => self.api_client.get_aoj_recent_submissions().await.unwrap(),
+            _ => {
+                unimplemented!("This platform is not currently supported.");
+            }
+        };
 
-        let submissions = self
-            .api_client
-            .get_atcoder_recent_submissions()
-            .await
-            .unwrap();
-        for submission in submissions {
-            println!("{:?}", submission);
-        }
+        Ok(submissions)
     }
 
-    pub async fn fetch_atcoder_user_subs(&self, user: &str, from_second: Option<u64>) {
-        log::info!("AtCoder: fetch user submissions");
+    async fn fetch_user_submissions(
+        &self,
+        platform: &Platform,
+        condition: &PageCondition<'_>,
+    ) -> Result<Vec<Submission>> {
+        let submissions = match platform {
+            Platform::Atcoder => {
+                let (user, from_second) = match condition {
+                    PageCondition::Atcoder { user, from_second } => (user, from_second),
+                    _ => unreachable!(),
+                };
+                self.api_client
+                    .get_atcoder_user_submissions(user, *from_second)
+                    .await
+                    .unwrap()
+            }
 
-        let submissions = self
-            .api_client
-            .get_atcoder_user_submissions(user, from_second)
-            .await
-            .unwrap();
-        for submission in submissions {
-            println!("{:?}", submission);
-        }
-    }
+            Platform::Codeforces => {
+                let (user, from, count) = match condition {
+                    PageCondition::Codeforces { user, from, count } => (user, from, count),
+                    _ => unreachable!(),
+                };
 
-    pub async fn fetch_cf_recent_subs(&self) {
-        log::info!("Codeforces: fetch recent submissions");
+                self.api_client
+                    .get_cf_user_submissions(user, *from, *count)
+                    .await
+                    .unwrap()
+            }
 
-        let submissions = self.api_client.get_cf_recent_submissions().await.unwrap();
-        for submission in submissions {
-            println!("{:?}", submission);
-        }
-    }
+            Platform::Aoj => {
+                let (user, page, size) = match condition {
+                    PageCondition::Aoj { user, page, size } => (user, page, size),
+                    _ => unreachable!(),
+                };
+                self.api_client
+                    .get_aoj_user_submissions(user, *page, *size)
+                    .await
+                    .unwrap()
+            }
+            _ => {
+                unimplemented!("This platform is not currently supported.");
+            }
+        };
 
-    pub async fn fetch_cf_user_subs(&self, user: &str, from: Option<u32>, count: Option<u32>) {
-        log::info!("Codeforces: fetch user submissions");
-
-        let submissions = self
-            .api_client
-            .get_cf_user_submissions(user, from, count)
-            .await
-            .unwrap();
-        for submission in submissions {
-            println!("{:?}", submission);
-        }
-    }
-
-    pub async fn fetch_aoj_recent_subs(&self) {
-        log::info!("AOJ: fetch user submissions");
-
-        let submissions = self.api_client.get_cf_recent_submissions().await.unwrap();
-        for submission in submissions {
-            println!("{:?}", submission);
-        }
-    }
-
-    pub async fn fetch_aoj_user_subs(&self, user: &str, page: Option<u32>, size: Option<u32>) {
-        log::info!("AOJ: fetch user submissions");
-
-        let submissions = self
-            .api_client
-            .get_aoj_user_submissions(user, page, size)
-            .await
-            .unwrap();
-        for submission in submissions {
-            println!("{:?}", submission);
-        }
+        Ok(submissions)
     }
 }

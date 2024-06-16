@@ -1,15 +1,18 @@
+use actix_web::{web, App, HttpServer};
 use dotenv::dotenv;
 
-use api::infra::repository::{
-    initialize_pool::initialize_pool,
-    problem::{Condition, ProblemRepository},
+use api::{
+    controller::{self, services},
+    infra::{api::api_client::ApiClient, repository::initialize_pool::initialize_pool},
+    service::submission::{FetchSubmission, FetchSubmissionUsecase},
 };
 
-use std::env;
+use std::{env, sync::Arc};
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-#[tokio::main]
+// #[tokio::main]
+#[actix_web::main]
 async fn main() -> Result<()> {
     dotenv().ok();
 
@@ -18,15 +21,16 @@ async fn main() -> Result<()> {
         .await
         .expect("Failed to initialize the connection pool");
 
-    pool.get_problems_by_condition(&Condition {
-        platform: Some("codeforces"),
-        algo_id: None,
-        technical_tag_id: None,
-        page: Some(2),
-        page_size: Some(20),
-        from_difficulty: None,
-        to_difficulty: Some(2200),
+    let api_client = ApiClient::new();
+    let submission_usecase = Arc::new(FetchSubmissionUsecase::new(api_client));
+
+    HttpServer::new(move || {
+        App::new()
+            .app_data(web::Data::from(submission_usecase.clone()))
+            .configure(services::config_services)
     })
+    .bind(("127.0.0.1", 8079))?
+    .run()
     .await?;
 
     Ok(())
