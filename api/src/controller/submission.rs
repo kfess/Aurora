@@ -3,7 +3,27 @@ use std::sync::Arc;
 use actix_web::{web, HttpResponse};
 use serde::Deserialize;
 
-use crate::{domain::vo::platform::Platform, service::submission::FetchSubmission};
+use crate::{
+    domain::vo::platform::Platform,
+    service::submission::{FetchSubmission, PageCondition},
+};
+
+#[derive(Deserialize)]
+struct AtcoderQueryParams {
+    from_second: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct CodeforcesQueryParams {
+    from: Option<String>,
+    count: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct AojQueryParams {
+    page: Option<String>,
+    size: Option<String>,
+}
 
 pub struct SubmissionController<U: FetchSubmission> {
     usecase: Arc<U>,
@@ -26,8 +46,70 @@ impl<U: FetchSubmission> SubmissionController<U> {
     pub async fn user_submissions(
         &self,
         path: web::Path<(String, String)>,
-        query: web::Query<String>, // query: web::Query<serde_json::Value>,
+        query: web::Query<serde_json::Value>,
     ) -> HttpResponse {
-        HttpResponse::Ok().finish()
+        let platform = Platform::from(path.0.as_str());
+        let user_id = path.1.as_str();
+
+        let submissions = match platform {
+            Platform::Atcoder => {
+                if let Ok(params) = serde_json::from_value::<AtcoderQueryParams>(query.into_inner())
+                {
+                    self.usecase
+                        .fetch_user_submissions(
+                            &platform,
+                            &PageCondition::Atcoder {
+                                user: user_id,
+                                from_second: params.from_second.map(|s| s.parse().unwrap()),
+                            },
+                        )
+                        .await
+                } else {
+                    return HttpResponse::BadRequest().finish();
+                }
+            }
+            Platform::Codeforces => {
+                if let Ok(params) =
+                    serde_json::from_value::<CodeforcesQueryParams>(query.into_inner())
+                {
+                    self.usecase
+                        .fetch_user_submissions(
+                            &platform,
+                            &PageCondition::Codeforces {
+                                user: user_id,
+                                from: params.from.map(|s| s.parse().unwrap()),
+                                count: params.count.map(|s| s.parse().unwrap()),
+                            },
+                        )
+                        .await
+                } else {
+                    return HttpResponse::BadRequest().finish();
+                }
+            }
+            Platform::Aoj => {
+                if let Ok(params) = serde_json::from_value::<AojQueryParams>(query.into_inner()) {
+                    self.usecase
+                        .fetch_user_submissions(
+                            &platform,
+                            &PageCondition::Aoj {
+                                user: user_id,
+                                page: params.page.map(|s| s.parse().unwrap()),
+                                size: params.size.map(|s| s.parse().unwrap()),
+                            },
+                        )
+                        .await
+                } else {
+                    return HttpResponse::BadRequest().finish();
+                }
+            }
+            _ => {
+                unimplemented!("Unsupported platform");
+            }
+        };
+
+        match submissions {
+            Ok(submissions) => HttpResponse::Ok().json(submissions),
+            Err(_) => HttpResponse::InternalServerError().finish(),
+        }
     }
 }

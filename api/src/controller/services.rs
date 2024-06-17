@@ -19,7 +19,7 @@ pub fn config_submission_service(
                 })),
             )
             .service(
-                web::resource("/submissions/{platform}/{user}").route(web::get().to({
+                web::resource("/submissions/{platform}/{user_id}").route(web::get().to({
                     let controller = Arc::clone(&submission_controller);
                     move |path, query| {
                         let controller = Arc::clone(&controller);
