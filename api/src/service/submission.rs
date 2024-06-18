@@ -20,12 +20,7 @@ pub enum PageCondition<'a> {
         user: &'a str,
         from_second: Option<u64>,
     },
-    Codeforces {
-        user: &'a str,
-        from: Option<u32>,
-        count: Option<u32>,
-    },
-    Aoj {
+    Other {
         user: &'a str,
         page: Option<u32>,
         size: Option<u32>,
@@ -108,20 +103,20 @@ where
             }
 
             Platform::Codeforces => {
-                let (user, from, count) = match condition {
-                    PageCondition::Codeforces { user, from, count } => (user, from, count),
+                let (user, page, size) = match condition {
+                    PageCondition::Other { user, page, size } => (user, page, size),
                     _ => unreachable!(),
                 };
 
                 self.api_client
-                    .get_cf_user_submissions(user, *from, *count)
+                    .get_cf_user_submissions(user, *page, *size)
                     .await
                     .unwrap()
             }
 
             Platform::Aoj => {
                 let (user, page, size) = match condition {
-                    PageCondition::Aoj { user, page, size } => (user, page, size),
+                    PageCondition::Other { user, page, size } => (user, page, size),
                     _ => unreachable!(),
                 };
                 self.api_client

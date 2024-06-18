@@ -72,9 +72,7 @@ impl ApiClient {
         from_second: Option<u64>,
     ) -> Result<Vec<AtcoderSubmission>> {
         let url = format!(
-            "{}/user/submissions?user={}&from_second={}",
-            ATCODER_STATISTICS_URL,
-            user,
+            "{ATCODER_STATISTICS_URL}/user/submissions?user={user}&from_second={}",
             from_second.unwrap_or(0)
         );
         let submissions = get_json::<Vec<AtcoderSubmission>>(&url, &self.client).await?;

@@ -14,13 +14,7 @@ struct AtcoderQueryParams {
 }
 
 #[derive(Deserialize)]
-struct CodeforcesQueryParams {
-    from: Option<String>,
-    count: Option<String>,
-}
-
-#[derive(Deserialize)]
-struct AojQueryParams {
+struct OtherQueryParams {
     page: Option<String>,
     size: Option<String>,
 }
@@ -68,30 +62,12 @@ impl<U: FetchSubmission> SubmissionController<U> {
                     return HttpResponse::BadRequest().finish();
                 }
             }
-            Platform::Codeforces => {
-                if let Ok(params) =
-                    serde_json::from_value::<CodeforcesQueryParams>(query.into_inner())
-                {
+            Platform::Codeforces | Platform::Aoj => {
+                if let Ok(params) = serde_json::from_value::<OtherQueryParams>(query.into_inner()) {
                     self.usecase
                         .fetch_user_submissions(
                             &platform,
-                            &PageCondition::Codeforces {
-                                user: user_id,
-                                from: params.from.map(|s| s.parse().unwrap()),
-                                count: params.count.map(|s| s.parse().unwrap()),
-                            },
-                        )
-                        .await
-                } else {
-                    return HttpResponse::BadRequest().finish();
-                }
-            }
-            Platform::Aoj => {
-                if let Ok(params) = serde_json::from_value::<AojQueryParams>(query.into_inner()) {
-                    self.usecase
-                        .fetch_user_submissions(
-                            &platform,
-                            &PageCondition::Aoj {
+                            &PageCondition::Other {
                                 user: user_id,
                                 page: params.page.map(|s| s.parse().unwrap()),
                                 size: params.size.map(|s| s.parse().unwrap()),

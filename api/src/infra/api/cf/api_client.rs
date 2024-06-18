@@ -30,7 +30,7 @@ pub trait CFAPIClient: Send + Sync {
         &self,
         user_id: &str,
         page: Option<u32>,
-        count: Option<u32>,
+        size: Option<u32>,
     ) -> Result<Vec<Submission>>;
     async fn get_cf_recent_submissions(&self) -> Result<Vec<Submission>>;
 }
@@ -87,8 +87,8 @@ impl ApiClient {
     async fn fetch_cf_user_submissions(
         &self,
         user_id: &str,
-        from: Option<u32>,
-        count: Option<u32>,
+        page: Option<u32>,
+        size: Option<u32>,
     ) -> Result<Vec<CodeforcesSubmission>> {
         let mut url = Url::parse(&format!(
             "{CODEFORCES_URL_PREFIX}/user.status?handle={user_id}"
@@ -96,11 +96,13 @@ impl ApiClient {
         {
             let mut query_pairs = url.query_pairs_mut();
             query_pairs.append_pair("handle", user_id);
-            if let Some(from) = from {
-                query_pairs.append_pair("from", &from.to_string());
+
+            if let Some(page) = page {
+                query_pairs
+                    .append_pair("from", &((page - 1) * size.unwrap_or(100) + 1).to_string());
             }
-            if let Some(count) = count {
-                query_pairs.append_pair("count", &count.to_string());
+            if let Some(size) = size {
+                query_pairs.append_pair("count", &size.to_string());
             }
         }
 
@@ -151,10 +153,10 @@ impl CFAPIClient for ApiClient {
     async fn get_cf_user_submissions(
         &self,
         user_id: &str,
-        from: Option<u32>,
-        count: Option<u32>,
+        page: Option<u32>,
+        size: Option<u32>,
     ) -> Result<Vec<Submission>> {
-        let raw_submissions = self.fetch_cf_user_submissions(user_id, from, count).await?;
+        let raw_submissions = self.fetch_cf_user_submissions(user_id, page, size).await?;
         let submissions = raw_submissions
             .iter()
             .map(|s| build_submission(s))
