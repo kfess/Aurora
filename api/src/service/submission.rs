@@ -29,20 +29,9 @@ pub enum PageCondition<'a> {
 
 pub struct FetchSubmissionUsecase<C>
 where
-    C: AtcoderAPIClient + CFAPIClient + AojAPIClient + Clone,
+    C: AtcoderAPIClient + CFAPIClient + AojAPIClient,
 {
     api_client: C,
-}
-
-impl<C> Clone for FetchSubmissionUsecase<C>
-where
-    C: AtcoderAPIClient + CFAPIClient + AojAPIClient + Clone,
-{
-    fn clone(&self) -> Self {
-        Self {
-            api_client: self.api_client.clone(),
-        }
-    }
 }
 
 #[trait_variant::make]
@@ -57,7 +46,7 @@ pub trait FetchSubmission {
 
 impl<C> FetchSubmissionUsecase<C>
 where
-    C: AtcoderAPIClient + CFAPIClient + AojAPIClient + Clone,
+    C: AtcoderAPIClient + CFAPIClient + AojAPIClient,
 {
     pub fn new(api_client: C) -> Self {
         Self { api_client }
@@ -66,7 +55,7 @@ where
 
 impl<C> FetchSubmission for FetchSubmissionUsecase<C>
 where
-    C: AtcoderAPIClient + CFAPIClient + AojAPIClient + Clone,
+    C: AtcoderAPIClient + CFAPIClient + AojAPIClient,
 {
     async fn fetch_recent_submissions(&self, platform: &Platform) -> Result<Vec<Submission>> {
         let submissions = match platform {

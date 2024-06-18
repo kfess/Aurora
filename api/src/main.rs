@@ -2,9 +2,11 @@ use actix_web::{App, HttpServer};
 use dotenv::dotenv;
 
 use api::{
-    controller::{services::config_submission_service, submission::SubmissionController},
+    controller::{
+        problem::ProblemController, services::config_services, submission::SubmissionController,
+    },
     infra::{api::api_client::ApiClient, repository::initialize_pool::initialize_pool},
-    service::submission::FetchSubmissionUsecase,
+    service::{problem::FetchProblemUsecase, submission::FetchSubmissionUsecase},
 };
 
 use std::{env, sync::Arc};
@@ -22,11 +24,17 @@ async fn main() -> Result<()> {
         .expect("Failed to initialize the connection pool");
 
     let api_client = ApiClient::new();
+
     let sub_usecase = Arc::new(FetchSubmissionUsecase::new(api_client));
     let sub_controller = Arc::new(SubmissionController::new(sub_usecase.clone()));
 
+    let problem_usecase = Arc::new(FetchProblemUsecase::new(pool));
+    let problem_controller = Arc::new(ProblemController::new(problem_usecase.clone()));
+
     HttpServer::new(move || {
-        App::new().configure(|cfg| config_submission_service(cfg, sub_controller.clone()))
+        App::new().configure(|cfg| {
+            config_services(cfg, sub_controller.clone(), problem_controller.clone())
+        })
     })
     .bind(("127.0.0.1", 8079))?
     .run()

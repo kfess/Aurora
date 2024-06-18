@@ -13,6 +13,20 @@ pub struct Condition<'a> {
     pub to_difficulty: Option<i32>,
 }
 
+impl Default for Condition<'_> {
+    fn default() -> Self {
+        Self {
+            platform: Some("atcoder"),
+            algo_id: None,
+            technical_tag_id: None,
+            page: None,
+            page_size: None,
+            from_difficulty: None,
+            to_difficulty: None,
+        }
+    }
+}
+
 enum BindValue<'a> {
     Str(&'a str),
     I32(i32),
