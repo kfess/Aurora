@@ -49,17 +49,29 @@ impl<U: FetchSubmission> SubmissionController<U> {
             Platform::Atcoder => {
                 if let Ok(params) = serde_json::from_value::<AtcoderQueryParams>(query.into_inner())
                 {
+                    let from_second = match params.from_second {
+                        Some(s) => match s.parse::<u64>() {
+                            Ok(val) => Some(val),
+                            Err(_) => {
+                                return HttpResponse::BadRequest().body({
+                                    "Invalid query: from_second must be a number".to_string()
+                                })
+                            }
+                        },
+                        None => None,
+                    };
+
                     self.usecase
                         .fetch_user_submissions(
                             &platform,
                             &PageCondition::Atcoder {
                                 user: user_id,
-                                from_second: params.from_second.map(|s| s.parse().unwrap()),
+                                from_second,
                             },
                         )
                         .await
                 } else {
-                    return HttpResponse::BadRequest().finish();
+                    return HttpResponse::BadRequest().body("Invalid query");
                 }
             }
             Platform::Codeforces | Platform::Aoj => {
