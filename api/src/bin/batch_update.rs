@@ -7,9 +7,10 @@ use env_logger;
 use std::env;
 use std::sync::Arc;
 
+use api::domain::vo::platform;
 use api::infra::api::api_client;
 use api::infra::repository::initialize_pool::initialize_pool;
-use api::service::update_problems;
+use api::service::update;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -26,57 +27,19 @@ async fn main() -> Result<()> {
     );
     let api_client = Arc::new(api_client::ApiClient::new());
 
-    // Atcoder
-    {
-        log::info!("Start fetching AtCoder problems.");
+    let platforms = vec![
+        platform::Platform::Atcoder,
+        platform::Platform::Codeforces,
+        platform::Platform::Aoj,
+        platform::Platform::YOJ,
+        // platform::Platform::Yukicoder, // Takes a long time to fetch all problems.
+    ];
 
-        let usecase =
-            update_problems::atcoder::UpdateAtcoderUsecase::new(api_client.clone(), pool.clone());
-        usecase.fetch_and_update().await?;
-
-        log::info!("Finished fetching AtCoder problems.");
-    }
-
-    // Codeforces
-    {
-        log::info!("Start fetching Codeforces problems.");
-
-        let usecase =
-            update_problems::cf::UpdateCodeforcesUsecase::new(api_client.clone(), pool.clone());
-        usecase.fetch_and_update().await?;
-
-        log::info!("Finished fetching Codeforces problems.")
-    }
-
-    // Yukicoder
-    {
-        log::info!("Start fetching Yukicoder problems.");
-
-        let usecase =
-            update_problems::yuki::UpdateYukicoderUsecase::new(api_client.clone(), pool.clone());
-        // usecase.fetch_and_update(true).await?;
-
-        log::info!("Finished fetching Yukicoder problems.");
-    }
-
-    // yosupo online judge
-    {
-        log::info!("Start fetching yosupo online judge problems.");
-
-        let usecase = update_problems::yoj::UpdateYOJUsecase::new(api_client.clone(), pool.clone());
-        usecase.fetch_and_update().await?;
-
-        log::info!("Finished fetching yosupo online judge problems.");
-    }
-
-    // Aizu Online Judge
-    {
-        log::info!("Start fetching Aizu Online Judge problems.");
-
-        let usecase = update_problems::aoj::UpdateAojUsecase::new(api_client.clone(), pool.clone());
-        usecase.fetch_and_update().await?;
-
-        log::info!("Finished fetching Aizu Online Judge problems.");
+    for p in platforms {
+        log::info!("Start fetching problems from {:?}.", p);
+        let usecase = update::UpdateUsecase::new(api_client.clone(), pool.clone());
+        usecase.fetch_and_update(&p).await?;
+        log::info!("Finished fetching problems from {:?}.", p);
     }
 
     log::info!("Batch process finished.");
