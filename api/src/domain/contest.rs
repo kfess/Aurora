@@ -20,7 +20,7 @@ use super::vo::platform::Platform;
 /// - `url`: URL to the contest page on the corresponding platform's website.
 /// - `problems`: A vector of `Problem` objects associated with the contest.
 ///
-#[derive(Clone, Debug, sqlx::FromRow)]
+#[derive(Clone, Debug, sqlx::FromRow, serde::Serialize, serde::Deserialize)]
 pub struct Contest {
     /// A globally unique identifier for the contest.
     ///

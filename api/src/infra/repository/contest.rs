@@ -12,6 +12,17 @@ pub struct Condition<'a> {
     pub per_page: Option<i32>,
 }
 
+impl Default for Condition<'_> {
+    fn default() -> Self {
+        Self {
+            platform: Some("atcoder"),
+            category: None,
+            page: None,
+            per_page: None,
+        }
+    }
+}
+
 enum BindValue<'a> {
     Str(&'a str),
     Int(i32),
@@ -37,7 +48,7 @@ impl ContestRepository for PgPool {
                 contests.phase,
                 contests.start_time_seconds,
                 contests.duration_seconds,
-                contests.url
+                contests.url,
                 problems.id,
                 problems.contest_id,
                 problems.problem_index AS index,
@@ -62,19 +73,19 @@ impl ContestRepository for PgPool {
         let mut conditions: Vec<(&str, BindValue)> = Vec::new();
 
         if let Some(platform) = condition.platform {
-            conditions.push(("contests.platform = ?", BindValue::Str(platform)));
+            conditions.push(("contests.platform = ", BindValue::Str(platform)));
         }
 
         if let Some(category) = condition.category {
-            conditions.push(("contests.category = ?", BindValue::Str(category)));
+            conditions.push(("contests.category = ", BindValue::Str(category)));
         }
 
         if !conditions.is_empty() {
-            query_builder.push("WHERE");
+            query_builder.push(" WHERE ");
 
             for (i, (column, value)) in conditions.iter().enumerate() {
                 if i != 0 {
-                    query_builder.push("AND");
+                    query_builder.push(" AND ");
                 }
 
                 match value {
@@ -99,6 +110,9 @@ impl ContestRepository for PgPool {
             .push_bind(offset);
 
         let query = query_builder.build();
+
+        println!("{:?}", query.sql());
+
         let rows = sqlx::query(&query.sql()).fetch_all(self).await?;
 
         let mut contests_map: HashMap<String, Contest> = HashMap::new();

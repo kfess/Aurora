@@ -3,10 +3,14 @@ use dotenv::dotenv;
 
 use api::{
     controller::{
-        problem::ProblemController, services::config_services, submission::SubmissionController,
+        contest::ContestController, problem::ProblemController, services::config_services,
+        submission::SubmissionController,
     },
     infra::{api::api_client::ApiClient, repository::initialize_pool::initialize_pool},
-    service::{problem::FetchProblemUsecase, submission::FetchSubmissionUsecase},
+    service::{
+        contest::FetchContestUsecase, problem::FetchProblemUsecase,
+        submission::FetchSubmissionUsecase,
+    },
 };
 
 use std::{env, sync::Arc};
@@ -28,12 +32,20 @@ async fn main() -> Result<()> {
     let sub_usecase = Arc::new(FetchSubmissionUsecase::new(api_client));
     let sub_controller = Arc::new(SubmissionController::new(sub_usecase.clone()));
 
-    let problem_usecase = Arc::new(FetchProblemUsecase::new(pool));
+    let problem_usecase = Arc::new(FetchProblemUsecase::new(pool.clone()));
     let problem_controller = Arc::new(ProblemController::new(problem_usecase.clone()));
+
+    let contest_usecase = Arc::new(FetchContestUsecase::new(pool.clone()));
+    let contest_controller = Arc::new(ContestController::new(contest_usecase.clone()));
 
     HttpServer::new(move || {
         App::new().configure(|cfg| {
-            config_services(cfg, sub_controller.clone(), problem_controller.clone())
+            config_services(
+                cfg,
+                sub_controller.clone(),
+                problem_controller.clone(),
+                contest_controller.clone(),
+            )
         })
     })
     .bind(("127.0.0.1", 8079))?
