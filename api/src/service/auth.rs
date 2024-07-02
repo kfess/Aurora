@@ -1,9 +1,7 @@
 use anyhow::{Context, Result};
 
-use crate::infra::{
-    oidc::{client::OidcClientTrait, providers::AuthProvider},
-    repository::user::UserRepository,
-};
+use crate::domain::vo::providers::AuthProvider;
+use crate::infra::{oidc::client::OidcClientTrait, repository::user::UserRepository};
 
 pub struct AuthUsecase<C, R>
 where
@@ -18,6 +16,11 @@ where
 pub trait Authenticate {
     async fn get_authenticate_url(&self, provider: &AuthProvider) -> Result<String>;
     async fn handle_callback(&self, provider: &AuthProvider, code: &str) -> Result<String>;
+    async fn get_user_info(
+        &self,
+        provider: &AuthProvider,
+        access_token: &str,
+    ) -> Result<(String, Option<String>)>;
 }
 
 impl<C, R> AuthUsecase<C, R>
@@ -57,5 +60,18 @@ where
         // self.repository
 
         Ok(access_token)
+    }
+
+    async fn get_user_info(
+        &self,
+        provider: &AuthProvider,
+        access_token: &str,
+    ) -> Result<(String, Option<String>)> {
+        let user_info = self
+            .oidc_client
+            .get_user_info(provider, access_token)
+            .await?;
+
+        todo!();
     }
 }
