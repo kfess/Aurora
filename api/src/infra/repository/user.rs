@@ -5,11 +5,17 @@ use crate::domain::{user::User, vo::providers::AuthProvider};
 
 #[trait_variant::make]
 pub trait UserRepository {
-    async fn find(&self, provider: &AuthProvider, user_id: &str) -> Result<User>;
+    async fn find(&self, provider: &AuthProvider, user_id: &str) -> Result<Option<User>>;
+    async fn create_or_update(
+        &self,
+        provider: &AuthProvider,
+        user_id: &str,
+        user_name: &str,
+    ) -> Result<()>;
 }
 
 impl UserRepository for PgPool {
-    async fn find(&self, provider: &AuthProvider, user_id: &str) -> Result<User> {
+    async fn find(&self, provider: &AuthProvider, user_id: &str) -> Result<Option<User>> {
         match provider {
             AuthProvider::Google => {
                 let user = sqlx::query_as::<Postgres, User>(
@@ -19,7 +25,7 @@ impl UserRepository for PgPool {
                 .fetch_one(self)
                 .await?;
 
-                return Ok(user);
+                return Ok(Some(user));
 
                 // if user.github_id.is_none() {
                 //     sqlx::query(
@@ -39,7 +45,7 @@ impl UserRepository for PgPool {
                 .fetch_one(self)
                 .await?;
 
-                return Ok(user);
+                return Ok(Some(user));
 
                 // if user.github_id.is_none() {
                 //     sqlx::query(
@@ -52,5 +58,13 @@ impl UserRepository for PgPool {
                 // }
             }
         }
+    }
+
+    async fn create_or_update(
+        &self,
+        provider: &AuthProvider,
+        user_id: &str,
+        user_name: &str,
+    ) -> Result<()> {
     }
 }

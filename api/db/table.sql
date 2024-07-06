@@ -74,4 +74,20 @@ CREATE TABLE
         FOREIGN KEY (problem_id) REFERENCES problems (id)
     );
 
+CREATE TABLE
+    internal_users (
+        id VARCHAR(255) PRIMARY KEY,
+        username VARCHAR(255),
+        github_id VARCHAR(255),
+        github_username VARCHAR(255),
+        google_id VARCHAR(255),
+        google_username VARCHAR(255),
+        atcoder_username VARCHAR(255),
+        codeforces_username VARCHAR(255),
+        yukicoder_username VARCHAR(255),
+        aoj_username VARCHAR(255),
+        yoj_username VARCHAR(255),
+    );
+
+
 -- Index
