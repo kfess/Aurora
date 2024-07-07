@@ -1,7 +1,6 @@
 use actix_web::{App, HttpServer};
-use dotenv::dotenv;
-
 use api::{
+    config::CONFIG,
     controller::{
         auth::AuthController, contest::ContestController, problem::ProblemController,
         services::config_services, submission::SubmissionController,
@@ -12,7 +11,7 @@ use api::{
         submission::FetchSubmissionUsecase,
     },
 };
-
+use dotenv::dotenv;
 use std::{env, sync::Arc};
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -20,10 +19,7 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 // #[tokio::main]
 #[actix_web::main]
 async fn main() -> Result<()> {
-    dotenv().ok();
-
-    let db_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set.");
-    let pool = initialize_pool(db_url)
+    let pool = initialize_pool(CONFIG.database_url)
         .await
         .expect("Failed to initialize the connection pool");
 
@@ -48,8 +44,8 @@ async fn main() -> Result<()> {
                 let path = req.path();
 
                 if authorized_routes.iter().any(|route| route == path) {
-                    let jwt = get_cookie_value(req, &env::var("JWT_COOKIE_KEY").unwrap()).unwrap();
-                    match decode_jwt(env::var("JWT_SECRET").unwrap().as_str(), &jwt) {
+                    let jwt = get_cookie_value(req, &CONFIG.jwt_cookie_key).unwrap();
+                    match decode_jwt(CONFIG.jwt_secret, &jwt) {
                         Ok(_) => srv.call(req),
                         Err(_) => {
                             let res = HttpResponse::Unauthorized().finish();
@@ -68,7 +64,7 @@ async fn main() -> Result<()> {
                 )
             })
     })
-    .bind(("127.0.0.1", 8079))?
+    .bind((CONFIG.host.as_str(), CONFIG.port))?
     .run()
     .await?;
 

@@ -1,5 +1,6 @@
 use actix_web::{self, web, HttpRequest, HttpResponse};
 
+use crate::config::CONFIG;
 use crate::utils::jwt;
 use crate::{domain::vo::providers::AuthProvider, service::auth::Authenticate};
 use std::env;
@@ -34,16 +35,13 @@ impl<U: Authenticate> AuthController<U> {
         match AuthProvider::try_from(path.as_str()) {
             Ok(provider) => match self.usecase.handle_callback(&provider, &query.code).await {
                 Ok(user) => {
-                    let secret = env::var("JWT_SECRET").expect("JWT is not set.");
-                    let cookie_key =
-                        env::var("JWT_COOKIE_KEY").expect("JWT Cookie Key is not set.");
-                    let jwt = jwt::encode_jwt(&secret, &user.id).ok();
-                    let cookie = actix_web::cookie::Cookie::build(cookie_key, jwt.unwrap())
-                        .http_only(true)
-                        // .secure(true)
-                        .path("/")
-                        .finish();
-
+                    let jwt = jwt::encode_jwt(&CONFIG.jwt_secret, &user.id).ok();
+                    let cookie =
+                        actix_web::cookie::Cookie::build(&CONFIG.jwt_cookie_key, jwt.unwrap())
+                            .http_only(true)
+                            .path("/")
+                            // .secure(true)
+                            .finish();
                     let response = HttpResponse::Ok().cookie(cookie).json(user);
 
                     response
