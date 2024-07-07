@@ -1,9 +1,8 @@
-use actix_web::{self, web, HttpRequest, HttpResponse};
+use actix_web::{self, web, HttpResponse};
 
 use crate::config::CONFIG;
 use crate::utils::jwt;
 use crate::{domain::vo::providers::AuthProvider, service::auth::Authenticate};
-use std::env;
 use std::sync::Arc;
 
 pub struct AuthController<U: Authenticate> {

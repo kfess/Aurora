@@ -1,6 +1,10 @@
-use actix_web::{App, HttpResponse, HttpServer};
+use std::sync::Arc;
+
+use actix_web::{App, HttpServer};
+use api::infra::oidc::client::OidcClient;
+use api::middleware::AuthMiddleware;
 use api::{
-    config::{AUTHORIZED_ROUTES, CONFIG},
+    config::CONFIG,
     controller::{
         auth::AuthController, contest::ContestController, problem::ProblemController,
         services::config_services, submission::SubmissionController,
@@ -11,15 +15,13 @@ use api::{
         submission::FetchSubmissionUsecase,
     },
 };
-use dotenv::dotenv;
-use std::{env, sync::Arc};
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 // #[tokio::main]
 #[actix_web::main]
 async fn main() -> Result<()> {
-    let pool = initialize_pool(CONFIG.database_url)
+    let pool = initialize_pool(&CONFIG.database_url)
         .await
         .expect("Failed to initialize the connection pool");
 
@@ -34,29 +36,20 @@ async fn main() -> Result<()> {
     let contest_usecase = Arc::new(FetchContestUsecase::new(pool.clone()));
     let contest_controller = Arc::new(ContestController::new(contest_usecase.clone()));
 
-    let auth_usecase = Arc::new(AuthUsecase::new(oidc_client, repository));
+    let oidc_client = OidcClient::new().await?;
+    let auth_usecase = Arc::new(AuthUsecase::new(oidc_client, pool.clone()));
     let auth_controller = Arc::new(AuthController::new(auth_usecase.clone()));
 
     HttpServer::new(move || {
-        App::new()
-            .wrap_fn(|req, srv| {
-                if AUTHORIZED_ROUTES.iter().any(|&route| route == req.path()) {
-                    let jwt = get_cookie_value(req, &CONFIG.jwt_cookie_key).unwrap();
-                    match decode_jwt(CONFIG.jwt_secret, &jwt) {
-                        Ok(_) => srv.call(req),
-                        Err(_) => HttpResponse::Unauthorized().finish(),
-                    }
-                }
-            })
-            .configure(|cfg| {
-                config_services(
-                    cfg,
-                    sub_controller.clone(),
-                    problem_controller.clone(),
-                    contest_controller.clone(),
-                    auth_controller.clone(),
-                )
-            })
+        App::new().wrap(AuthMiddleware).configure(|cfg| {
+            config_services(
+                cfg,
+                sub_controller.clone(),
+                problem_controller.clone(),
+                contest_controller.clone(),
+                auth_controller.clone(),
+            )
+        })
     })
     .bind((CONFIG.host.as_str(), CONFIG.port))?
     .run()

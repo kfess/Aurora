@@ -9,7 +9,7 @@ use openidconnect::{
 };
 use std::{collections::HashMap, sync::Arc};
 
-struct OidcClient {
+pub struct OidcClient {
     clients: Arc<HashMap<AuthProvider, CoreClient>>,
 }
 

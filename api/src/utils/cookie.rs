@@ -1,4 +1,4 @@
-fn get_cookie_string(req: actix_web::HttpRequest) -> Option<String> {
+fn get_cookie_string(req: &actix_web::HttpRequest) -> Option<String> {
     let cookie_header = req.headers().get("cookie");
 
     match cookie_header {
@@ -10,7 +10,7 @@ fn get_cookie_string(req: actix_web::HttpRequest) -> Option<String> {
     }
 }
 
-pub fn get_cookie_value(req: actix_web::HttpRequest, target_cookie_key: &str) -> Option<String> {
+pub fn get_cookie_value(req: &actix_web::HttpRequest, target_cookie_key: &str) -> Option<String> {
     let cookie_string = get_cookie_string(req);
     match cookie_string {
         Some(cookie_string) => {
