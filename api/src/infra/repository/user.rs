@@ -5,17 +5,26 @@ use crate::domain::{user::User, vo::providers::AuthProvider};
 
 #[trait_variant::make]
 pub trait UserRepository {
-    async fn find(&self, provider: &AuthProvider, user_id: &str) -> Result<Option<User>>;
-    async fn create_or_update(
+    async fn find_by_provider_user_id(
         &self,
         provider: &AuthProvider,
         user_id: &str,
-        user_name: &str,
-    ) -> Result<()>;
+    ) -> Result<Option<User>>;
+    async fn find_by_user_id(&self, user_id: &str) -> Result<User>;
+    // async fn create_or_update(
+    //     &self,
+    //     provider: &AuthProvider,
+    //     user_id: &str,
+    //     user_name: &str,
+    // ) -> Result<()>;
 }
 
 impl UserRepository for PgPool {
-    async fn find(&self, provider: &AuthProvider, user_id: &str) -> Result<Option<User>> {
+    async fn find_by_provider_user_id(
+        &self,
+        provider: &AuthProvider,
+        user_id: &str,
+    ) -> Result<Option<User>> {
         match provider {
             AuthProvider::Google => {
                 let user = sqlx::query_as::<Postgres, User>(
@@ -60,11 +69,25 @@ impl UserRepository for PgPool {
         }
     }
 
-    async fn create_or_update(
-        &self,
-        provider: &AuthProvider,
-        user_id: &str,
-        user_name: &str,
-    ) -> Result<()> {
+    async fn find_by_user_id(&self, user_id: &str) -> Result<User> {
+        let user = sqlx::query_as::<Postgres, User>(
+            r"
+            SELECT * FROM internal_users
+            WHERE id = $1
+            ",
+        )
+        .bind(user_id)
+        .fetch_one(self)
+        .await?;
+
+        Ok(user)
     }
+
+    // async fn create_or_update(
+    //     &self,
+    //     provider: &AuthProvider,
+    //     user_id: &str,
+    //     user_name: &str,
+    // ) -> Result<()> {
+    // }
 }

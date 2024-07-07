@@ -52,10 +52,13 @@ impl<U: Authenticate> AuthController<U> {
         }
     }
 
-    pub async fn user_info(&self, req: HttpRequest, path: web::Path<String>) -> HttpResponse {
+    pub async fn user_info(&self, path: web::Path<String>) -> HttpResponse {
         let user_id = path.into_inner();
-        let user_info = self.usecase.get_user_info(&user_id).await.unwrap();
-        HttpResponse::Ok().json(user_info)
+
+        match self.usecase.get_user_info(&user_id).await {
+            Ok(user_info) => HttpResponse::Ok().json(user_info),
+            Err(_) => HttpResponse::InternalServerError().body("Internal Server Error"),
+        }
     }
 }
 

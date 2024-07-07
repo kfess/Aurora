@@ -1,6 +1,6 @@
-use actix_web::{App, HttpServer};
+use actix_web::{App, HttpResponse, HttpServer};
 use api::{
-    config::CONFIG,
+    config::{AUTHORIZED_ROUTES, CONFIG},
     controller::{
         auth::AuthController, contest::ContestController, problem::ProblemController,
         services::config_services, submission::SubmissionController,
@@ -40,17 +40,11 @@ async fn main() -> Result<()> {
     HttpServer::new(move || {
         App::new()
             .wrap_fn(|req, srv| {
-                let authorized_routes = vec!["/api/auth/user"];
-                let path = req.path();
-
-                if authorized_routes.iter().any(|route| route == path) {
+                if AUTHORIZED_ROUTES.iter().any(|&route| route == req.path()) {
                     let jwt = get_cookie_value(req, &CONFIG.jwt_cookie_key).unwrap();
                     match decode_jwt(CONFIG.jwt_secret, &jwt) {
                         Ok(_) => srv.call(req),
-                        Err(_) => {
-                            let res = HttpResponse::Unauthorized().finish();
-                            future::ok(res)
-                        }
+                        Err(_) => HttpResponse::Unauthorized().finish(),
                     }
                 }
             })

@@ -69,9 +69,9 @@ pub fn config_services(
             )
             .service(web::resource("/auth/user/{user_id}").route(web::get().to({
                 let controller = Arc::clone(&auth_controller);
-                move |path, req| {
+                move |path| {
                     let controller = Arc::clone(&controller);
-                    async move { controller.user_info(req, path).await }
+                    async move { controller.user_info(path).await }
                 }
             }))),
     );

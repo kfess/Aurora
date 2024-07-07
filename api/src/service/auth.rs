@@ -58,7 +58,10 @@ where
             .get_user_info(provider, &access_token)
             .await?;
 
-        let user = self.repository.find(provider, &user_info.0).await?;
+        let user = self
+            .repository
+            .find_by_provider_user_id(provider, &user_info.0)
+            .await?;
 
         match user {
             Some(user) => {
@@ -73,6 +76,9 @@ where
     }
 
     async fn get_user_info(&self, user_id: &str) -> Result<User> {
-        todo!()
+        match self.repository.find_by_user_id(user_id).await {
+            Ok(user) => Ok(user),
+            Err(_) => todo!("Handle error"),
+        }
     }
 }
