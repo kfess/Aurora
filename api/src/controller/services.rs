@@ -1,7 +1,10 @@
 use super::{
-    contest::ContestController, problem::ProblemController, submission::SubmissionController,
+    auth::AuthController, contest::ContestController, problem::ProblemController,
+    submission::SubmissionController,
 };
-use crate::service::{contest::FetchContest, problem::FetchProblem, submission::FetchSubmission};
+use crate::service::{
+    auth::Authenticate, contest::FetchContest, problem::FetchProblem, submission::FetchSubmission,
+};
 use actix_web::web;
 use std::sync::Arc;
 
@@ -10,6 +13,7 @@ pub fn config_services(
     submission_controller: Arc<SubmissionController<impl FetchSubmission + 'static>>,
     problem_controller: Arc<ProblemController<impl FetchProblem + 'static>>,
     contest_controller: Arc<ContestController<impl FetchContest + 'static>>,
+    auth_controller: Arc<AuthController<impl Authenticate + 'static>>,
 ) {
     cfg.service(
         web::scope("/api")
@@ -43,6 +47,31 @@ pub fn config_services(
                 move || {
                     let controller = Arc::clone(&controller);
                     async move { controller.contests().await }
+                }
+            })))
+            .service(
+                web::resource("/auth/login/{provider}").route(web::get().to({
+                    let controller = Arc::clone(&auth_controller);
+                    move |provider| {
+                        let controller = Arc::clone(&controller);
+                        async move { controller.get_authenticate_url(provider).await }
+                    }
+                })),
+            )
+            .service(
+                web::resource("/auth/callback/{provider}").route(web::get().to({
+                    let controller = Arc::clone(&auth_controller);
+                    move |path, query| {
+                        let controller = Arc::clone(&controller);
+                        async move { controller.handle_callback(path, query).await }
+                    }
+                })),
+            )
+            .service(web::resource("/auth/user/{user_id}").route(web::get().to({
+                let controller = Arc::clone(&auth_controller);
+                move |path, req| {
+                    let controller = Arc::clone(&controller);
+                    async move { controller.user_info(req, path).await }
                 }
             }))),
     );

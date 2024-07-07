@@ -3,12 +3,12 @@ use dotenv::dotenv;
 
 use api::{
     controller::{
-        contest::ContestController, problem::ProblemController, services::config_services,
-        submission::SubmissionController,
+        auth::AuthController, contest::ContestController, problem::ProblemController,
+        services::config_services, submission::SubmissionController,
     },
     infra::{api::api_client::ApiClient, repository::initialize_pool::initialize_pool},
     service::{
-        contest::FetchContestUsecase, problem::FetchProblemUsecase,
+        auth::AuthUsecase, contest::FetchContestUsecase, problem::FetchProblemUsecase,
         submission::FetchSubmissionUsecase,
     },
 };
@@ -38,15 +38,35 @@ async fn main() -> Result<()> {
     let contest_usecase = Arc::new(FetchContestUsecase::new(pool.clone()));
     let contest_controller = Arc::new(ContestController::new(contest_usecase.clone()));
 
+    let auth_usecase = Arc::new(AuthUsecase::new(oidc_client, repository));
+    let auth_controller = Arc::new(AuthController::new(auth_usecase.clone()));
+
     HttpServer::new(move || {
-        App::new().configure(|cfg| {
-            config_services(
-                cfg,
-                sub_controller.clone(),
-                problem_controller.clone(),
-                contest_controller.clone(),
-            )
-        })
+        App::new()
+            .wrap_fn(|req, srv| {
+                let authorized_routes = vec!["/api/auth/user"];
+                let path = req.path();
+
+                if authorized_routes.iter().any(|route| route == path) {
+                    let jwt = get_cookie_value(req, &env::var("JWT_COOKIE_KEY").unwrap()).unwrap();
+                    match decode_jwt(env::var("JWT_SECRET").unwrap().as_str(), &jwt) {
+                        Ok(_) => srv.call(req),
+                        Err(_) => {
+                            let res = HttpResponse::Unauthorized().finish();
+                            future::ok(res)
+                        }
+                    }
+                }
+            })
+            .configure(|cfg| {
+                config_services(
+                    cfg,
+                    sub_controller.clone(),
+                    problem_controller.clone(),
+                    contest_controller.clone(),
+                    auth_controller.clone(),
+                )
+            })
     })
     .bind(("127.0.0.1", 8079))?
     .run()

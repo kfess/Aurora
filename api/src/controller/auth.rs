@@ -1,7 +1,8 @@
-use actix_web::{self, web, HttpResponse};
+use actix_web::{self, web, HttpRequest, HttpResponse};
 
 use crate::utils::jwt;
 use crate::{domain::vo::providers::AuthProvider, service::auth::Authenticate};
+use std::env;
 use std::sync::Arc;
 
 pub struct AuthController<U: Authenticate> {
@@ -13,8 +14,8 @@ impl<U: Authenticate> AuthController<U> {
         Self { usecase }
     }
 
-    pub async fn get_authenticate_url(&self, query: web::Query<AuthProviderQuery>) -> HttpResponse {
-        match AuthProvider::try_from(&query.provider) {
+    pub async fn get_authenticate_url(&self, path: web::Path<String>) -> HttpResponse {
+        match AuthProvider::try_from(path.as_str()) {
             Ok(provider) => match self.usecase.get_authenticate_url(&provider).await {
                 Ok(url) => HttpResponse::Found()
                     .append_header(("Location", url))
@@ -25,13 +26,19 @@ impl<U: Authenticate> AuthController<U> {
         }
     }
 
-    pub async fn handle_callback(&self, query: web::Query<AuthCallbackQuery>) -> HttpResponse {
-        match AuthProvider::try_from(&query.provider) {
+    pub async fn handle_callback(
+        &self,
+        path: web::Path<String>,
+        query: web::Query<AuthCallbackQuery>,
+    ) -> HttpResponse {
+        match AuthProvider::try_from(path.as_str()) {
             Ok(provider) => match self.usecase.handle_callback(&provider, &query.code).await {
                 Ok(user) => {
-                    let jwt = jwt::encode_jwt("", &user.id).ok();
-                    // todo: fix jwt secret and jwt key
-                    let cookie = actix_web::cookie::Cookie::build("token", jwt.unwrap())
+                    let secret = env::var("JWT_SECRET").expect("JWT is not set.");
+                    let cookie_key =
+                        env::var("JWT_COOKIE_KEY").expect("JWT Cookie Key is not set.");
+                    let jwt = jwt::encode_jwt(&secret, &user.id).ok();
+                    let cookie = actix_web::cookie::Cookie::build(cookie_key, jwt.unwrap())
                         .http_only(true)
                         // .secure(true)
                         .path("/")
@@ -46,15 +53,15 @@ impl<U: Authenticate> AuthController<U> {
             Err(_) => HttpResponse::BadRequest().body("Invalid provider is specified"),
         }
     }
-}
 
-#[derive(serde::Deserialize)]
-pub struct AuthProviderQuery {
-    provider: String,
+    pub async fn user_info(&self, req: HttpRequest, path: web::Path<String>) -> HttpResponse {
+        let user_id = path.into_inner();
+        let user_info = self.usecase.get_user_info(&user_id).await.unwrap();
+        HttpResponse::Ok().json(user_info)
+    }
 }
 
 #[derive(serde::Deserialize)]
 pub struct AuthCallbackQuery {
-    provider: String,
     code: String,
 }

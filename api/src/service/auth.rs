@@ -17,11 +17,7 @@ where
 pub trait Authenticate {
     async fn get_authenticate_url(&self, provider: &AuthProvider) -> Result<String>;
     async fn handle_callback(&self, provider: &AuthProvider, code: &str) -> Result<User>;
-    // async fn get_user_info(
-    //     &self,
-    //     provider: &AuthProvider,
-    //     access_token: &str,
-    // ) -> Result<(String, Option<String>)>;
+    async fn get_user_info(&self, user_id: &str) -> Result<User>;
 }
 
 impl<C, R> AuthUsecase<C, R>
@@ -76,16 +72,7 @@ where
         }
     }
 
-    // async fn get_user_info(
-    //     &self,
-    //     provider: &AuthProvider,
-    //     access_token: &str,
-    // ) -> Result<(String, Option<String>)> {
-    //     let user_info = self
-    //         .oidc_client
-    //         .get_user_info(provider, access_token)
-    //         .await?;
-
-    //     todo!();
-    // }
+    async fn get_user_info(&self, user_id: &str) -> Result<User> {
+        todo!()
+    }
 }
