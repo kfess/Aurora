@@ -32,7 +32,7 @@
       "prettier --write",
       "sort-package-json"
     ],
-    ".eslintrc.js": "prettier --write"
+    ".eslintrc.json": "prettier --write"
   },
   "dependencies": {
     "@mantine/charts": "^7.11.1",
