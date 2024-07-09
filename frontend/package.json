@@ -2,6 +2,17 @@
   "name": "aurora",
   "version": "0.1.0",
   "private": true,
+  "description": "Next.js project for Aurora",
+  "homepage": "https://github.com/kfess/Aurora",
+  "bugs": {
+    "url": "https://github.com/kfess/Aurora/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kfess/Aurora"
+  },
+  "license": "MIT",
+  "author": "kfess",
   "scripts": {
     "analyze": "ANALYZE=true next build",
     "build": "next build",
@@ -34,6 +45,12 @@
     ],
     ".eslintrc.json": "prettier --write"
   },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
   "dependencies": {
     "@mantine/charts": "^7.11.1",
     "@mantine/core": "^7.11.1",
