@@ -130,3 +130,5 @@ dist
 
 # Optional stylelint cache
 .stylelintcache
+
+*storybook.log
