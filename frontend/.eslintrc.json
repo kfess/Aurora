@@ -1,3 +1,55 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": [
+    "plugin:@next/next/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:jsx-a11y/recommended",
+    "plugin:react-hooks/recommended"
+    // "prettier"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "plugins": [
+    "testing-library",
+    "import",
+    "@typescript-eslint",
+    "jest",
+    "no-relative-import-paths",
+    "jsx-a11y"
+  ],
+  "rules": {
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          ["parent", "sibling"],
+          "object",
+          "type",
+          "index"
+        ],
+        "newlines-between": "always",
+        "pathGroupsExcludedImportTypes": ["builtin"],
+        "alphabetize": { "order": "asc", "caseInsensitive": true }
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_",
+        "destructuredArrayIgnorePattern": "^_"
+      }
+    ],
+    "no-relative-import-paths/no-relative-import-paths": [
+      "warn",
+      { "allowSameFolder": true, "rootDir": "src", "prefix": "@" }
+    ],
+    "no-useless-catch": "warn", // try-catch is in progress, so treat it as a warning for now
+    "no-console": ["error"]
+  }
 }

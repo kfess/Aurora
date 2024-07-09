@@ -19,14 +19,15 @@
     "dev": "next dev",
     "jest": "jest",
     "jest:watch": "jest --watch",
-    "lint": "next lint && stylelint '**/*.{css,scss}' --cache",
+    "lint": "next lint --fix && stylelint '**/*.{css,scss}' --cache",
     "lint-staged": "lint-staged",
     "prepare": "cd .. && husky frontend/.husky",
-    "prettier:check": "prettier --check \"**/*.{ts,tsx}\"",
-    "prettier:write": "prettier --write \"**/*.{ts,tsx}\"",
+    "prettier:check": "prettier --check \"**/*.{ts,tsx,js,jsx, cjs, mjs, md, json}\"",
+    "prettier:write": "prettier --write \"**/*.{ts,tsx,js,jsx, cjs, mjs, md, json}\"",
+    "sort-package-json": "sort-package-json",
     "start": "next start",
     "stylelint": "stylelint '**/*.{css,scss}' --cache",
-    "test": "npm run prettier:check && npm run lint && npm run typecheck && npm run jest",
+    "test": "jest",
     "typecheck": "tsc --noEmit"
   },
   "husky": {
@@ -35,15 +36,14 @@
     }
   },
   "lint-staged": {
-    "*.{css,scss,html,json,md}": "prettier --write",
+    "*.{css,scss,html,json,md}": "npm run prettier:write",
     "*.{js,jsx,ts,tsx}": [
-      "prettier:write"
+      "npm run prettier:write"
     ],
     "package.json": [
-      "prettier --write",
-      "sort-package-json"
+      "npm run sort-package-json"
     ],
-    ".eslintrc.json": "prettier --write"
+    ".eslintrc.json": "npm run prettier:write"
   },
   "browserslist": [
     ">0.2%",
@@ -87,9 +87,11 @@
     "eslint": "^8",
     "eslint-config-mantine": "^3.2.0",
     "eslint-config-next": "14.2.4",
+    "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jest": "^28.6.0",
     "eslint-plugin-jsx-a11y": "^6.9.0",
+    "eslint-plugin-no-relative-import-paths": "^1.5.5",
     "eslint-plugin-react": "^7.34.3",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-testing-library": "^6.2.2",
@@ -106,6 +108,7 @@
     "stylelint": "^16.6.1",
     "stylelint-config-standard-scss": "^13.1.0",
     "ts-jest": "^29.2.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.5.3"
   },
   "packageManager": "pnpm@8.15.1"

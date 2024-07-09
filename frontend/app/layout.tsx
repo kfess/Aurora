@@ -1,6 +1,10 @@
-import type { Metadata } from "next";
+import "@mantine/dates/styles.css";
 import "@mantine/core/styles.css";
+
 import { MantineProvider, ColorSchemeScript } from "@mantine/core";
+
+import type { Metadata } from "next";
+
 import { theme } from "@/theme";
 
 export const metadata: Metadata = {
