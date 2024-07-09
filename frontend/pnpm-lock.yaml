@@ -164,7 +164,7 @@ devDependencies:
     specifier: ^29.2.0
     version: 29.2.0(@babel/core@7.24.7)(jest@29.7.0)(typescript@5.5.3)
   typescript:
-    specifier: ^5
+    specifier: ^5.5.3
     version: 5.5.3
 
 packages:

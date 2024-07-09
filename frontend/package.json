@@ -8,11 +8,15 @@
     "dev": "next dev",
     "jest": "jest",
     "jest:watch": "jest --watch",
-    "lint": "next lint",
+    "lint": "next lint && stylelint '**/*.{css,scss}' --cache",
     "lint-staged": "lint-staged",
     "prepare": "cd .. && husky frontend/.husky",
-    "prettier": "prettier --write . --ignore-path .gitignore",
-    "start": "next start"
+    "prettier:check": "prettier --check \"**/*.{ts,tsx}\"",
+    "prettier:write": "prettier --write \"**/*.{ts,tsx}\"",
+    "start": "next start",
+    "stylelint": "stylelint '**/*.{css,scss}' --cache",
+    "test": "npm run prettier:check && npm run lint && npm run typecheck && npm run jest",
+    "typecheck": "tsc --noEmit"
   },
   "husky": {
     "hooks": {
@@ -85,7 +89,7 @@
     "stylelint": "^16.6.1",
     "stylelint-config-standard-scss": "^13.1.0",
     "ts-jest": "^29.2.0",
-    "typescript": "^5"
+    "typescript": "^5.5.3"
   },
   "packageManager": "pnpm@8.15.1"
 }
