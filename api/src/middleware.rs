@@ -10,8 +10,6 @@ use crate::config::CONFIG;
 use crate::utils::cookie;
 use crate::utils::jwt;
 
-const AUTHORIZED_ROUTES: [&str; 1] = ["/api/auth/user"];
-
 type LocalBoxFuture<T> = Pin<Box<dyn Future<Output = T> + 'static>>;
 
 pub struct AuthMiddleware;
@@ -50,7 +48,7 @@ where
     forward_ready!(service);
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        if AUTHORIZED_ROUTES.iter().any(|&route| route == req.path()) {
+        if req.path().starts_with("/api/internal") {
             match cookie::get_cookie_value(&req.request(), &CONFIG.jwt_cookie_key) {
                 Some(jwt) => {
                     if jwt::decode_jwt(&CONFIG.jwt_secret, &jwt).is_ok() {
