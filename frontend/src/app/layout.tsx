@@ -5,6 +5,7 @@ import { MantineProvider, ColorSchemeScript } from "@mantine/core";
 
 import type { Metadata } from "next";
 
+import { ReactQueryClientProvider } from "@/context/ReactQueryClientProvider";
 import { theme } from "@/theme";
 
 export const metadata: Metadata = {
@@ -23,7 +24,9 @@ export default function RootLayout({
         <ColorSchemeScript />
       </head>
       <body>
-        <MantineProvider theme={theme}>{children}</MantineProvider>
+        <ReactQueryClientProvider>
+          <MantineProvider theme={theme}>{children}</MantineProvider>
+        </ReactQueryClientProvider>
       </body>
     </html>
   );
