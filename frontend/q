@@ -1,0 +1,13 @@
+                 List of relations
+ Schema |       Name       | Type  |     Owner     
+--------+------------------+-------+---------------
+ public | _sqlx_migrations | table | postgres_user
+ public | algorithms       | table | postgres_user
+ public | contest_problems | table | postgres_user
+ public | contests         | table | postgres_user
+ public | internal_users   | table | postgres_user
+ public | problem_tags     | table | postgres_user
+ public | problems         | table | postgres_user
+ public | technical_tags   | table | postgres_user
+(8 rows)
+

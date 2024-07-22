@@ -1,5 +1,7 @@
+import "@mantine/core/styles.layer.css";
+import "mantine-datatable/styles.layer.css";
 import "@mantine/dates/styles.css";
-import "@mantine/core/styles.css";
+import "./layout.css";
 
 import { MantineProvider, ColorSchemeScript } from "@mantine/core";
 
@@ -21,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <ColorSchemeScript />
+        <ColorSchemeScript defaultColorScheme="auto" />
       </head>
       <body>
         <ReactQueryClientProvider>

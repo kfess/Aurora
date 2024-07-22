@@ -10,7 +10,6 @@ DROP TABLE IF EXISTS problems;
 
 DROP TABLE IF EXISTS contests;
 
-
 CREATE TABLE
     problems (
         id VARCHAR(255) PRIMARY KEY,
@@ -21,6 +20,7 @@ CREATE TABLE
         platform VARCHAR(255) NOT NULL,
         raw_point DOUBLE PRECISION,
         difficulty DOUBLE PRECISION,
+        category VARCHAR(255) NOT NULL,
         is_experimental BOOLEAN,
         url VARCHAR(255) NOT NULL,
         solver_count INT,
@@ -86,8 +86,7 @@ CREATE TABLE
         codeforces_username VARCHAR(255),
         yukicoder_username VARCHAR(255),
         aoj_username VARCHAR(255),
-        yoj_username VARCHAR(255),
+        yoj_username VARCHAR(255)
     );
-
 
 -- Index

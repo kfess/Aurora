@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use actix_cors::Cors;
+use actix_web::http::header;
 use actix_web::{App, HttpServer};
 use api::infra::oidc::client::OidcClient;
 use api::middleware::AuthMiddleware;
@@ -36,20 +38,31 @@ async fn main() -> Result<()> {
     let contest_usecase = Arc::new(FetchContestUsecase::new(pool.clone()));
     let contest_controller = Arc::new(ContestController::new(contest_usecase.clone()));
 
-    let oidc_client = OidcClient::new().await?;
-    let auth_usecase = Arc::new(AuthUsecase::new(oidc_client, pool.clone()));
-    let auth_controller = Arc::new(AuthController::new(auth_usecase.clone()));
+    // let oidc_client = OidcClient::new().await?;
+    // let auth_usecase = Arc::new(AuthUsecase::new(oidc_client, pool.clone()));
+    // let auth_controller = Arc::new(AuthController::new(auth_usecase.clone()));
 
     HttpServer::new(move || {
-        App::new().wrap(AuthMiddleware).configure(|cfg| {
-            config_services(
-                cfg,
-                sub_controller.clone(),
-                problem_controller.clone(),
-                contest_controller.clone(),
-                auth_controller.clone(),
+        App::new()
+            .wrap(AuthMiddleware)
+            .wrap(
+                Cors::default()
+                    .allowed_origin("http://localhost:3000")
+                    .allowed_methods(vec!["GET", "POST"])
+                    .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT])
+                    .allowed_header(header::CONTENT_TYPE)
+                    .supports_credentials()
+                    .max_age(3600),
             )
-        })
+            .configure(|cfg| {
+                config_services(
+                    cfg,
+                    sub_controller.clone(),
+                    problem_controller.clone(),
+                    contest_controller.clone(),
+                    // auth_controller.clone(),
+                )
+            })
     })
     .bind((CONFIG.host.as_str(), CONFIG.port))?
     .run()

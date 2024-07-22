@@ -1,0 +1,9 @@
+@layer mantine, mantine-datatable;
+
+a {
+  text-decoration: none;
+  color: var(--mantine-color-dark-8);
+  &:hover {
+    color: var(--mantine-color-indigo-6);
+  }
+}

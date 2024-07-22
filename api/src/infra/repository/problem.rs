@@ -20,7 +20,7 @@ impl Default for Condition<'_> {
             algo_id: None,
             technical_tag_id: None,
             page: None,
-            page_size: None,
+            page_size: Some(500),
             from_difficulty: None,
             to_difficulty: None,
         }
@@ -52,6 +52,7 @@ impl ProblemRepository for PgPool {
                     problems.platform,
                     problems.raw_point,
                     problems.difficulty,
+                    problems.category,
                     problems.is_experimental,
                     problems.url,
                     problems.solver_count,
@@ -136,6 +137,7 @@ impl ProblemRepository for PgPool {
                     problems.platform,
                     problems.raw_point,
                     problems.difficulty,
+                    problem.category,
                     problems.is_experimental,
                     problems.url,
                     problems.solver_count,
@@ -170,7 +172,7 @@ impl ProblemRepository for PgPool {
                 r#"
                 INSERT INTO problems (
                     id, contest_id, problem_index, name, title, platform,
-                    raw_point, difficulty, is_experimental, url,
+                    raw_point, difficulty, category, is_experimental, url,
                     solver_count, submissions, success_rate
                 )
                 "#,
@@ -186,6 +188,7 @@ impl ProblemRepository for PgPool {
                     .push_bind(String::from(problem.platform))
                     .push_bind(problem.raw_point)
                     .push_bind(problem.difficulty)
+                    .push_bind(&problem.category)
                     .push_bind(problem.is_experimental)
                     .push_bind(&problem.url)
                     .push_bind(problem.solver_count)
@@ -203,6 +206,7 @@ impl ProblemRepository for PgPool {
                     platform = EXCLUDED.platform,
                     raw_point = EXCLUDED.raw_point,
                     difficulty = EXCLUDED.difficulty,
+                    category = EXCLUDED.category,
                     is_experimental = EXCLUDED.is_experimental,
                     url = EXCLUDED.url,
                     solver_count = EXCLUDED.solver_count,

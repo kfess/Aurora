@@ -1,14 +1,15 @@
-import { Platform } from "@/features/types";
+import { Category, Platform } from "@/features/types";
 
-export type ProblemType = {
+export type ProblemType<P extends Platform> = {
   id: string;
   contestId: string;
   index: string;
   name: string;
   title: string;
-  platform: Platform;
+  platform: P;
   raw_point: number | null;
   difficulty: number | null;
+  category: Category<P>;
   isExperimental: boolean | null;
   tags: string[];
   url: string;

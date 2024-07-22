@@ -62,6 +62,7 @@ fn build_problem(category_name: &str, index: usize, raw_problem: &str) -> Proble
         raw_problem.to_case(Case::Title).as_str(),
         Option::None,
         Option::None,
+        String::from(classify_contest(category_name)),
         Option::None,
         vec![],
         &format!("https://judge.yosupo.jp/problem/{raw_problem}"),

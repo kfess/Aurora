@@ -122,7 +122,7 @@ impl ApiClient {
             let raw_problem = self.fetch_yuki_problem(problem_id).await?;
             let (contest, idx) = p_to_c_map.get(&problem_id).cloned().unwrap();
 
-            let problem = build_problem(&contest.id, &idx, &raw_problem);
+            let problem = build_problem(&contest.id, &idx, &raw_problem, &contest);
             problems.push(problem.clone());
 
             c_to_p_id_map
@@ -154,6 +154,7 @@ fn build_problem(
     contest_id: &u64,
     index: &str,
     problem: &YukicoderProblemWithStatistics,
+    contest: &YukicoderContest,
 ) -> Problem {
     Problem::reconstruct(
         Platform::Yukicoder,
@@ -162,6 +163,7 @@ fn build_problem(
         &problem.title,
         Some(problem.level),
         Option::None,
+        String::from(classify_contest(contest)),
         Option::None,
         problem.tags.split(",").map(|s| s.to_string()).collect(),
         &format!("https://yukicoder.me/problems/no/{}", problem.no),

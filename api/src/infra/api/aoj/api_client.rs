@@ -243,6 +243,7 @@ fn build_problem_from_vol(vol_id: u16, p: &AojProblem) -> Problem {
         &p.name,
         None,
         None,
+        format!("Volume {}", vol_id),
         None,
         vec![],
         &format!(
@@ -268,6 +269,7 @@ fn build_problen_from_cl(
         &p.name,
         None,
         None,
+        String::from(large_cl),
         None,
         vec![],
         &format!(

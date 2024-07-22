@@ -69,6 +69,14 @@ pub struct Problem {
     /// - Aoj
     pub platform: Platform,
 
+    /// A classification of the contest based on its characteristics.
+    /// - Atcoder: "ABC", "ARC", "AGC", "AHC", "PAST", "JOI", "JAG", "ABCLike", "ARCLike", "AGCLike", "Marathon", "OtherSponsored", "Other"
+    /// - Codeforces: "Div. 1", "Div. 2", "Div. 3", "Div. 4", "Educational", "Global Round", "Kotlin", "ICPC", "Q#", "Other"
+    /// - Yukicoder: "Normal", "Other", "Not-classified"
+    /// - Aoj: "Volume 1", "Volume 2", "JOI", etc.
+    /// - YOJ: "Graph", "Math", "String", "DataStructure", "Geometry", etc.
+    pub category: String,
+
     /// The raw point of the problem.
     /// The value of this field is dependent on the platform.
     /// The common value is as follows:
@@ -125,6 +133,7 @@ impl Problem {
         name: String,
         title: String,
         platform: Platform,
+        category: String,
         raw_point: Option<f64>,
         difficulty: Option<f64>,
         is_experimental: Option<bool>,
@@ -141,6 +150,7 @@ impl Problem {
             name,
             title,
             platform,
+            category,
             raw_point,
             difficulty,
             is_experimental,
@@ -159,6 +169,7 @@ impl Problem {
         raw_name: &str,
         raw_point: Option<f64>,
         difficulty: Option<f64>,
+        category: String,
         is_experimental: Option<bool>,
         raw_tags: Vec<String>,
         raw_url: &str,
@@ -188,6 +199,7 @@ impl Problem {
             name: String::from(raw_name),
             title,
             platform,
+            category,
             raw_point,
             difficulty,
             is_experimental,
@@ -206,6 +218,7 @@ impl Problem {
         name: String,
         title: String,
         platform: Platform,
+        category: String,
         raw_point: Option<f64>,
         difficulty: Option<f64>,
         is_experimental: Option<bool>,
@@ -222,6 +235,7 @@ impl Problem {
             name,
             title,
             platform,
+            category,
             raw_point,
             difficulty,
             is_experimental,

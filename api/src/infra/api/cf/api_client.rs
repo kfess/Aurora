@@ -121,11 +121,18 @@ impl ApiClient {
             .map(|s| (s.contest_id, s.solved_count))
             .collect();
 
+        let c_id_c_map: HashMap<u64, CodeforcesContest> = raw_contests
+            .iter()
+            .map(|c| (c.id.clone(), c.clone()))
+            .collect();
+
         let mut c_to_p_map: HashMap<u64, Vec<Problem>> = HashMap::new();
 
         let mut problems: Vec<Problem> = vec![];
         raw_problems.iter().for_each(|p| {
-            let problem = build_problem(p.clone(), id_to_solved_count.clone());
+            let raw_contest = c_id_c_map.get(&p.contest_id).unwrap();
+
+            let problem = build_problem(p, raw_contest, id_to_solved_count.clone());
             c_to_p_map
                 .entry(p.contest_id)
                 .or_insert_with(Vec::new)
@@ -176,7 +183,11 @@ impl CFAPIClient for ApiClient {
     }
 }
 
-fn build_problem(problem: CodeforcesProblem, id_to_solved_count: HashMap<u64, i32>) -> Problem {
+fn build_problem(
+    problem: &CodeforcesProblem,
+    contest: &CodeforcesContest,
+    id_to_solved_count: HashMap<u64, i32>,
+) -> Problem {
     Problem::reconstruct(
         Platform::Codeforces,
         &problem.contest_id.to_string().as_str(),
@@ -184,10 +195,11 @@ fn build_problem(problem: CodeforcesProblem, id_to_solved_count: HashMap<u64, i3
         &problem.name,
         problem.points,
         problem.rating,
+        String::from(classify_contest(&contest)),
         Some(false),
         problem
             .tags
-            .into_iter()
+            .iter()
             .map(|t| t.trim().to_string())
             .collect::<Vec<String>>(),
         &format!(

@@ -81,14 +81,21 @@ impl ApiClient {
     }
 
     async fn build_atcoder_problems_contests(&self) -> Result<(Vec<Problem>, Vec<Contest>)> {
+        let raw_problems = self.fetch_atcoder_problems().await?;
+        let raw_contests = self.fetch_atcoder_contests().await?;
         let estimations = self.fetch_atcoder_estimations().await?;
 
+        let c_id_c_map: HashMap<String, AtcoderContest> = raw_contests
+            .iter()
+            .map(|c| (c.id.clone(), c.clone()))
+            .collect();
+
         let mut c_to_p_map: HashMap<String, Vec<Problem>> = HashMap::new();
-        let raw_problems = self.fetch_atcoder_problems().await?;
         let mut problems: Vec<Problem> = vec![];
         raw_problems.iter().for_each(|p| {
             let (diff, is_experimental) = clip_difficulty(estimations.get(&p.id));
-            let problem = build_problem(p, diff, is_experimental);
+            let raw_contest = c_id_c_map.get(&p.contest_id).unwrap();
+            let problem = build_problem(p, raw_contest, diff, is_experimental);
             c_to_p_map
                 .entry(p.contest_id.clone())
                 .or_insert_with(Vec::new)
@@ -96,7 +103,6 @@ impl ApiClient {
             problems.push(problem);
         });
 
-        let raw_contests = self.fetch_atcoder_contests().await?;
         let mut contests: Vec<Contest> = vec![];
         raw_contests.iter().for_each(|c| {
             let contest = build_contest(c, c_to_p_map.get(&c.id).unwrap_or(&vec![]));
@@ -161,6 +167,7 @@ fn clip_difficulty(estimation: Option<&Estimation>) -> (Option<f64>, Option<bool
 
 fn build_problem(
     p: &AtcoderProblem,
+    c: &AtcoderContest,
     difficulty: Option<f64>,
     is_experimental: Option<bool>,
 ) -> Problem {
@@ -171,11 +178,12 @@ fn build_problem(
         &p.name,
         p.point,
         difficulty,
+        String::from(classify_contest(&c)),
         is_experimental,
         vec![],
         &format!(
             "https://atcoder.jp/contests/{}/tasks/{}",
-            p.contest_id, p.problem_index
+            p.contest_id, p.id
         ),
         p.solver_count,
         None,

@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum ContestCategory {
     Atcoder(AtcoderCategory),
     Codeforces(CodeforcesCategory),
@@ -7,7 +7,7 @@ pub enum ContestCategory {
     Aoj(AojCategory),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum AtcoderCategory {
     ABC,
     ARC,
@@ -24,7 +24,7 @@ pub enum AtcoderCategory {
     Other,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum CodeforcesCategory {
     Div1AndDiv2,
     Div1,
@@ -39,13 +39,13 @@ pub enum CodeforcesCategory {
     Other,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum YukicoderCategory {
     Normal,
     Other,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum YOJCategory {
     Sample,
     DataStructure,
@@ -60,7 +60,7 @@ pub enum YOJCategory {
     Other,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum AojCategory {
     Volume0,
     Volume1,
@@ -122,11 +122,11 @@ impl From<ContestCategory> for String {
                 AtcoderCategory::Other => "Other".to_string(),
             },
             ContestCategory::Codeforces(c) => match c {
-                CodeforcesCategory::Div1AndDiv2 => "div. 1 + div. 2".to_string(),
-                CodeforcesCategory::Div1 => "div. 1".to_string(),
-                CodeforcesCategory::Div2 => "div. 2".to_string(),
-                CodeforcesCategory::Div3 => "div. 3".to_string(),
-                CodeforcesCategory::Div4 => "div. 4".to_string(),
+                CodeforcesCategory::Div1AndDiv2 => "Div.1+Div.2".to_string(),
+                CodeforcesCategory::Div1 => "Div.1".to_string(),
+                CodeforcesCategory::Div2 => "Div.2".to_string(),
+                CodeforcesCategory::Div3 => "Div.3".to_string(),
+                CodeforcesCategory::Div4 => "Div.4".to_string(),
                 CodeforcesCategory::Educational => "Educational".to_string(),
                 CodeforcesCategory::Global => "Global".to_string(),
                 CodeforcesCategory::Kotlin => "Kotlin".to_string(),
@@ -212,11 +212,11 @@ impl From<&str> for ContestCategory {
             "Marathon" => ContestCategory::Atcoder(AtcoderCategory::Marathon),
             "Other Sponsored" => ContestCategory::Atcoder(AtcoderCategory::OtherSponsored),
             "Other" => ContestCategory::Atcoder(AtcoderCategory::Other),
-            "div. 1 + div. 2" => ContestCategory::Codeforces(CodeforcesCategory::Div1AndDiv2),
-            "div. 1" => ContestCategory::Codeforces(CodeforcesCategory::Div1),
-            "div. 2" => ContestCategory::Codeforces(CodeforcesCategory::Div2),
-            "div. 3" => ContestCategory::Codeforces(CodeforcesCategory::Div3),
-            "div. 4" => ContestCategory::Codeforces(CodeforcesCategory::Div4),
+            "Div.1+Div.2" => ContestCategory::Codeforces(CodeforcesCategory::Div1AndDiv2),
+            "Div.1" => ContestCategory::Codeforces(CodeforcesCategory::Div1),
+            "Div.2" => ContestCategory::Codeforces(CodeforcesCategory::Div2),
+            "Div.3" => ContestCategory::Codeforces(CodeforcesCategory::Div3),
+            "Div.4" => ContestCategory::Codeforces(CodeforcesCategory::Div4),
             "Educational" => ContestCategory::Codeforces(CodeforcesCategory::Educational),
             "Global" => ContestCategory::Codeforces(CodeforcesCategory::Global),
             "Kotlin" => ContestCategory::Codeforces(CodeforcesCategory::Kotlin),

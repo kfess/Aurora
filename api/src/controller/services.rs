@@ -13,7 +13,7 @@ pub fn config_services(
     submission_controller: Arc<SubmissionController<impl FetchSubmission + 'static>>,
     problem_controller: Arc<ProblemController<impl FetchProblem + 'static>>,
     contest_controller: Arc<ContestController<impl FetchContest + 'static>>,
-    auth_controller: Arc<AuthController<impl Authenticate + 'static>>,
+    // auth_controller: Arc<AuthController<impl Authenticate + 'static>>,
 ) {
     cfg.service(
         web::scope("/api")
@@ -35,11 +35,11 @@ pub fn config_services(
                     }
                 })),
             )
-            .service(web::resource("/problems").route(web::get().to({
+            .service(web::resource("/problems/{platform}").route(web::get().to({
                 let controller = Arc::clone(&problem_controller);
-                move || {
+                move |path, query| {
                     let controller = Arc::clone(&controller);
-                    async move { controller.problems().await }
+                    async move { controller.problems(path, query).await }
                 }
             })))
             .service(web::resource("/contests").route(web::get().to({
@@ -48,31 +48,30 @@ pub fn config_services(
                     let controller = Arc::clone(&controller);
                     async move { controller.contests().await }
                 }
-            })))
-            .service(
-                web::resource("/auth/login/{provider}").route(web::get().to({
-                    let controller = Arc::clone(&auth_controller);
-                    move |provider| {
-                        let controller = Arc::clone(&controller);
-                        async move { controller.get_authenticate_url(provider).await }
-                    }
-                })),
-            )
-            .service(
-                web::resource("/auth/callback/{provider}").route(web::get().to({
-                    let controller = Arc::clone(&auth_controller);
-                    move |path, query| {
-                        let controller = Arc::clone(&controller);
-                        async move { controller.handle_callback(path, query).await }
-                    }
-                })),
-            )
-            .service(web::resource("/auth/user/{user_id}").route(web::get().to({
-                let controller = Arc::clone(&auth_controller);
-                move |path| {
-                    let controller = Arc::clone(&controller);
-                    async move { controller.user_info(path).await }
-                }
-            }))),
+            }))), // .service(
+                  //     web::resource("/auth/login/{provider}").route(web::get().to({
+                  //         let controller = Arc::clone(&auth_controller);
+                  //         move |provider| {
+                  //             let controller = Arc::clone(&controller);
+                  //             async move { controller.get_authenticate_url(provider).await }
+                  //         }
+                  //     })),
+                  // )
+                  // .service(
+                  //     web::resource("/auth/callback/{provider}").route(web::get().to({
+                  //         let controller = Arc::clone(&auth_controller);
+                  //         move |path, query| {
+                  //             let controller = Arc::clone(&controller);
+                  //             async move { controller.handle_callback(path, query).await }
+                  //         }
+                  //     })),
+                  // )
+                  // .service(web::resource("/auth/user/{user_id}").route(web::get().to({
+                  //     let controller = Arc::clone(&auth_controller);
+                  //     move |path| {
+                  //         let controller = Arc::clone(&controller);
+                  //         async move { controller.user_info(path).await }
+                  //     }
+                  // }))),
     );
 }
