@@ -46,6 +46,7 @@ impl ProblemRepository for PgPool {
                 SELECT
                     problems.id,
                     problems.contest_id,
+                    problems.contest_name,
                     problems.problem_index AS index,
                     problems.name,
                     problems.title,
@@ -131,6 +132,7 @@ impl ProblemRepository for PgPool {
                 SELECT
                     problems.id,
                     problems.contest_id,
+                    problems.contest_name,
                     problems.problem_index AS index,
                     problems.name,
                     problems.title,
@@ -171,7 +173,7 @@ impl ProblemRepository for PgPool {
             let mut query_builder: QueryBuilder<Postgres> = sqlx::QueryBuilder::new(
                 r#"
                 INSERT INTO problems (
-                    id, contest_id, problem_index, name, title, platform,
+                    id, contest_id, contest_name, problem_index, name, title, platform,
                     raw_point, difficulty, category, is_experimental, url,
                     solver_count, submissions, success_rate
                 )
@@ -182,6 +184,7 @@ impl ProblemRepository for PgPool {
                 separated
                     .push_bind(&problem.id)
                     .push_bind(&problem.contest_id)
+                    .push_bind(&problem.contest_name)
                     .push_bind(problem.index.as_str())
                     .push_bind(&problem.name)
                     .push_bind(&problem.title)
@@ -200,6 +203,7 @@ impl ProblemRepository for PgPool {
                 r#"
                 ON CONFLICT (id) DO UPDATE SET
                     contest_id = EXCLUDED.contest_id,
+                    contest_name = EXCLUDED.contest_name,
                     problem_index = EXCLUDED.problem_index,
                     name = EXCLUDED.name,
                     title = EXCLUDED.title,

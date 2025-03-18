@@ -239,6 +239,7 @@ fn build_problem_from_vol(vol_id: u16, p: &AojProblem) -> Problem {
     Problem::reconstruct(
         Platform::Aoj,
         &format!("volume_{}", vol_id),
+        &String::from("not-implemented"),
         &p.id,
         &p.name,
         None,
@@ -265,6 +266,7 @@ fn build_problen_from_cl(
     Problem::reconstruct(
         Platform::Aoj,
         &format!("{large_cl}_{middle_cl}_{year}_{idx}"),
+        &String::from("not-implemented"),
         &p.id,
         &p.name,
         None,

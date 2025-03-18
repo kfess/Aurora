@@ -10,10 +10,13 @@ DROP TABLE IF EXISTS problems;
 
 DROP TABLE IF EXISTS contests;
 
+DROP TABLE IF EXISTS internal_users;
+
 CREATE TABLE
     problems (
         id VARCHAR(255) PRIMARY KEY,
         contest_id VARCHAR(255) NOT NULL,
+        contest_name VARCHAR(255) NOT NULL,
         problem_index VARCHAR(255) NOT NULL,
         name VARCHAR(255) NOT NULL,
         title VARCHAR(255) NOT NULL,

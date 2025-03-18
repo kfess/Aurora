@@ -7,6 +7,7 @@ use crate::{
         problem::Problem,
         submission::Submission,
         vo::{
+            category::{AtcoderCategory, ContestCategory},
             phase::Phase,
             platform::{self, Platform},
             verdict::Verdict,
@@ -171,14 +172,24 @@ fn build_problem(
     difficulty: Option<f64>,
     is_experimental: Option<bool>,
 ) -> Problem {
+    let category = classify_contest(&c);
+
+    // AHC problems do not have points.
+    // Atcoder API (kenkoooo) provides wrong points for AHC problems.
+    let point = match category {
+        ContestCategory::Atcoder(AtcoderCategory::AHC) => None,
+        _ => p.point,
+    };
+
     Problem::reconstruct(
         platform::Platform::Atcoder,
         &p.contest_id,
+        &c.title,
         &p.problem_index,
         &p.name,
-        p.point,
+        point,
         difficulty,
-        String::from(classify_contest(&c)),
+        String::from(category),
         is_experimental,
         vec![],
         &format!(

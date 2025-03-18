@@ -3,11 +3,12 @@ import { Category, Platform } from "@/features/types";
 export type ProblemType<P extends Platform> = {
   id: string;
   contestId: string;
+  contestName: string;
   index: string;
   name: string;
   title: string;
   platform: P;
-  raw_point: number | null;
+  rawPoint: number | null;
   difficulty: number | null;
   category: Category<P>;
   isExperimental: boolean | null;

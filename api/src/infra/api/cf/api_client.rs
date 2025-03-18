@@ -116,9 +116,9 @@ impl ApiClient {
         let (raw_problems, raw_stats) = self.fetch_cf_problems().await?;
         let raw_contests = self.fetch_cf_past_contests().await?;
 
-        let id_to_solved_count: HashMap<u64, i32> = raw_stats
+        let id_to_solved_count: HashMap<(u64, String), i32> = raw_stats
             .iter()
-            .map(|s| (s.contest_id, s.solved_count))
+            .map(|s| ((s.contest_id, String::from(&s.index)), s.solved_count))
             .collect();
 
         let c_id_c_map: HashMap<u64, CodeforcesContest> = raw_contests
@@ -186,11 +186,12 @@ impl CFAPIClient for ApiClient {
 fn build_problem(
     problem: &CodeforcesProblem,
     contest: &CodeforcesContest,
-    id_to_solved_count: HashMap<u64, i32>,
+    id_to_solved_count: HashMap<(u64, String), i32>,
 ) -> Problem {
     Problem::reconstruct(
         Platform::Codeforces,
         &problem.contest_id.to_string().as_str(),
+        &contest.name.to_string(),
         &problem.index,
         &problem.name,
         problem.points,
@@ -206,7 +207,9 @@ fn build_problem(
             "https://codeforces.com/contest/{}/problem/{}",
             problem.contest_id, problem.index
         ),
-        id_to_solved_count.get(&problem.contest_id).cloned(),
+        id_to_solved_count
+            .get(&(problem.contest_id, problem.index.clone()))
+            .cloned(),
         None,
     )
 }

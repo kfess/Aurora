@@ -27,6 +27,14 @@ pub struct Problem {
     /// - Aoj: <volume_id> (e.g., 1) or <large_cl>_<middle_cl> (e.g., JOI_Prelim)
     pub contest_id: String,
 
+    /// The official name of the contest as it appears on the platform.
+    /// - Atcoder: "AtCoder Beginner Contest 001", "AtCoder Regular Contest 001", ...
+    /// - Codeforces: "Codeforces Round #1", "Codeforces Round #2", ...
+    /// - Yukicoder: "Yukicoder Contest 1", "Yukicoder Contest 2", ...
+    /// - Aoj: "Volume 1", "Volume 2", "22nd Japanese Olympiad in Informatics, Preliminary Round 1-1", ...
+    /// - YOJ: "Graph", "Math", ...
+    pub contest_name: String,
+
     /// The index of the problem within the contest.
     ///
     /// The value of this field is dependent on the platform.
@@ -129,6 +137,7 @@ impl Problem {
     pub fn new(
         id: String,
         contest_id: String,
+        contest_name: String,
         index: String,
         name: String,
         title: String,
@@ -146,6 +155,7 @@ impl Problem {
         Self {
             id,
             contest_id,
+            contest_name,
             index,
             name,
             title,
@@ -165,6 +175,7 @@ impl Problem {
     pub fn reconstruct(
         platform: Platform,
         raw_contest_id: &str,
+        raw_contest_name: &str,
         raw_index: &str,
         raw_name: &str,
         raw_point: Option<f64>,
@@ -195,6 +206,7 @@ impl Problem {
         Self {
             id,
             contest_id: format!("{}_{}", String::from(platform), raw_contest_id),
+            contest_name: String::from(raw_contest_name),
             index: String::from(raw_index),
             name: String::from(raw_name),
             title,
@@ -214,6 +226,7 @@ impl Problem {
     pub fn reconstruct_from_db(
         id: String,
         contest_id: String,
+        contest_name: String,
         index: String,
         name: String,
         title: String,
@@ -231,6 +244,7 @@ impl Problem {
         Self {
             id,
             contest_id,
+            contest_name,
             index,
             name,
             title,

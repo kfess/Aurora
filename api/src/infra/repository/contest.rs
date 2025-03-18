@@ -138,6 +138,7 @@ impl ContestRepository for PgPool {
                 let problem = Problem::reconstruct_from_db(
                     problem_id,
                     row.get("problems.contest_id"),
+                    row.get("problem.contest_name"),
                     row.get("problems.index"),
                     row.get("problems.name"),
                     row.get("problems.title"),

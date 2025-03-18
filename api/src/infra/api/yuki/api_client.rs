@@ -159,6 +159,7 @@ fn build_problem(
     Problem::reconstruct(
         Platform::Yukicoder,
         contest_id.to_string().as_str(),
+        &contest.name,
         index,
         &problem.title,
         Some(problem.level),

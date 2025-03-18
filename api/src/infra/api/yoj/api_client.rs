@@ -58,6 +58,7 @@ fn build_problem(category_name: &str, index: usize, raw_problem: &str) -> Proble
     Problem::reconstruct(
         Platform::YOJ,
         &category_name,
+        &category_name,
         &num_to_alphabet(index),
         raw_problem.to_case(Case::Title).as_str(),
         Option::None,

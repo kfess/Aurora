@@ -4,6 +4,7 @@ import { Text } from "@mantine/core";
 import { DataTable, DataTableColumn } from "mantine-datatable";
 import { useState, useEffect, useRef } from "react";
 
+import { ContestExternalLink } from "@/features/problems/components/ContestExternalLink";
 import { ProblemExternalLink } from "@/features/problems/components/ProblemExternalLink";
 import { ProblemType } from "@/features/problems/types";
 import { Category, Platform } from "@/features/types";
@@ -42,7 +43,19 @@ export const ProblemTable = ({
   };
 
   const columns: DataTableColumn<ProblemType<Platform>>[] = [
-    { accessor: "platform", sortable: true },
+    {
+      accessor: "contestName",
+      title: "Contest",
+      sortable: true,
+      render: (record: ProblemType<Platform>) => {
+        return (
+          <ContestExternalLink
+            problemUrl={record.url}
+            contestName={record.contestName}
+          />
+        );
+      },
+    },
     {
       accessor: "title",
       title: "Title",
@@ -63,18 +76,32 @@ export const ProblemTable = ({
       },
     },
     {
-      accessor: "raw_point",
+      accessor: "rawPoint",
       title: "Point",
       sortable: true,
       render: (record: ProblemType<Platform>) => {
         return (
-          <Text size="sm" c={record.raw_point === null ? "dimmed" : undefined}>
-            {record.raw_point ?? "-"}
+          <Text size="sm" c={record.rawPoint === null ? "dimmed" : undefined}>
+            {record.rawPoint ?? "-"}
           </Text>
         );
       },
     },
-    { accessor: "contest ID", sortable: false },
+    {
+      accessor: "solverCount",
+      title: "Solvers",
+      sortable: true,
+      render: (record: ProblemType<Platform>) => {
+        return (
+          <Text
+            size="sm"
+            c={record.solverCount === null ? "dimmed" : undefined}
+          >
+            {record.solverCount ?? "-"}
+          </Text>
+        );
+      },
+    },
   ];
 
   return (

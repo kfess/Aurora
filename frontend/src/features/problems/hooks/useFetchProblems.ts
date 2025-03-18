@@ -4,15 +4,17 @@ import { useCallback } from "react";
 
 import { ProblemType } from "@/features/problems/types";
 import { Platform, platformDetails } from "@/features/types";
+import { convertToCamelCase } from "@/utils/case";
 
 export const fetchProblems = async (
   platform: Platform,
 ): Promise<ProblemType<Platform>[]> => {
-  const response = await axios.get<ProblemType<Platform>[]>(
+  const response = await axios.get(
     `http://localhost:8080/api/problems/${platformDetails[platform].abbr}?page_size=10000`,
   );
 
-  return response.data;
+  const problems = convertToCamelCase(response.data);
+  return problems;
 };
 
 export const useFetchProblems = (platform: Platform) => {
